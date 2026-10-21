@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- Generated from ~/Downloads/xSting_rm-x53_sim_v1020.step by scripts/build_urdf.py. Masses are density estimates; joint limits are placeholders. -->
 <!-- Axis convention: every movable joint uses axis="0 0 1" (joint frame +z = physical axis). -->
-<robot name="xsting">
+<robot name="xsting" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <link name="base_footprint">
   </link>
   <link name="base_link">
@@ -323,4 +323,61 @@
     <axis xyz="0 0 1"/>
     <limit effort="1.5" velocity="6.0"/>
   </joint>
+
+
+  <xacro:arg name="use_mock_hardware" default="true"/>
+
+  <ros2_control name="XStingSystem" type="system">
+    <hardware>
+      <xacro:if value="$(arg use_mock_hardware)">
+        <plugin>mock_components/GenericSystem</plugin>
+      </xacro:if>
+      <xacro:unless value="$(arg use_mock_hardware)">
+        <plugin>xsting_manipulation_hardware/XStingManipulationSystemHardware</plugin>
+        <param name="opencr_id">200</param>
+        <param name="opencr_usb_port">/dev/ttyACM0</param>
+        <param name="opencr_baud_rate">1000000</param>
+        <param name="dxl_joints_profile_acceleration">10</param>
+        <param name="dxl_joints_profile_velocity">10</param>
+        <param name="dxl_gripper_profile_acceleration">1</param>
+        <param name="dxl_gripper_profile_velocity">1</param>
+      </xacro:unless>
+    </hardware>
+
+    <joint name="joint1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint4">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint5">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint6">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint7">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
 </robot>
