@@ -13,6 +13,60 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(dynamixel_sdk REQUIRED)
 
+# 라이브러리 만들기
+#   - 플러그인은 실행 파일이 아니라 controller_manager가 실행 중에 불러오는 "공유 라이브러리"
+#   - 경로는 cmakelists 기준
+add_library(${PROJECT_NAME} SHARED
+  src/dynamixel_sdk_wrapper.cpp
+  src/opencr.cpp
+  src/xsting_manipulation_system.cpp
+)
+
+# C++ 표준 지정
+#   - Lyrical 최소 요구사항이 몇인지
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+
+
+# 헤더 경로 지정
+#   - 빌드할 때와 설치된 뒤의 include 경로가 다름
+#   - 키워드: generator expression, BUILD_INTERFACE / INSTALL_INTERFACE
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+# 의존 라이브러리 연결
+#   - 위 find_package로 찾은 패키지 중 ament_cmake를 뺀 5개
+#   - 이름 형식: 패키지::타깃 (예: rclcpp::rclcpp)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  dynamixel_sdk::dynamixel_sdk
+  hardware_interface::hardware_interface
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  rclcpp_lifecycle::rclcpp_lifecycle
+)
+
+
+# 플러그인 등록
+#   - "이 xml은 hardware_interface의 플러그인 목록"이라고 알리는 함수 한 줄
+pluginlib_export_plugin_description_file(hardware_interface xsting_manipulation_hardware.xml)
+
+# 설치 규칙
+#   - 무엇을 설치해야 하나? (헤더 폴더, 라이브러리)
+#   - 라이브러리 설치에는 EXPORT 이름을 붙여야 ament export에서 쓸 수 있음
+install(
+  DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -24,5 +78,17 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# TODO 7: 다른 패키지가 이 라이브러리를 쓸 수 있게 내보내기
+#   - TODO 6의 EXPORT 이름과 의존 패키지 목록을 ament에 알려주기 (함수 2개)
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+# target link libs
+ament_export_dependencies(
+  dynamixel_sdk
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+)
 
 ament_package()

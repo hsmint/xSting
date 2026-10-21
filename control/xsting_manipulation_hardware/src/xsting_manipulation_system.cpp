@@ -14,10 +14,9 @@
 //
 // Author: Darby Lim
 
-#include <array>
-#include <chrono>
 #include <cmath>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
@@ -29,14 +28,35 @@ namespace robotis
 {
 namespace xsting_manipulation_hardware
 {
-auto logger = rclcpp::get_logger("turtlebot3_manipulation");
-hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_init(
-  const hardware_interface::HardwareInfo & info)
+namespace
+{
+auto logger = rclcpp::get_logger("xsting_manipulation");
+
+std::string position_of(const std::string & joint)
+{
+  return joint + "/" + hardware_interface::HW_IF_POSITION;
+}
+
+std::string velocity_of(const std::string & joint)
+{
+  return joint + "/" + hardware_interface::HW_IF_VELOCITY;
+}
+}  // namespace
+
+hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_init(
+  const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   if (
-    hardware_interface::SystemInterface::on_init(info) !=
+    hardware_interface::SystemInterface::on_init(params) !=
     hardware_interface::CallbackReturn::SUCCESS)
   {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  if (info_.joints.size() < opencr::joints::NUM + 1) {
+    RCLCPP_FATAL(
+      logger, "Expected %u arm joints and a gripper joint, got %zu joints",
+      opencr::joints::NUM, info_.joints.size());
     return hardware_interface::CallbackReturn::ERROR;
   }
 
@@ -45,15 +65,8 @@ hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_init
   baud_rate_ = stoi(info_.hardware_parameters["opencr_baud_rate"]);
   heartbeat_ = 0;
 
-  joints_acceleration_[0] = stoi(info_.hardware_parameters["dxl_joints_profile_acceleration"]);
-  joints_acceleration_[1] = stoi(info_.hardware_parameters["dxl_joints_profile_acceleration"]);
-  joints_acceleration_[2] = stoi(info_.hardware_parameters["dxl_joints_profile_acceleration"]);
-  joints_acceleration_[3] = stoi(info_.hardware_parameters["dxl_joints_profile_acceleration"]);
-
-  joints_velocity_[0] = stoi(info_.hardware_parameters["dxl_joints_profile_velocity"]);
-  joints_velocity_[1] = stoi(info_.hardware_parameters["dxl_joints_profile_velocity"]);
-  joints_velocity_[2] = stoi(info_.hardware_parameters["dxl_joints_profile_velocity"]);
-  joints_velocity_[3] = stoi(info_.hardware_parameters["dxl_joints_profile_velocity"]);
+  joints_acceleration_.fill(stoi(info_.hardware_parameters["dxl_joints_profile_acceleration"]));
+  joints_velocity_.fill(stoi(info_.hardware_parameters["dxl_joints_profile_velocity"]));
 
   gripper_acceleration_ = stoi(info_.hardware_parameters["dxl_gripper_profile_acceleration"]);
   gripper_velocity_ = stoi(info_.hardware_parameters["dxl_gripper_profile_velocity"]);
@@ -83,109 +96,19 @@ hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_init
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  if (opencr_->is_connect_wheels()) {
-    RCLCPP_INFO(logger, "Connected wheels");
-  } else {
-    RCLCPP_FATAL(logger, "Not connected wheels");
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
-  dxl_wheel_commands_.resize(2, 0.0);
-
-  dxl_joint_commands_.resize(4, 0.0);
-  dxl_joint_commands_[0] = 0.0;
-  dxl_joint_commands_[1] = -1.05;
-  dxl_joint_commands_[2] = 1.05;
-  dxl_joint_commands_[3] = 0.0;
-
-  dxl_gripper_commands_.resize(2, 0.0);
-
-  dxl_positions_.resize(info_.joints.size(), 0.0);
-  dxl_velocities_.resize(info_.joints.size(), 0.0);
-
-  opencr_sensor_states_.resize(
-    info_.sensors[0].state_interfaces.size() +
-    info_.sensors[1].state_interfaces.size(),
-    0.0);
-
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-std::vector<hardware_interface::StateInterface>
-TurtleBot3ManipulationSystemHardware::export_state_interfaces()
-{
-  std::vector<hardware_interface::StateInterface> state_interfaces;
-  for (uint8_t i = 0; i < info_.joints.size(); i++) {
-    state_interfaces.emplace_back(
-      hardware_interface::StateInterface(
-        info_.joints[i].name, hardware_interface::HW_IF_POSITION, &dxl_positions_[i]));
-    state_interfaces.emplace_back(
-      hardware_interface::StateInterface(
-        info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &dxl_velocities_[i]));
-  }
-
-  for (uint8_t i = 0, k = 0; i < info_.sensors.size(); i++) {
-    for (uint8_t j = 0; j < info_.sensors[i].state_interfaces.size(); j++) {
-      state_interfaces.emplace_back(
-        hardware_interface::StateInterface(
-          info_.sensors[i].name,
-          info_.sensors[i].state_interfaces[j].name,
-          &opencr_sensor_states_[k++])
-      );
-    }
-  }
-
-  return state_interfaces;
-}
-
-std::vector<hardware_interface::CommandInterface>
-TurtleBot3ManipulationSystemHardware::export_command_interfaces()
-{
-  std::vector<hardware_interface::CommandInterface> command_interfaces;
-
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &dxl_wheel_commands_[0]));
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[1].name, hardware_interface::HW_IF_VELOCITY, &dxl_wheel_commands_[1]));
-
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[2].name, hardware_interface::HW_IF_POSITION, &dxl_joint_commands_[0]));
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[3].name, hardware_interface::HW_IF_POSITION, &dxl_joint_commands_[1]));
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[4].name, hardware_interface::HW_IF_POSITION, &dxl_joint_commands_[2]));
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[5].name, hardware_interface::HW_IF_POSITION, &dxl_joint_commands_[3]));
-
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[6].name, hardware_interface::HW_IF_POSITION, &dxl_gripper_commands_[0]));
-  command_interfaces.emplace_back(
-    hardware_interface::CommandInterface(
-      info_.joints[7].name, hardware_interface::HW_IF_POSITION, &dxl_gripper_commands_[1]));
-
-  return command_interfaces;
-}
-
-hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_activate(
+hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(logger, "Ready for start");
+
+  // The firmware ignores goal writes until it sees the heartbeat change.
   opencr_->send_heartbeat(heartbeat_++);
 
-  RCLCPP_INFO(logger, "Wait for IMU re-calibration");
-  opencr_->imu_recalibration();
-  rclcpp::sleep_for(std::chrono::seconds(3));
-
-  RCLCPP_INFO(logger, "Joints and wheels torque ON");
+  RCLCPP_INFO(logger, "Joints torque ON");
   opencr_->joints_torque(opencr::ON);
-  opencr_->wheels_torque(opencr::ON);
 
   opencr_->send_heartbeat(heartbeat_++);
   RCLCPP_INFO(logger, "Set profile acceleration and velocity to joints");
@@ -199,13 +122,24 @@ hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_acti
   RCLCPP_INFO(logger, "Set goal current value to gripper");
   opencr_->set_gripper_current();
 
+  // Start commands at the present pose so the arm does not jump on activation.
+  if (opencr_->read_all()) {
+    const auto positions = opencr_->get_joint_positions();
+    for (size_t i = 0; i < opencr::joints::NUM; i++) {
+      set_command(position_of(info_.joints[i].name), positions[i]);
+    }
+    set_command(position_of(info_.joints[GRIPPER_INDEX].name), opencr_->get_gripper_position());
+  } else {
+    RCLCPP_WARN(logger, "Failed to read present pose before activation");
+  }
+
   RCLCPP_INFO(logger, "System starting");
   opencr_->play_sound(opencr::SOUND::ASCENDING);
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_deactivate(
+hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(logger, "Ready for stop");
@@ -216,84 +150,83 @@ hardware_interface::CallbackReturn TurtleBot3ManipulationSystemHardware::on_deac
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type TurtleBot3ManipulationSystemHardware::read(
+hardware_interface::return_type XStingManipulationSystemHardware::read(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  RCLCPP_INFO_ONCE(logger, "Start to read wheels and manipulator states");
+  RCLCPP_INFO_ONCE(logger, "Start to read manipulator states");
 
   if (opencr_->read_all() == false) {
     RCLCPP_WARN(logger, "Failed to read all control table");
   }
 
-  dxl_positions_[0] = opencr_->get_wheel_positions()[opencr::wheels::LEFT];
-  dxl_velocities_[0] = opencr_->get_wheel_velocities()[opencr::wheels::LEFT];
+  const auto positions = opencr_->get_joint_positions();
+  const auto velocities = opencr_->get_joint_velocities();
+  for (size_t i = 0; i < opencr::joints::NUM; i++) {
+    set_state(position_of(info_.joints[i].name), positions[i]);
+    if (has_state(velocity_of(info_.joints[i].name))) {
+      set_state(velocity_of(info_.joints[i].name), velocities[i]);
+    }
+  }
 
-  dxl_positions_[1] = opencr_->get_wheel_positions()[opencr::wheels::RIGHT];
-  dxl_velocities_[1] = opencr_->get_wheel_velocities()[opencr::wheels::RIGHT];
+  // Any joints after the gripper (e.g. a mirrored finger) report the gripper state.
+  const double gripper_position = opencr_->get_gripper_position();
+  const double gripper_velocity = opencr_->get_gripper_velocity();
+  for (size_t i = GRIPPER_INDEX; i < info_.joints.size(); i++) {
+    set_state(position_of(info_.joints[i].name), gripper_position);
+    if (has_state(velocity_of(info_.joints[i].name))) {
+      set_state(velocity_of(info_.joints[i].name), gripper_velocity);
+    }
+  }
 
-  dxl_positions_[2] = opencr_->get_joint_positions()[opencr::joints::JOINT1];
-  dxl_velocities_[2] = opencr_->get_joint_velocities()[opencr::joints::JOINT1];
-
-  dxl_positions_[3] = opencr_->get_joint_positions()[opencr::joints::JOINT2];
-  dxl_velocities_[3] = opencr_->get_joint_velocities()[opencr::joints::JOINT2];
-
-  dxl_positions_[4] = opencr_->get_joint_positions()[opencr::joints::JOINT3];
-  dxl_velocities_[4] = opencr_->get_joint_velocities()[opencr::joints::JOINT3];
-
-  dxl_positions_[5] = opencr_->get_joint_positions()[opencr::joints::JOINT4];
-  dxl_velocities_[5] = opencr_->get_joint_velocities()[opencr::joints::JOINT4];
-
-  dxl_positions_[6] = opencr_->get_gripper_position();
-  dxl_velocities_[6] = opencr_->get_gripper_velocity();
-
-  dxl_positions_[7] = opencr_->get_gripper_position();
-  dxl_velocities_[7] = opencr_->get_gripper_velocity();
-
-  opencr_sensor_states_[0] = opencr_->get_imu().orientation.x;
-  opencr_sensor_states_[1] = opencr_->get_imu().orientation.y;
-  opencr_sensor_states_[2] = opencr_->get_imu().orientation.z;
-  opencr_sensor_states_[3] = opencr_->get_imu().orientation.w;
-
-  opencr_sensor_states_[4] = opencr_->get_imu().angular_velocity.x;
-  opencr_sensor_states_[5] = opencr_->get_imu().angular_velocity.y;
-  opencr_sensor_states_[6] = opencr_->get_imu().angular_velocity.z;
-
-  opencr_sensor_states_[7] = opencr_->get_imu().linear_acceleration.x;
-  opencr_sensor_states_[8] = opencr_->get_imu().linear_acceleration.y;
-  opencr_sensor_states_[9] = opencr_->get_imu().linear_acceleration.z;
-
-  opencr_sensor_states_[10] = opencr_->get_battery().voltage;
-  opencr_sensor_states_[11] = opencr_->get_battery().percentage;
-  opencr_sensor_states_[12] = opencr_->get_battery().design_capacity;
-  opencr_sensor_states_[13] = opencr_->get_battery().present;
+  const auto battery = opencr_->get_battery();
+  for (const auto & sensor : info_.sensors) {
+    for (const auto & state : sensor.state_interfaces) {
+      const std::string name = sensor.name + "/" + state.name;
+      if (state.name == "voltage") {
+        set_state(name, battery.voltage);
+      } else if (state.name == "percentage") {
+        set_state(name, battery.percentage);
+      } else if (state.name == "design_capacity") {
+        set_state(name, battery.design_capacity);
+      } else if (state.name == "present") {
+        set_state(name, battery.present ? 1.0 : 0.0);
+      }
+    }
+  }
 
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type TurtleBot3ManipulationSystemHardware::write(
+hardware_interface::return_type XStingManipulationSystemHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  RCLCPP_INFO_ONCE(logger, "Start to write wheels and manipulator commands");
+  RCLCPP_INFO_ONCE(logger, "Start to write manipulator commands");
   opencr_->send_heartbeat(heartbeat_++);
 
-  if (opencr_->set_wheel_velocities(dxl_wheel_commands_) == false) {
-    RCLCPP_ERROR(logger, "Can't control wheels");
+  std::vector<double> joint_commands(opencr::joints::NUM);
+  for (size_t i = 0; i < opencr::joints::NUM; i++) {
+    joint_commands[i] = get_command<double>(position_of(info_.joints[i].name));
+    if (std::isnan(joint_commands[i])) {
+      return hardware_interface::return_type::OK;
+    }
   }
 
-  if (opencr_->set_joint_positions(dxl_joint_commands_) == false) {
+  if (opencr_->set_joint_positions(joint_commands) == false) {
     RCLCPP_ERROR(logger, "Can't control joints");
   }
 
-  if (opencr_->set_gripper_position(dxl_gripper_commands_[0]) == false) {
+  const double gripper_command =
+    get_command<double>(position_of(info_.joints[GRIPPER_INDEX].name));
+  if (!std::isnan(gripper_command) && opencr_->set_gripper_position(gripper_command) == false) {
     RCLCPP_ERROR(logger, "Can't control gripper");
   }
 
   return hardware_interface::return_type::OK;
 }
-}  // namespace turtlebot3_manipulation_hardware
+}  // namespace xsting_manipulation_hardware
 }  // namespace robotis
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
-  robotis::xsting_manipulation_hardware::TurtleBot3ManipulationSystemHardware,
+  robotis::xsting_manipulation_hardware::XStingManipulationSystemHardware,
   hardware_interface::SystemInterface)
