@@ -158,7 +158,7 @@ inline double convert_tick_to_radian(
 
 std::array<double, opencr::joints::NUM> OpenCR::get_joint_positions()
 {
-  std::array<double, opencr::joints::NUM> positions = {0.0, 0.0, 0.0, 0.0, 0., 0., 0.};
+  std::array<double, opencr::joints::NUM> positions = {};
 
   std::array<int32_t, opencr::joints::NUM> ticks = {
     get_data<int32_t>(
@@ -179,9 +179,9 @@ std::array<double, opencr::joints::NUM> OpenCR::get_joint_positions()
     get_data<int32_t>(
       opencr_control_table.present_position_joint_6.address,
       opencr_control_table.present_position_joint_6.length),
-    get_data<int32_t>(
-      opencr_control_table.present_position_joint_7.address,
-      opencr_control_table.present_position_joint_7.length),
+    // get_data<int32_t>(
+    //   opencr_control_table.present_position_joint_7.address,
+    //   opencr_control_table.present_position_joint_7.length),
   };
 
   for (uint8_t i = 0; i < ticks.size(); i++) {
@@ -198,7 +198,7 @@ std::array<double, opencr::joints::NUM> OpenCR::get_joint_positions()
 
 std::array<double, opencr::joints::NUM> OpenCR::get_joint_velocities()
 {
-  std::array<double, opencr::joints::NUM> velocities = {0.0, 0.0, 0.0, 0.0};
+  std::array<double, opencr::joints::NUM> velocities = {};
 
   std::array<int32_t, opencr::joints::NUM> rpms = {
     get_data<int32_t>(
@@ -219,9 +219,9 @@ std::array<double, opencr::joints::NUM> OpenCR::get_joint_velocities()
     get_data<int32_t>(
       opencr_control_table.present_velocity_joint_6.address,
       opencr_control_table.present_velocity_joint_6.length),
-    get_data<int32_t>(
-      opencr_control_table.present_velocity_joint_7.address,
-      opencr_control_table.present_velocity_joint_7.length),
+    // get_data<int32_t>(
+    //   opencr_control_table.present_velocity_joint_7.address,
+    //   opencr_control_table.present_velocity_joint_7.length),
   };
 
   for (uint8_t i = 0; i < rpms.size(); i++) {
@@ -281,7 +281,7 @@ bool OpenCR::set_joints_variables(
 
 bool OpenCR::set_joint_positions(const std::vector<double> & radians)
 {
-  std::array<int32_t, opencr::joints::NUM> tick = {0, 0, 0, 0, 0, 0, 0};
+  std::array<int32_t, opencr::joints::NUM> tick = {};
   for (uint8_t i = 0; i < radians.size() && i < tick.size(); i++) {
     tick[i] = convert_radian_to_tick(
       radians[i],
@@ -374,19 +374,19 @@ bool OpenCR::set_gripper_profile_velocity(const int32_t & velocity)
 
 bool OpenCR::set_init_pose()
 {
-  std::vector<double> init_pose = {0.0, 0., 0., 0., 0., 0., 0.,};
+  std::vector<double> init_pose(opencr::joints::NUM, 0.0);
   return set_joint_positions(init_pose);
 }
 
 bool OpenCR::set_zero_pose()
 {
-  std::vector<double> zero_pose = {0.0, 0.0, 0.0, 0.0, 0., 0., 0.,};
+  std::vector<double> zero_pose(opencr::joints::NUM, 0.0);
   return set_joint_positions(zero_pose);
 }
 
 bool OpenCR::set_home_pose()
 {
-  std::vector<double> home_pose = {0.0, 0., 0., 0., 0., 0., 0.,};
+  std::vector<double> home_pose(opencr::joints::NUM, 0.0);
   return set_joint_positions(home_pose);
 }
 

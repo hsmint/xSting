@@ -44,9 +44,9 @@ enum Joint : uint8_t
   JOINT4,
   JOINT5,
   JOINT6,
-  JOINT7
+  // JOINT7
 };
-constexpr uint8_t NUM = 7;
+constexpr uint8_t NUM = 6;//7;
 
 // Present velocity unit of X-series DYNAMIXEL is 0.229 rpm.
 constexpr double RPM_TO_RAD_PER_SEC = 0.229 * 0.104719755;
