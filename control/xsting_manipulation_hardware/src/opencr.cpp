@@ -34,12 +34,17 @@ OpenCR::OpenCR(const uint8_t & id)
 OpenCR::~OpenCR()
 {
   send_heartbeat(1);
+  read_all();
 
-  std::array<int32_t, opencr::joints::NUM> tick = {2048, 750, 3040, 2500};
+  std::array<int32_t, opencr::joints::NUM> tick{};
+  for (uint8_t i = 0; i < tick.size(); i++) {
+    tick[i] = get_data<int32_t>(
+      opencr_control_table.present_position_joint_1.address + i * 4, 4);
+  }
   set_joints_variables(opencr_control_table.goal_position_joint_1.address, tick);
   dxl_sdk_wrapper_->write_byte(opencr_control_table.goal_position_write_joints.address, 1);
 
-  init_gripper();
+  // init_gripper(); // 그리퍼를 0 위치로
 
   sleep(3);
 
@@ -85,7 +90,7 @@ opencr::Battery OpenCR::get_battery()
     opencr_control_table.battery_percentage.address,
     opencr_control_table.battery_percentage.length);
 
-  battery.voltage <= 7.0 ? battery.present = false : battery.present = true;
+  battery.voltage <= 10.5 ? battery.present = false : battery.present = true;
 
   return battery;
 }
@@ -208,6 +213,15 @@ std::array<double, opencr::joints::NUM> OpenCR::get_joint_velocities()
     get_data<int32_t>(
       opencr_control_table.present_velocity_joint_4.address,
       opencr_control_table.present_velocity_joint_4.length),
+    get_data<int32_t>(
+      opencr_control_table.present_velocity_joint_5.address,
+      opencr_control_table.present_velocity_joint_5.length),
+    get_data<int32_t>(
+      opencr_control_table.present_velocity_joint_6.address,
+      opencr_control_table.present_velocity_joint_6.length),
+    get_data<int32_t>(
+      opencr_control_table.present_velocity_joint_7.address,
+      opencr_control_table.present_velocity_joint_7.length),
   };
 
   for (uint8_t i = 0; i < rpms.size(); i++) {
@@ -251,8 +265,8 @@ bool OpenCR::set_joints_variables(
   const std::array<int32_t, opencr::joints::NUM> & variables)
 {
   union Data {
-    int32_t dword[opencr::joints::NUM]; // 32 * 7 바이트
-    uint8_t byte[opencr::joints::NUM * 4]; // 8 * 4 * 7 바이트
+    int32_t dword[opencr::joints::NUM]; // 28 * 7 bytes
+    uint8_t byte[opencr::joints::NUM * 4]; // 7 * 4 * 7 bytes
   } data;
 
   for (uint8_t i = 0; i < variables.size(); i++) {
@@ -360,19 +374,19 @@ bool OpenCR::set_gripper_profile_velocity(const int32_t & velocity)
 
 bool OpenCR::set_init_pose()
 {
-  std::vector<double> init_pose = {0.0, -1.57, 1.37, 0.26};
+  std::vector<double> init_pose = {0.0, 0., 0., 0., 0., 0., 0.,};
   return set_joint_positions(init_pose);
 }
 
 bool OpenCR::set_zero_pose()
 {
-  std::vector<double> zero_pose = {0.0, 0.0, 0.0, 0.0};
+  std::vector<double> zero_pose = {0.0, 0.0, 0.0, 0.0, 0., 0., 0.,};
   return set_joint_positions(zero_pose);
 }
 
 bool OpenCR::set_home_pose()
 {
-  std::vector<double> home_pose = {0.0, -1.05, 0.35, 0.70};
+  std::vector<double> home_pose = {0.0, 0., 0., 0., 0., 0., 0.,};
   return set_joint_positions(home_pose);
 }
 
