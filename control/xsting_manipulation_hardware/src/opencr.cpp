@@ -257,7 +257,7 @@ double OpenCR::get_gripper_velocity()
     opencr_control_table.present_velocity_gripper.address,
     opencr_control_table.present_velocity_gripper.length);
 
-  return velocity = rpm * opencr::joints::RPM_TO_RAD_PER_SEC;
+  return velocity = rpm * opencr::joints::RPM_TO_RAD_PER_SEC * opencr::grippers::RAD_TO_METER;
 }
 
 bool OpenCR::set_joints_variables(
