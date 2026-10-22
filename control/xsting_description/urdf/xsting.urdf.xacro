@@ -335,12 +335,12 @@
       <xacro:unless value="$(arg use_mock_hardware)">
         <plugin>xsting_manipulation_hardware/XStingManipulationSystemHardware</plugin>
         <param name="opencr_id">200</param>
-        <param name="opencr_usb_port">/dev/ttyACM0</param>
+        <param name="opencr_usb_port">/dev/serial/by-id/usb-ROBOTIS_OpenCR_Virtual_ComPort_in_FS_Mode_FFFFFFFEFFFF-if00</param>
         <param name="opencr_baud_rate">1000000</param>
         <param name="dxl_joints_profile_acceleration">10</param>
         <param name="dxl_joints_profile_velocity">10</param>
         <param name="dxl_gripper_profile_acceleration">1</param>
-        <param name="dxl_gripper_profile_velocity">1</param>
+        <param name="dxl_gripper_profile_velocity">10</param>
       </xacro:unless>
     </hardware>
 
