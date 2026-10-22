@@ -1,0 +1,14 @@
+# NAVIGATE / PICK_STORE / PICK_PLACE / STORE_PLACE
+string task_id
+string operation
+string object_id
+string slot_id
+geometry_msgs/PoseStamped destination
+builtin_interfaces/Duration timeout
+---
+bool success
+uint16 error_code
+string message
+---
+string phase
+float32 progress

@@ -63,3 +63,8 @@ Temporary Items
 build
 install
 log
+
+__pycache__/
+.pytest_cache/
+*.pyc
+training/runs/

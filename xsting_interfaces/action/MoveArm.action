@@ -1,0 +1,18 @@
+string task_id
+uint64 generation
+string skill
+string object_id
+string slot_id
+geometry_msgs/PoseStamped target_pose
+builtin_interfaces/Duration timeout
+---
+bool success
+uint16 error_code
+string message
+bool object_attached
+string final_object_location
+---
+string phase
+float32 progress
+float32 position_error
+string model_version

@@ -1,0 +1,8 @@
+# Local deployment path. Loading must be refused during an active arm action.
+string model_path
+string manifest_path
+string expected_version
+---
+bool success
+string active_version
+string message
