@@ -11,7 +11,6 @@ enum JointMotorLocation{
   JOINT_4,
   JOINT_5,
   JOINT_6,
-  JOINT_7,
   GRIPPER,
   JOINT_MOTOR_NUM_MAX
 };

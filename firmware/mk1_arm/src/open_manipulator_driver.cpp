@@ -7,12 +7,11 @@ const int OPENCR_DXL_DIR_PIN = 84; // Arduino pin number of DYNAMIXEL direction 
 
 /* DYNAMIXEL Information for controlling motors and  */
 const uint8_t DXL_MOTOR_ID_JOINT_1 = 16; 
-const uint8_t DXL_MOTOR_ID_JOINT_2 = 10; 
-const uint8_t DXL_MOTOR_ID_JOINT_3 = 11; 
-const uint8_t DXL_MOTOR_ID_JOINT_4 = 12;
-const uint8_t DXL_MOTOR_ID_JOINT_5 = 13;
-const uint8_t DXL_MOTOR_ID_JOINT_6 = 14;
-const uint8_t DXL_MOTOR_ID_JOINT_7 = 17;
+const uint8_t DXL_MOTOR_ID_JOINT_2 = 11; 
+const uint8_t DXL_MOTOR_ID_JOINT_3 = 12; 
+const uint8_t DXL_MOTOR_ID_JOINT_4 = 13;
+const uint8_t DXL_MOTOR_ID_JOINT_5 = 14;
+const uint8_t DXL_MOTOR_ID_JOINT_6 = 17;
 const uint8_t DXL_MOTOR_ID_GRIPPER = 15; 
 
 static ParamForSyncReadInst_t sync_read_param;
@@ -33,7 +32,6 @@ OpenManipulatorDriver::OpenManipulatorDriver()
   motor_id_[JOINT_4] = DXL_MOTOR_ID_JOINT_4;
   motor_id_[JOINT_5] = DXL_MOTOR_ID_JOINT_5;
   motor_id_[JOINT_6] = DXL_MOTOR_ID_JOINT_6;
-  motor_id_[JOINT_7] = DXL_MOTOR_ID_JOINT_7;
   
   motor_id_[GRIPPER] = DXL_MOTOR_ID_GRIPPER;
 }
