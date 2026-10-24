@@ -10,7 +10,7 @@ def generate_launch_description():
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
 
     pkg_share = FindPackageShare("xsting_description")
-    urdf_file = PathJoinSubstitution([pkg_share, "urdf", "xsting.urdf.xacro"])
+    urdf_file = PathJoinSubstitution([pkg_share, "urdf", "mk1_xsting.urdf.xacro"])
     controllers_file = PathJoinSubstitution([pkg_share, "config", "controllers.yaml"])
 
     # Keep the URDF a plain string so ROS does not try to parse it as YAML.
