@@ -3,7 +3,7 @@
 <package format="3">
   <name>xsting_description</name>
   <version>0.1.0</version>
-  <description>XSting MK1 매니퓰레이터의 URDF/Xacro 로봇 설명과 ros2_control 설정</description>
+  <description>XSting MK1 매니퓰레이터의 URDF/Xacro 모델, ros2_control 컨트롤러 설정, 그리고 이를 실행하는 launch 파일(mock 하드웨어 지원)</description>
   <maintainer email="spalstlr321@naver.com">minsikim-42</maintainer>
   <license>MIT</license>
 
