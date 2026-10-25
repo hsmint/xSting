@@ -2,8 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>xsting_manipulation_hardware</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>0.1.0</version>
+  <description>XSting MK1 매니퓰레이터용 ros2_control 하드웨어 인터페이스 플러그인 (Dynamixel SDK로 OpenCR 펌웨어와 통신해 6축 관절과 그리퍼 제어)</description>
   <maintainer email="spalstlr321@naver.com">minsikim-42</maintainer>
   <license>Apache-2.0</license>
 
