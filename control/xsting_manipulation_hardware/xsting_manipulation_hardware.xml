@@ -1,0 +1,7 @@
+<library path="xsting_manipulation_hardware">
+  <class name="xsting_manipulation_hardware/XStingManipulationSystemHardware"
+         type="xsting_manipulation_hardware::XStingManipulationSystemHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>xSting manipulator hardware interface</description>
+  </class>
+</library>
