@@ -38,10 +38,10 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster"],
     )
 
-    forward_controller_spawner = Node(
+    controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["forward_position_controller", "--param-file", controllers_file],
+        arguments=["position_controller", "--param-file", controllers_file],
     )
 
     return LaunchDescription([
@@ -49,5 +49,5 @@ def generate_launch_description():
         robot_state_publisher,
         control_node,
         joint_state_broadcaster_spawner,
-        forward_controller_spawner,
+        controller_spawner,
     ])
