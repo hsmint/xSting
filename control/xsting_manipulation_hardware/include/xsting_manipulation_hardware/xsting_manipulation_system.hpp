@@ -14,7 +14,7 @@
 
 namespace xsting_manipulation_hardware
 {
-// Expects info_.joints ordered as joint1..joint7 followed by the gripper joint.
+// Expects info_.joints ordered as joint1..joint6 followed by the gripper joint.
 class XStingManipulationSystemHardware : public hardware_interface::SystemInterface
 {
 public:

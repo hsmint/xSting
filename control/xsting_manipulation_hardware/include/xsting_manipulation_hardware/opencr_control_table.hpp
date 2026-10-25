@@ -48,7 +48,6 @@ const struct ControlTable
   ControlItem goal_position_joint_4 = {72, 4};
   ControlItem goal_position_joint_5 = {76, 4};
   ControlItem goal_position_joint_6 = {80, 4};
-  // ControlItem goal_position_joint_7 = {84, 4};
   ControlItem goal_position_gripper = {88, 4};
   ControlItem goal_position_write_joints = {92, 1};
   ControlItem goal_position_write_gripper = {93, 1};
@@ -60,7 +59,6 @@ const struct ControlTable
   ControlItem present_position_joint_4 = {107, 4};
   ControlItem present_position_joint_5 = {111, 4};
   ControlItem present_position_joint_6 = {115, 4};
-  // ControlItem present_position_joint_7 = {119, 4};
   ControlItem present_position_gripper = {123, 4};
 
   ControlItem present_velocity_joint_1 = {127, 4};
@@ -69,7 +67,6 @@ const struct ControlTable
   ControlItem present_velocity_joint_4 = {139, 4};
   ControlItem present_velocity_joint_5 = {143, 4};
   ControlItem present_velocity_joint_6 = {147, 4};
-  // ControlItem present_velocity_joint_7 = {151, 4};
   ControlItem present_velocity_gripper = {155, 4};
 
   ControlItem present_current_joint_1 = {159, 2};
@@ -78,7 +75,6 @@ const struct ControlTable
   ControlItem present_current_joint_4 = {165, 2};
   ControlItem present_current_joint_5 = {167, 2};
   ControlItem present_current_joint_6 = {169, 2};
-  // ControlItem present_current_joint_7 = {171, 2};
   ControlItem present_current_gripper = {173, 2};
 
   ControlItem profile_acceleration_joint_1 = {175, 4};
@@ -87,7 +83,6 @@ const struct ControlTable
   ControlItem profile_acceleration_joint_4 = {187, 4};
   ControlItem profile_acceleration_joint_5 = {191, 4};
   ControlItem profile_acceleration_joint_6 = {195, 4};
-  // ControlItem profile_acceleration_joint_7 = {199, 4};
   ControlItem profile_acceleration_gripper = {203, 4};
   ControlItem profile_acceleration_write_joints = {207, 1};
   ControlItem profile_acceleration_write_gripper = {208, 1};
@@ -99,7 +94,6 @@ const struct ControlTable
   ControlItem profile_velocity_joint_4 = {222, 4};
   ControlItem profile_velocity_joint_5 = {226, 4};
   ControlItem profile_velocity_joint_6 = {230, 4};
-  // ControlItem profile_velocity_joint_7 = {234, 4};
   ControlItem profile_velocity_gripper = {238, 4};
   ControlItem profile_velocity_write_joints = {242, 1};
   ControlItem profile_velocity_write_gripper = {243, 1};
@@ -111,7 +105,6 @@ const struct ControlTable
   ControlItem goal_current_joint_4 = {251, 2};
   ControlItem goal_current_joint_5 = {253, 2};
   ControlItem goal_current_joint_6 = {255, 2};
-  // ControlItem goal_current_joint_7 = {257, 2};
   ControlItem goal_current_gripper = {259, 2};
   ControlItem goal_current_write_joints = {261, 1};
   ControlItem goal_current_write_gripper = {262, 1};

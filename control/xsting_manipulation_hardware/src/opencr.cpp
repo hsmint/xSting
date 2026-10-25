@@ -263,8 +263,8 @@ bool OpenCR::set_joints_variables(
   const std::array<int32_t, opencr::joints::NUM> & variables)
 {
   union Data {
-    int32_t dword[opencr::joints::NUM]; // 28 * 7 bytes
-    uint8_t byte[opencr::joints::NUM * 4]; // 7 * 4 * 7 bytes
+    int32_t dword[opencr::joints::NUM]; // 6 * 32 bit
+    uint8_t byte[opencr::joints::NUM * 4]; // 6 * 4 * 8 bit
   } data;
 
   for (uint8_t i = 0; i < variables.size(); i++) {
