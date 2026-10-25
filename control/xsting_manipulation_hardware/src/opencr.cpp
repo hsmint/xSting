@@ -177,9 +177,6 @@ std::array<double, opencr::joints::NUM> OpenCR::get_joint_positions()
     get_data<int32_t>(
       opencr_control_table.present_position_joint_6.address,
       opencr_control_table.present_position_joint_6.length),
-    // get_data<int32_t>(
-    //   opencr_control_table.present_position_joint_7.address,
-    //   opencr_control_table.present_position_joint_7.length),
   };
 
   for (uint8_t i = 0; i < ticks.size(); i++) {
@@ -217,9 +214,6 @@ std::array<double, opencr::joints::NUM> OpenCR::get_joint_velocities()
     get_data<int32_t>(
       opencr_control_table.present_velocity_joint_6.address,
       opencr_control_table.present_velocity_joint_6.length),
-    // get_data<int32_t>(
-    //   opencr_control_table.present_velocity_joint_7.address,
-    //   opencr_control_table.present_velocity_joint_7.length),
   };
 
   for (uint8_t i = 0; i < rpms.size(); i++) {
