@@ -79,10 +79,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# TODO 7: 다른 패키지가 이 라이브러리를 쓸 수 있게 내보내기
-#   - TODO 6의 EXPORT 이름과 의존 패키지 목록을 ament에 알려주기 (함수 2개)
+# 다른 패키지가 이 라이브러리를 쓸 수 있게 내보내기
+#   - install의 EXPORT 이름과 의존 패키지 목록을 ament에 알려주기
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-# target link libs
+
+# # 의존 패키지 내보내기
+#   - 이 패키지를 find_package 하는 쪽에서도 아래 패키지들을 자동으로 찾게 함
+#   - 우리 공개 헤더가 include 하는 패키지는 꼭 넣어야 함 (안 넣으면 쓰는 쪽에서 헤더를 못 찾음)
+#   - 바로 위 ament_export_targets와 짝: 타깃은 저쪽이, 그 타깃의 의존성은 이쪽이 알려줌
 ament_export_dependencies(
   dynamixel_sdk
   hardware_interface
