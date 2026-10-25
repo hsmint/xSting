@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 // Mirrors ControlTableItemAddr in firmware/mk1_arm/src/xSting.cpp.
@@ -122,6 +120,5 @@ const struct ControlTable
 
 constexpr uint16_t CONTROL_TABLE_SIZE = 264;
 }  // namespace xsting_manipulation_hardware
-}  // namespace robotis
 
 #endif  // XSTING_MANIPULATION_HARDWARE__OPENCR_CONTROL_TABLE_HPP_

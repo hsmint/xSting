@@ -6,8 +6,6 @@
 #include <mutex>
 #include "dynamixel_sdk/dynamixel_sdk.h"
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 class DynamixelSDKWrapper
@@ -37,7 +35,6 @@ private:
     dynamixel::PacketHandler *packet_handler_;
     std::mutex sdk_handler_m_;
 };
-}
 }
 
 #endif

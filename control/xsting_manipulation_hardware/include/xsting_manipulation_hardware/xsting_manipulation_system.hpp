@@ -12,8 +12,6 @@
 
 #include "xsting_manipulation_hardware/opencr.hpp"
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 // Expects info_.joints ordered as joint1..joint7 followed by the gripper joint.
@@ -51,6 +49,5 @@ private:
   std::unique_ptr<OpenCR> opencr_;
 };
 }  // namespace xsting_manipulation_hardware
-}  // namespace robotis
 
 #endif  // XSTING_MANIPULATION_HARDWARE__XSTING_MANIPULATION_SYSTEM_HPP_

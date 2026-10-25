@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 namespace opencr
@@ -65,6 +63,5 @@ constexpr int16_t GOAL_CURRENT = 200;
 }  // namespace grippers
 }  // namespace opencr
 }  // namespace xsting_manipulation_hardware
-}  // namespace robotis
 
 #endif  // XSTING_MANIPULATION_HARDWARE__OPENCR_DEFINITIONS_HPP_

@@ -19,8 +19,6 @@
 #include <iostream>
 #include <string>
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 DynamixelSDKWrapper::DynamixelSDKWrapper(const uint8_t & id)
@@ -131,4 +129,3 @@ void DynamixelSDKWrapper::write_byte(const uint16_t & address, uint8_t data)
   this->write(address, 1, &data_ptr[0]);
 }
 }  // namespace turtlebot3_manipulation_hardware
-}  // namespace robotis

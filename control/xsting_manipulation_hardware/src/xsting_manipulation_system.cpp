@@ -24,8 +24,6 @@
 
 #include "xsting_manipulation_hardware/xsting_manipulation_system.hpp"
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 namespace
@@ -224,9 +222,8 @@ hardware_interface::return_type XStingManipulationSystemHardware::write(
   return hardware_interface::return_type::OK;
 }
 }  // namespace xsting_manipulation_hardware
-}  // namespace robotis
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
-  robotis::xsting_manipulation_hardware::XStingManipulationSystemHardware,
+  xsting_manipulation_hardware::XStingManipulationSystemHardware,
   hardware_interface::SystemInterface)

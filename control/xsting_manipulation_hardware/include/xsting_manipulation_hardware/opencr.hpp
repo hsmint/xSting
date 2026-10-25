@@ -13,8 +13,6 @@
 #include "xsting_manipulation_hardware/opencr_control_table.hpp"
 #include "xsting_manipulation_hardware/opencr_definitions.hpp"
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 class OpenCR
@@ -83,6 +81,5 @@ private:
   std::mutex buffer_m_;
 };
 }  // namespace xsting_manipulation_hardware
-}  // namespace robotis
 
 #endif  // XSTING_MANIPULATION_HARDWARE__OPENCR_HPP_

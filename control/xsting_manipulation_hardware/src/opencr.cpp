@@ -22,8 +22,6 @@
 #include <string>
 #include <vector>
 
-namespace robotis
-{
 namespace xsting_manipulation_hardware
 {
 OpenCR::OpenCR(const uint8_t & id)
@@ -440,4 +438,3 @@ void OpenCR::send_heartbeat(const uint8_t & count)
   this->write_byte(opencr_control_table.heartbeat.address, count);
 }
 }  // namespace turtlebot3_manipulation_hardware
-}  // namespace robotis
