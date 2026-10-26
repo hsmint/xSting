@@ -80,7 +80,6 @@ enum ControlTableItemAddr{
   ADDR_GOAL_POSITION_JOINT_4    = 72,
   ADDR_GOAL_POSITION_JOINT_5    = 76,
   ADDR_GOAL_POSITION_JOINT_6    = 80,
-  ADDR_GOAL_POSITION_JOINT_7    = 84,
   ADDR_GOAL_POSITION_GRIPPER    = 88,
   ADDR_GOAL_POSITION_WR_JOINT   = 92,
   ADDR_GOAL_POSITION_WR_GRIPPER = 93,
@@ -92,7 +91,6 @@ enum ControlTableItemAddr{
   ADDR_PRESENT_POSITION_JOINT_4 = 107,
   ADDR_PRESENT_POSITION_JOINT_5 = 111,
   ADDR_PRESENT_POSITION_JOINT_6 = 115,
-  ADDR_PRESENT_POSITION_JOINT_7 = 119,
   ADDR_PRESENT_POSITION_GRIPPER = 123,
 
   ADDR_PRESENT_VELOCITY_JOINT_1 = 127,
@@ -101,7 +99,6 @@ enum ControlTableItemAddr{
   ADDR_PRESENT_VELOCITY_JOINT_4 = 139,
   ADDR_PRESENT_VELOCITY_JOINT_5 = 143,
   ADDR_PRESENT_VELOCITY_JOINT_6 = 147,
-  ADDR_PRESENT_VELOCITY_JOINT_7 = 151,
   ADDR_PRESENT_VELOCITY_GRIPPER = 155,
 
   ADDR_PRESENT_CURRENT_JOINT_1  = 159,
@@ -110,7 +107,6 @@ enum ControlTableItemAddr{
   ADDR_PRESENT_CURRENT_JOINT_4  = 165,
   ADDR_PRESENT_CURRENT_JOINT_5  = 167,
   ADDR_PRESENT_CURRENT_JOINT_6  = 169,
-  ADDR_PRESENT_CURRENT_JOINT_7  = 171,
   ADDR_PRESENT_CURRENT_GRIPPER  = 173,
 
   ADDR_PROFILE_ACC_JOINT_1      = 175,
@@ -119,7 +115,6 @@ enum ControlTableItemAddr{
   ADDR_PROFILE_ACC_JOINT_4      = 187,
   ADDR_PROFILE_ACC_JOINT_5      = 191,
   ADDR_PROFILE_ACC_JOINT_6      = 195,
-  ADDR_PROFILE_ACC_JOINT_7      = 199,
   ADDR_PROFILE_ACC_GRIPPER      = 203,
   ADDR_PROFILE_ACC_WR_JOINT     = 207,
   ADDR_PROFILE_ACC_WR_GRIPPER   = 208,
@@ -131,7 +126,6 @@ enum ControlTableItemAddr{
   ADDR_PROFILE_VEL_JOINT_4      = 222,
   ADDR_PROFILE_VEL_JOINT_5      = 226,
   ADDR_PROFILE_VEL_JOINT_6      = 230,
-  ADDR_PROFILE_VEL_JOINT_7      = 234,
   ADDR_PROFILE_VEL_GRIPPER      = 238,
   ADDR_PROFILE_VEL_WR_JOINT     = 242,
   ADDR_PROFILE_VEL_WR_GRIPPER   = 243,
@@ -143,7 +137,6 @@ enum ControlTableItemAddr{
   ADDR_GOAL_CURRENT_JOINT_4     = 251,
   ADDR_GOAL_CURRENT_JOINT_5     = 253,
   ADDR_GOAL_CURRENT_JOINT_6     = 255,
-  ADDR_GOAL_CURRENT_JOINT_7     = 257,
   ADDR_GOAL_CURRENT_GRIPPER     = 259,
   ADDR_GOAL_CURRENT_WR_JOINT    = 261,
   ADDR_GOAL_CURRENT_WR_GRIPPER  = 262,
@@ -291,7 +284,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_GOAL_POSITION_JOINT_4, control_items.joint_goal_position.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_GOAL_POSITION_JOINT_5, control_items.joint_goal_position.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_GOAL_POSITION_JOINT_6, control_items.joint_goal_position.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_GOAL_POSITION_JOINT_7, control_items.joint_goal_position.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_GOAL_POSITION_GRIPPER, control_items.joint_goal_position.value[GRIPPER]);
   dxl_slave.addControlItem(ADDR_GOAL_POSITION_WR_JOINT, control_items.joint_goal_position_wr_joint);
   dxl_slave.addControlItem(ADDR_GOAL_POSITION_WR_GRIPPER, control_items.joint_goal_position_wr_gripper);
@@ -303,7 +295,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_PRESENT_POSITION_JOINT_4, control_items.joint_present_position.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_PRESENT_POSITION_JOINT_5, control_items.joint_present_position.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_PRESENT_POSITION_JOINT_6, control_items.joint_present_position.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_PRESENT_POSITION_JOINT_7, control_items.joint_present_position.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_PRESENT_POSITION_GRIPPER, control_items.joint_present_position.value[GRIPPER]);
 
   dxl_slave.addControlItem(ADDR_PRESENT_VELOCITY_JOINT_1, control_items.joint_present_velocity.value[JOINT_1]);
@@ -312,7 +303,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_PRESENT_VELOCITY_JOINT_4, control_items.joint_present_velocity.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_PRESENT_VELOCITY_JOINT_5, control_items.joint_present_velocity.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_PRESENT_VELOCITY_JOINT_6, control_items.joint_present_velocity.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_PRESENT_VELOCITY_JOINT_7, control_items.joint_present_velocity.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_PRESENT_VELOCITY_GRIPPER, control_items.joint_present_velocity.value[GRIPPER]);
 
   dxl_slave.addControlItem(ADDR_PRESENT_CURRENT_JOINT_1, control_items.joint_present_current.value[JOINT_1]);
@@ -321,7 +311,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_PRESENT_CURRENT_JOINT_4, control_items.joint_present_current.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_PRESENT_CURRENT_JOINT_5, control_items.joint_present_current.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_PRESENT_CURRENT_JOINT_6, control_items.joint_present_current.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_PRESENT_CURRENT_JOINT_7, control_items.joint_present_current.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_PRESENT_CURRENT_GRIPPER, control_items.joint_present_current.value[GRIPPER]);
 
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_JOINT_1, control_items.joint_profile_acc.value[JOINT_1]);
@@ -330,7 +319,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_JOINT_4, control_items.joint_profile_acc.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_JOINT_5, control_items.joint_profile_acc.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_JOINT_6, control_items.joint_profile_acc.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_PROFILE_ACC_JOINT_7, control_items.joint_profile_acc.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_GRIPPER, control_items.joint_profile_acc.value[GRIPPER]);
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_WR_JOINT, control_items.joint_profile_acc_wr_joint);
   dxl_slave.addControlItem(ADDR_PROFILE_ACC_WR_GRIPPER, control_items.joint_profile_acc_wr_gripper);
@@ -342,7 +330,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_PROFILE_VEL_JOINT_4, control_items.joint_profile_vel.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_PROFILE_VEL_JOINT_5, control_items.joint_profile_vel.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_PROFILE_VEL_JOINT_6, control_items.joint_profile_vel.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_PROFILE_VEL_JOINT_7, control_items.joint_profile_vel.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_PROFILE_VEL_GRIPPER, control_items.joint_profile_vel.value[GRIPPER]);
   dxl_slave.addControlItem(ADDR_PROFILE_VEL_WR_JOINT, control_items.joint_profile_vel_wr_joint);
   dxl_slave.addControlItem(ADDR_PROFILE_VEL_WR_GRIPPER, control_items.joint_profile_vel_wr_gripper);
@@ -354,7 +341,6 @@ void xStingCore::begin()
   dxl_slave.addControlItem(ADDR_GOAL_CURRENT_JOINT_4, control_items.joint_goal_current.value[JOINT_4]);
   dxl_slave.addControlItem(ADDR_GOAL_CURRENT_JOINT_5, control_items.joint_goal_current.value[JOINT_5]);
   dxl_slave.addControlItem(ADDR_GOAL_CURRENT_JOINT_6, control_items.joint_goal_current.value[JOINT_6]);
-  dxl_slave.addControlItem(ADDR_GOAL_CURRENT_JOINT_7, control_items.joint_goal_current.value[JOINT_7]);
   dxl_slave.addControlItem(ADDR_GOAL_CURRENT_GRIPPER, control_items.joint_goal_current.value[GRIPPER]);
   dxl_slave.addControlItem(ADDR_GOAL_CURRENT_WR_JOINT, control_items.joint_goal_current_wr_joint);
   dxl_slave.addControlItem(ADDR_GOAL_CURRENT_WR_GRIPPER, control_items.joint_goal_current_wr_gripper);

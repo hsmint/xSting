@@ -17,8 +17,7 @@
 #include "../include/sensor.h"
 
 xStingSensors::xStingSensors()
-{
-}
+{}
 
   xStingSensors::~xStingSensors()
 {}
