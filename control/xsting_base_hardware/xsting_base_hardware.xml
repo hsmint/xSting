@@ -1,0 +1,11 @@
+<!-- TODO 7: 팔 xsting_manipulation_hardware.xml과 같은 모양. 세 곳을 이 패키지 것으로 바꾸세요.
+       path            = CMake의 라이브러리 이름 (project 이름)
+       class name      = "패키지/클래스" (URDF <plugin>에 이 문자열을 그대로 씀)
+       type            = "namespace::클래스" (cpp 맨 아래 PLUGINLIB_EXPORT_CLASS 첫 줄과 같아야 함) -->
+<library path="xsting_base_hardware">
+  <class name="xsting_base_hardware/XStingBaseSystemHardware"
+         type="xsting_base_hardware::XStingBaseSystemHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>xSting wheel base hardware interface</description>
+  </class>
+</library>
