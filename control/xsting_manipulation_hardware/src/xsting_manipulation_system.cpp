@@ -120,6 +120,18 @@ hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_activate
   RCLCPP_INFO(logger, "Set goal current value to gripper");
   opencr_->set_gripper_current();
 
+  // Move to home here, because the position controller overwrites any command set in on_activate.
+  RCLCPP_INFO(logger, "Move to home pose");
+  if (!opencr_->move_to_home()) {
+    const auto positions = opencr_->get_joint_positions();
+    RCLCPP_WARN(
+      logger,
+      "Timed out before reaching home pose (joints: %.3f %.3f %.3f %.3f %.3f %.3f rad, "
+      "gripper: %.4f m)",
+      positions[0], positions[1], positions[2], positions[3], positions[4], positions[5],
+      opencr_->get_gripper_position());
+  }
+
   // Start commands at the present pose so the arm does not jump on activation.
   if (opencr_->read_all()) {
     const auto positions = opencr_->get_joint_positions();

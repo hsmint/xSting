@@ -2,6 +2,7 @@
 #define XSTING_MANIPULATION_HARDWARE__OPENCR_DEFINITIONS_HPP_
 
 #include <cstdint>
+#include <array>
 
 namespace xsting_manipulation_hardware
 {
@@ -54,12 +55,19 @@ constexpr int32_t MIN_TICK = 0;
 
 constexpr double MAX_RADIAN = 3.14159265359;
 constexpr double MIN_RADIAN = -3.14159265359;
+
+// Home pose. 2048 is the DYNAMIXEL X-series center tick, i.e. 0 rad in the URDF
+// Must match the home pose the firmware moves to in xStingCore::begin() (firmware/mk1_arm)
+constexpr std::array<int32_t, NUM> HOME_TICK = {2048, 2048, 2048, 2048, 2048, 2048};
 }  // namespace joints
 
 namespace grippers
 {
 constexpr double RAD_TO_METER = -0.015;
 constexpr int16_t GOAL_CURRENT = 200;
+
+// Gripper home, Same center tick and firmware counterpart as joints::HOME_TICK
+constexpr int32_t HOME_TICK = 2048;
 }  // namespace grippers
 }  // namespace opencr
 }  // namespace xsting_manipulation_hardware

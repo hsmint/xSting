@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 namespace xsting_manipulation_hardware
 {
@@ -31,22 +32,64 @@ OpenCR::OpenCR(const uint8_t & id)
 
 OpenCR::~OpenCR()
 {
-  send_heartbeat(1);
+  move_to_home();
+  joints_torque(opencr::OFF);
+}
+
+bool OpenCR::move_to_home()
+{
+  // Loaded joints settle a few dozen ticks short of the goal, so keep this loose.
+  constexpr int32_t HOME_TOLERANCE_TICK = 50;  // about 0.08 rad
+  constexpr int HOME_TIMEOUT_MS = 15000;  // 15s
+  constexpr int POLL_INTERVAL_MS = 100;  // 0.1s
+
   read_all();
 
-  std::array<int32_t, opencr::joints::NUM> tick{};
-  for (uint8_t i = 0; i < tick.size(); i++) {
-    tick[i] = get_data<int32_t>(
-      opencr_control_table.present_position_joint_1.address + i * 4, 4);
-  }
-  set_joints_variables(opencr_control_table.goal_position_joint_1.address, tick);
+  // The firmware ignores goal writes and holds the arm unless the heartbeat keeps changing.
+  uint8_t heartbeat = get_data<uint8_t>(
+    opencr_control_table.heartbeat.address,
+    opencr_control_table.heartbeat.length);
+  send_heartbeat(++heartbeat);
+
+  set_joints_variables(
+    opencr_control_table.goal_position_joint_1.address, opencr::joints::HOME_TICK);
   dxl_sdk_wrapper_->write_byte(opencr_control_table.goal_position_write_joints.address, 1);
 
-  // init_gripper(); // 그리퍼를 0 위치로
+  set_gripper_variables(
+    opencr_control_table.goal_position_gripper.address, opencr::grippers::HOME_TICK);
+  dxl_sdk_wrapper_->write_byte(opencr_control_table.goal_position_write_gripper.address, 1);
 
-  sleep(3);
+  for (int waited_ms = 0; waited_ms < HOME_TIMEOUT_MS; waited_ms += POLL_INTERVAL_MS) {
+    usleep(POLL_INTERVAL_MS * 1000);
+    send_heartbeat(++heartbeat);
 
-  joints_torque(opencr::OFF);
+    if (read_all() == false) {
+      continue;
+    }
+
+    bool arrived = true;
+    for (uint8_t i = 0; i < opencr::joints::NUM; i++) {
+      const int32_t present_tick = get_data<int32_t>(
+        opencr_control_table.present_position_joint_1.address + i * 4, 4);
+      if (std::abs(present_tick - opencr::joints::HOME_TICK[i]) > HOME_TOLERANCE_TICK) {
+        arrived = false;
+        break;
+      }
+    }
+
+    const int32_t gripper_tick = get_data<int32_t>(
+      opencr_control_table.present_position_gripper.address,
+      opencr_control_table.present_position_gripper.length);
+    if (std::abs(gripper_tick - opencr::grippers::HOME_TICK) > HOME_TOLERANCE_TICK) {
+      arrived = false;
+    }
+
+    if (arrived) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool OpenCR::open_port(const std::string & usb_port)
@@ -118,7 +161,7 @@ inline int32_t convert_radian_to_tick(
   const double & min_radian)
 {
   int32_t tick = 0;
-  int32_t zero_tick = (max_tick + min_tick) / 2;
+  int32_t zero_tick = 2048; // DINAMIXEL center tick, 0rad
 
   if (radian > 0) {
     tick = (radian * (max_tick - zero_tick) / max_radian) + zero_tick;

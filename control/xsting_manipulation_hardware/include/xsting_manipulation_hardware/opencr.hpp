@@ -55,6 +55,9 @@ public:
   bool set_zero_pose();
   bool set_home_pose();
 
+  // Moves the joints and gripper to HOME_TICK and blocks until they arrive or time out.
+  bool move_to_home();
+
   bool open_gripper();
   bool close_gripper();
   bool init_gripper();
