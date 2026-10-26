@@ -8,6 +8,9 @@ controller_manager:
     position_controller:
       type: forward_command_controller/ForwardCommandController
 
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
 position_controller:
   ros__parameters:
     joints:
@@ -19,3 +22,42 @@ position_controller:
       - joint6
       - joint7
     interface_name: position
+
+diff_drive_controller:
+  ros__parameters:
+    # Skid steer: two wheels per side, driven at the same speed.
+    left_wheel_names: ["wheel_front_left_joint", "wheel_rear_left_joint"]
+    right_wheel_names: ["wheel_front_right_joint", "wheel_rear_right_joint"]
+
+    # Real robot geometry from the URDF (wheel joints at y = +-0.1439, wheel cylinder radius),
+    # not the firmware's 0.160; the hardware plugin converts between the two.
+    wheel_separation: 0.2878
+    wheel_radius: 0.033
+    # Skid steer slips sideways while turning; raise above 1.0 if odom over-counts rotation on the real robot.
+    wheel_separation_multiplier: 1.0
+
+    base_frame_id: base_footprint
+    odom_frame_id: odom
+    enable_odom_tf: true
+
+    # The firmware reports accumulated ticks, so odom from wheel position is more accurate than from velocity.
+    position_feedback: true
+    open_loop: false
+
+    # Stop if /cmd_vel stops for 0.5 s. A PC-side guard, separate from the firmware heartbeat.
+    cmd_vel_timeout: 0.5
+
+    # Conservative first limits. The firmware caps linear at 0.266 m/s, and its angular cap
+    # works out to about 1.03 rad/s for this robot's wheel separation.
+    linear.x.max_velocity: 0.15
+    linear.x.min_velocity: -0.15
+    linear.x.max_acceleration: 0.5
+    angular.z.max_velocity: 1.0
+    angular.z.min_velocity: -1.0
+    angular.z.max_acceleration: 2.0
+    # This diff_drive_controller only accepts deceleration <= 0; a positive value fails configure.
+    linear.x.max_deceleration: -0.5
+    angular.z.max_deceleration: -2.0
+
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.01]
+    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.01]

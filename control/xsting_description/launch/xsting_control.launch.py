@@ -8,6 +8,7 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_mock_base = LaunchConfiguration("use_mock_base")
 
     pkg_share = FindPackageShare("xsting_description")
     urdf_file = PathJoinSubstitution([pkg_share, "urdf", "mk1_xsting.urdf.xacro"])
@@ -15,7 +16,11 @@ def generate_launch_description():
 
     # Keep the URDF a plain string so ROS does not try to parse it as YAML.
     robot_description = ParameterValue(
-        Command(["xacro ", urdf_file, " use_mock_hardware:=", use_mock_hardware]),
+        Command([
+            "xacro ", urdf_file,
+            " use_mock_hardware:=", use_mock_hardware,
+            " use_mock_base:=", use_mock_base,
+        ]),
         value_type=str,
     )
 
@@ -44,10 +49,25 @@ def generate_launch_description():
         arguments=["position_controller", "--param-file", controllers_file],
     )
 
+    # diff_drive_controller listens on ~/cmd_vel and publishes ~/odom, i.e.
+    # /diff_drive_controller/cmd_vel. teleop and Nav2 use /cmd_vel and /odom, so remap them.
+    # A remapping on ros2_control_node does not reach the controllers; it has to go through the spawner.
+    diff_drive_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "diff_drive_controller", "--param-file", controllers_file,
+            "--controller-ros-args", "-r ~/cmd_vel:=/cmd_vel",
+            "--controller-ros-args", "-r ~/odom:=/odom",
+        ],
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument("use_mock_hardware", default_value="true"),
+        DeclareLaunchArgument("use_mock_base", default_value="true"),
         robot_state_publisher,
         control_node,
         joint_state_broadcaster_spawner,
         controller_spawner,
+        diff_drive_spawner,
     ])
