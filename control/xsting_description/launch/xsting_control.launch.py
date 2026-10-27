@@ -9,6 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_mock_base = LaunchConfiguration("use_mock_base")
+    wheel_port = LaunchConfiguration("wheel_port")
 
     pkg_share = FindPackageShare("xsting_description")
     urdf_file = PathJoinSubstitution([pkg_share, "urdf", "mk1_xsting.urdf.xacro"])
@@ -20,6 +21,7 @@ def generate_launch_description():
             "xacro ", urdf_file,
             " use_mock_hardware:=", use_mock_hardware,
             " use_mock_base:=", use_mock_base,
+            " wheel_port:=", wheel_port,
         ]),
         value_type=str,
     )
@@ -75,6 +77,12 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument("use_mock_hardware", default_value="true"),
         DeclareLaunchArgument("use_mock_base", default_value="true"),
+        # Defaults to the robot PC's (jon) path, same as the URDF; pass this only on another PC.
+        DeclareLaunchArgument(
+            "wheel_port",
+            default_value="/dev/serial/by-path/platform-3610000.usb-usbv2-0:2.1:1.0",
+            description="Wheel OpenCR port, from ls -l /dev/serial/by-path/",
+        ),
         robot_state_publisher,
         control_node,
         joint_state_broadcaster_spawner,

@@ -295,33 +295,35 @@
     <child link="front_camera_link"/>
     <origin xyz="0.1579 0.01755 0.01635" rpy="0 0.523599 0"/>
   </joint>
+  <!-- Wheel velocity limit: XM430-W210 tops out at 77 rpm (8.06 rad/s) at 12 V.
+       ros2_control clamps wheel commands to this, so it must not sit below the motor's top speed. -->
   <joint name="wheel_front_left_joint" type="continuous">
     <parent link="base_link"/>
     <child link="wheel_front_left"/>
     <origin xyz="0.0639253 0.1439 0.02325" rpy="-1.5708 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit effort="1.5" velocity="6.0"/>
+    <limit effort="1.5" velocity="8.1"/>
   </joint>
   <joint name="wheel_front_right_joint" type="continuous">
     <parent link="base_link"/>
     <child link="wheel_front_right"/>
     <origin xyz="0.0639253 -0.1439 0.02325" rpy="-1.5708 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit effort="1.5" velocity="6.0"/>
+    <limit effort="1.5" velocity="8.1"/>
   </joint>
   <joint name="wheel_rear_left_joint" type="continuous">
     <parent link="base_link"/>
     <child link="wheel_rear_left"/>
     <origin xyz="-0.0560747 0.1439 0.02325" rpy="-1.5708 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit effort="1.5" velocity="6.0"/>
+    <limit effort="1.5" velocity="8.1"/>
   </joint>
   <joint name="wheel_rear_right_joint" type="continuous">
     <parent link="base_link"/>
     <child link="wheel_rear_right"/>
     <origin xyz="-0.0560747 -0.1439 0.02325" rpy="-1.5708 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit effort="1.5" velocity="6.0"/>
+    <limit effort="1.5" velocity="8.1"/>
   </joint>
 
   <!-- IMU on the wheel OpenCR. Origin is a placeholder at base_link; set it to where the board
@@ -394,6 +396,10 @@
   <!-- Defaults to mock: if any hardware fails to initialize, ros2_control stops entirely,
        so a real wheel block without the board would take the arm down too. -->
   <xacro:arg name="use_mock_base" default="true"/>
+  <!-- Both OpenCRs share the same by-id name, so the wheel board is picked by USB path.
+       The path depends on the PC and the USB socket; check with ls -l /dev/serial/by-path/.
+       The default is the robot PC (jon), wheel board on its current socket. -->
+  <xacro:arg name="wheel_port" default="/dev/serial/by-path/platform-3610000.usb-usbv2-0:2.1:1.0"/>
 
   <ros2_control name="XStingBase" type="system">
     <hardware>
@@ -405,9 +411,7 @@
       <xacro:unless value="$(arg use_mock_base)">
         <plugin>xsting_base_hardware/XStingBaseSystemHardware</plugin>
         <param name="opencr_id">201</param>
-        <!-- Both OpenCRs share the same by-id name, so the wheel board is picked by USB path.
-             Fill in from ls -l /dev/serial/by-path/ with the wheel board plugged in. -->
-        <param name="opencr_usb_port">/dev/serial/by-path/CHANGE_ME_WHEEL_OPENCR</param>
+        <param name="opencr_usb_port">$(arg wheel_port)</param>
         <param name="opencr_baud_rate">1000000</param>
       </xacro:unless>
     </hardware>

@@ -50,10 +50,12 @@ diff_drive_controller:
     # Stop if /cmd_vel stops for 0.5 s. A PC-side guard, separate from the firmware heartbeat.
     cmd_vel_timeout: 0.5
 
-    # Conservative first limits. The firmware caps linear at 0.266 m/s, and its angular cap
-    # works out to about 1.03 rad/s for this robot's wheel separation.
-    linear.x.max_velocity: 0.15
-    linear.x.min_velocity: -0.15
+    # Linear is set to the firmware cap: 0.266 m/s (77 rpm). The PC sends cmd_vel in 0.01 m/s
+    # steps, so 0.27 rounds to 27 and the firmware clamps it to 0.266; 0.26 would stop at 75 rpm.
+    # At full speed the motors have no headroom left, so a low battery or a loaded wheel can pull
+    # the robot to one side. The angular cap works out to about 1.03 rad/s for this robot.
+    linear.x.max_velocity: 0.27
+    linear.x.min_velocity: -0.27
     linear.x.max_acceleration: 0.5
     angular.z.max_velocity: 1.0
     angular.z.min_velocity: -1.0
