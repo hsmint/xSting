@@ -1,6 +1,9 @@
+#include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -21,6 +24,35 @@ std::string position_of(const std::string & joint)
 std::string velocity_of(const std::string & joint)
 {
   return joint + "/" + hardware_interface::HW_IF_VELOCITY;
+}
+
+// The arm and wheel OpenCRs share one by-id name, and by-path changes with the USB socket,
+// but each firmware answers only its own ID. So try every /dev/ttyACM* and keep the one where
+// this ID answers a ping. Returns nullptr, with usb_port untouched, if none answers.
+std::unique_ptr<OpenCRBase> find_opencr(
+  const uint8_t & id, const uint32_t & baud_rate, std::string & usb_port)
+{
+  std::vector<std::string> ports;
+  for (const auto & entry : std::filesystem::directory_iterator("/dev")) {
+    if (entry.path().filename().string().rfind("ttyACM", 0) == 0) {
+      ports.push_back(entry.path().string());
+    }
+  }
+  std::sort(ports.begin(), ports.end());
+
+  for (const auto & port : ports) {
+    auto opencr = std::make_unique<OpenCRBase>(id);
+    if (!opencr->open(port, baud_rate)) {
+      RCLCPP_WARN(logger, "Can't open %s. Is the user in the dialout group?", port.c_str());
+      continue;
+    }
+    if (opencr->ping() != 0) {
+      usb_port = port;
+      return opencr;
+    }
+    RCLCPP_INFO(logger, "%s is not OpenCR ID %u, skipping", port.c_str(), id);
+  }
+  return nullptr;
 }
 }  // namespace
 
@@ -54,12 +86,22 @@ hardware_interface::CallbackReturn XStingBaseSystemHardware::on_init(
   baud_rate_ = stoi(info_.hardware_parameters["opencr_baud_rate"]);
   heartbeat_ = 0;
 
-  opencr_ = std::make_unique<OpenCRBase>(id_);
-  if (opencr_->open(usb_port_, baud_rate_)) {
-    RCLCPP_INFO(logger, "Opened %s at %u baud", usb_port_.c_str(), baud_rate_);
+  if (usb_port_ == "auto") {
+    opencr_ = find_opencr(id_, baud_rate_, usb_port_);
+    if (opencr_ == nullptr) {
+      RCLCPP_FATAL(
+        logger, "No OpenCR ID %u answered on /dev/ttyACM*. Is the wheel board plugged in?", id_);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+    RCLCPP_INFO(logger, "Found OpenCR ID %u on %s at %u baud", id_, usb_port_.c_str(), baud_rate_);
   } else {
-    RCLCPP_FATAL(logger, "Failed to open %s at %u baud", usb_port_.c_str(), baud_rate_);
-    return hardware_interface::CallbackReturn::ERROR;
+    opencr_ = std::make_unique<OpenCRBase>(id_);
+    if (opencr_->open(usb_port_, baud_rate_)) {
+      RCLCPP_INFO(logger, "Opened %s at %u baud", usb_port_.c_str(), baud_rate_);
+    } else {
+      RCLCPP_FATAL(logger, "Failed to open %s at %u baud", usb_port_.c_str(), baud_rate_);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
   }
 
   const uint16_t model_number = opencr_->ping();
