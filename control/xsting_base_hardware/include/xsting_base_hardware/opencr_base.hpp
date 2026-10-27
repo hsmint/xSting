@@ -38,6 +38,7 @@ public:
   bool read_all();
   WheelArray get_wheel_positions();
   WheelArray get_wheel_velocities();
+  base::Imu get_imu();
 
   // The firmware only takes cmd_vel, so the wheel speeds are turned into linear x and angular z.
   bool set_wheel_velocities(const WheelArray & rad_per_sec);

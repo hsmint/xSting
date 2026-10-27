@@ -42,6 +42,17 @@ constexpr double VELOCITY_UNIT_TO_RAD_PER_SEC = 2 * M_PI / 60 * 0.229;
 // The firmware multiplies cmd_vel items by 0.01, so the PC sends value * this.
 constexpr int32_t CMD_VEL_SCALE = 100;
 }  // namespace wheels
+
+// The firmware fills these as float in SI units: rad/s and m/s^2 (see xSting_sensor.hpp).
+struct Imu
+{
+  double orientation_w;
+  double orientation_x;
+  double orientation_y;
+  double orientation_z;
+  double angular_velocity[3];     // x, y, z
+  double linear_acceleration[3];  // x, y, z
+};
 }  // namespace base
 }  // namespace xsting_base_hardware
 

@@ -131,6 +131,44 @@ hardware_interface::return_type XStingBaseSystemHardware::read(
     }
   }
 
+  // Interface names match the <sensor name="imu"> block in the URDF.
+  const auto imu = opencr_->get_imu();
+    for (const auto & sensor : info_.sensors) {
+    for (const auto & state : sensor.state_interfaces) {
+      const std::string name = sensor.name + "/" + state.name;
+      if (state.name == "orientation.w") {
+        set_state(name, imu.orientation_w);
+      } else if (state.name == "orientation.x") {
+        set_state(name, imu.orientation_x);
+      }
+      else if (state.name == "orientation.y") {
+        set_state(name, imu.orientation_y);
+      }
+      else if (state.name == "orientation.z") {
+        set_state(name, imu.orientation_z);
+      }
+      else if (state.name == "angular_velocity.x") {
+        set_state(name, imu.angular_velocity[0]);
+      }
+      else if (state.name == "angular_velocity.y") {
+        set_state(name, imu.angular_velocity[1]);
+      }
+      else if (state.name == "angular_velocity.z") {
+        set_state(name, imu.angular_velocity[2]);
+      }
+      else if (state.name == "linear_acceleration.x") {
+        set_state(name, imu.linear_acceleration[0]);
+      }
+      else if (state.name == "linear_acceleration.y") {
+        set_state(name, imu.linear_acceleration[1]);
+      }
+      else if (state.name == "linear_acceleration.z") {
+        set_state(name, imu.linear_acceleration[2]);
+      }
+    }
+  }
+  
+
   return hardware_interface::return_type::OK;
 }
 

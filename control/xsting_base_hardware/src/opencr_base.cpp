@@ -87,6 +87,25 @@ OpenCRBase::WheelArray OpenCRBase::get_wheel_velocities()
   return velocities;
 }
 
+base::Imu OpenCRBase::get_imu()
+{
+  base::Imu imu;
+
+  // The firmware stores the IMU items as float, not int32.
+  imu.orientation_w = get_data<float>(base_control_table.imu_orientation_w.address, 4);
+  imu.orientation_x = get_data<float>(base_control_table.imu_orientation_x.address, 4);
+  imu.orientation_y = get_data<float>(base_control_table.imu_orientation_y.address, 4);
+  imu.orientation_z = get_data<float>(base_control_table.imu_orientation_z.address, 4);
+
+  for (uint8_t i = 0; i < 3; i++) {
+    // x, y, z sit 4 bytes apart, like the wheels.
+    imu.angular_velocity[i] = get_data<float>(base_control_table.imu_angular_velocity_x.address + i * 4, 4);
+    imu.linear_acceleration[i] = get_data<float>(base_control_table.imu_linear_acceleration_x.address + i * 4, 4);
+  }
+
+  return imu;
+}
+
 bool OpenCRBase::write_int32(const uint16_t & address, const int32_t & value)
 {
   uint8_t data[4];

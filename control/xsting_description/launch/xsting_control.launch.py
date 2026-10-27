@@ -62,6 +62,16 @@ def generate_launch_description():
         ],
     )
 
+    # Publishes sensor_msgs/Imu on ~/imu; remapped to /imu like cmd_vel and odom above.
+    imu_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "imu_sensor_broadcaster", "--param-file", controllers_file,
+            "--controller-ros-args", "-r ~/imu:=/imu",
+        ],
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument("use_mock_hardware", default_value="true"),
         DeclareLaunchArgument("use_mock_base", default_value="true"),
@@ -70,4 +80,5 @@ def generate_launch_description():
         joint_state_broadcaster_spawner,
         controller_spawner,
         diff_drive_spawner,
+        imu_broadcaster_spawner,
     ])

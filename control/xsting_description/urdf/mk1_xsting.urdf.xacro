@@ -324,6 +324,15 @@
     <limit effort="1.5" velocity="6.0"/>
   </joint>
 
+  <!-- IMU on the wheel OpenCR. Origin is a placeholder at base_link; set it to where the board
+       is mounted, with its axes matching the board's (OpenCR silkscreen shows the IMU x/y). -->
+  <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
 
   <xacro:arg name="use_mock_hardware" default="true"/>
 
@@ -382,26 +391,22 @@
   </ros2_control>
 
 
-  <!-- TODO U1: 바퀴용 mock 스위치. 팔의 use_mock_hardware(328번째 줄)와 같은 모양, 이름은 use_mock_base.
-       기본값은 true: 하드웨어 하나라도 초기화에 실패하면 ros2_control 전체가 멈춰서,
-       바퀴 보드 없이 실제 모드로 두면 팔까지 못 써요. -->
+  <!-- Defaults to mock: if any hardware fails to initialize, ros2_control stops entirely,
+       so a real wheel block without the board would take the arm down too. -->
   <xacro:arg name="use_mock_base" default="true"/>
 
   <ros2_control name="XStingBase" type="system">
     <hardware>
       <xacro:if value="$(arg use_mock_base)">
-        <!-- TODO U2: 팔 mock과 같은 플러그인 이름 (333번째 줄) -->
         <plugin>mock_components/GenericSystem</plugin>
-        <!-- 속도 명령을 적분해 바퀴 위치를 만들어 줘요. 없으면 mock에서 odom이 0에 멈춰 있어요. -->
+        <!-- Integrates velocity commands into wheel positions; without it odom stays at 0 in mock. -->
         <param name="calculate_dynamics">true</param>
       </xacro:if>
       <xacro:unless value="$(arg use_mock_base)">
-        <!-- TODO U3: xsting_base_hardware.xml의 class name과 글자 하나까지 같게 -->
         <plugin>xsting_base_hardware/XStingBaseSystemHardware</plugin>
-        <!-- TODO U4: 바퀴 보드 ID (펌웨어 ID_DXL_SLAVE), 보드레이트는 팔과 같음 -->
         <param name="opencr_id">201</param>
-        <!-- 두 OpenCR의 by-id 이름이 같아서(팔 338번째 줄과 동일) 바퀴 보드는 by-path로 구분해요.
-             바퀴 보드를 꽂고 ls -l /dev/serial/by-path/ 로 확인해서 채우세요. -->
+        <!-- Both OpenCRs share the same by-id name, so the wheel board is picked by USB path.
+             Fill in from ls -l /dev/serial/by-path/ with the wheel board plugged in. -->
         <param name="opencr_usb_port">/dev/serial/by-path/CHANGE_ME_WHEEL_OPENCR</param>
         <param name="opencr_baud_rate">1000000</param>
       </xacro:unless>
@@ -432,6 +437,21 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
+
+    <!-- Interface names follow what imu_sensor_broadcaster expects.
+         The mock leaves sensor states at NaN, so /imu is all NaN until the real board is used. -->
+    <sensor name="imu">
+      <state_interface name="orientation.x"/>
+      <state_interface name="orientation.y"/>
+      <state_interface name="orientation.z"/>
+      <state_interface name="orientation.w"/>
+      <state_interface name="angular_velocity.x"/>
+      <state_interface name="angular_velocity.y"/>
+      <state_interface name="angular_velocity.z"/>
+      <state_interface name="linear_acceleration.x"/>
+      <state_interface name="linear_acceleration.y"/>
+      <state_interface name="linear_acceleration.z"/>
+    </sensor>
     
   </ros2_control>
 </robot>
