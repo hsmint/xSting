@@ -396,10 +396,9 @@
   <!-- Defaults to mock: if any hardware fails to initialize, ros2_control stops entirely,
        so a real wheel block without the board would take the arm down too. -->
   <xacro:arg name="use_mock_base" default="true"/>
-  <!-- Both OpenCRs share the same by-id name, so the wheel board is picked by USB path.
-       The path depends on the PC and the USB socket; check with ls -l /dev/serial/by-path/.
-       The default is the robot PC (jon), wheel board on its current socket. -->
-  <xacro:arg name="wheel_port" default="/dev/serial/by-path/platform-3610000.usb-usbv2-0:2.1:1.0"/>
+  <!-- "auto" finds the wheel board by pinging opencr_id on every /dev/ttyACM*, so any USB socket
+       and any PC works. A fixed path such as /dev/serial/by-path/... skips the search. -->
+  <xacro:arg name="wheel_port" default="auto"/>
 
   <ros2_control name="XStingBase" type="system">
     <hardware>

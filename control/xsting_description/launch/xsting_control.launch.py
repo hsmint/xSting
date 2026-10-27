@@ -77,11 +77,10 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument("use_mock_hardware", default_value="true"),
         DeclareLaunchArgument("use_mock_base", default_value="true"),
-        # Defaults to the robot PC's (jon) path, same as the URDF; pass this only on another PC.
         DeclareLaunchArgument(
             "wheel_port",
-            default_value="/dev/serial/by-path/platform-3610000.usb-usbv2-0:2.1:1.0",
-            description="Wheel OpenCR port, from ls -l /dev/serial/by-path/",
+            default_value="auto",
+            description="Wheel OpenCR port; 'auto' searches /dev/ttyACM* for the board's ID",
         ),
         robot_state_publisher,
         control_node,
