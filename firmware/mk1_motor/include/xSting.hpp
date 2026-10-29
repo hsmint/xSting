@@ -22,6 +22,9 @@ const uint8_t FIRMWARE_VER = 5;
 const uint32_t MODEL_INFO = 3;
 const uint32_t INTERVAL_MS_TO_CONTROL_MOTOR = 20;
 const uint32_t INTERVAL_MS_TO_UPDATE_CONTROL_ITEM = 20;
+// The IMU library samples at 200 Hz; copy each sample into the control table so the PC,
+// polling at 200 Hz, reads values at most 5 ms old (20 ms made the camera-IMU time offset drift).
+const uint32_t INTERVAL_MS_TO_UPDATE_IMU = 5;
 
 namespace xStingMotor{
   void begin();

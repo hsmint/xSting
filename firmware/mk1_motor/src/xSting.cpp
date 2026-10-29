@@ -344,7 +344,7 @@ void xStingMotor::run()
 
   /* For processing DYNAMIXEL slave function */
   // Update control table of OpenCR to communicate with ROS2 node
-  update_imu(INTERVAL_MS_TO_UPDATE_CONTROL_ITEM);
+  update_imu(INTERVAL_MS_TO_UPDATE_IMU);
   update_times(INTERVAL_MS_TO_UPDATE_CONTROL_ITEM);
   update_gpios(INTERVAL_MS_TO_UPDATE_CONTROL_ITEM);
   update_motor_status(INTERVAL_MS_TO_UPDATE_CONTROL_ITEM);
