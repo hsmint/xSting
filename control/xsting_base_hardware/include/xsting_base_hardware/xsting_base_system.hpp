@@ -38,6 +38,9 @@ private:
   std::string usb_port_;
   uint32_t baud_rate_;
   uint8_t heartbeat_;
+  // Seconds of the last heartbeat / wheel command, see write().
+  double last_heartbeat_sec_ = 0.0;
+  double last_command_sec_ = 0.0;
 
   std::unique_ptr<OpenCRBase> opencr_;
 };

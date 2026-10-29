@@ -1,6 +1,7 @@
 controller_manager:
   ros__parameters:
-    update_rate: 50   # Hz
+    # 200 Hz so /imu matches the firmware's 5 ms IMU update (camera-IMU calibration, VIO).
+    update_rate: 200   # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster

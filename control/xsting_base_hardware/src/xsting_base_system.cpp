@@ -16,6 +16,10 @@ namespace
 {
 auto logger = rclcpp::get_logger("xsting_base");
 
+// Heartbeat and wheel command period, 50 Hz each. Slightly under 20 ms so loop jitter at
+// 200 Hz does not push a send to the next cycle (25 ms).
+constexpr double WRITE_PERIOD_SEC = 0.019;
+
 std::string position_of(const std::string & joint)
 {
   return joint + "/" + hardware_interface::HW_IF_POSITION;
@@ -215,9 +219,24 @@ hardware_interface::return_type XStingBaseSystemHardware::read(
 }
 
 hardware_interface::return_type XStingBaseSystemHardware::write(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+  const rclcpp::Time & time, const rclcpp::Duration & period)
 {
-  opencr_->send_heartbeat(++heartbeat_);
+  // One OpenCR transaction takes about 2 ms on the Jetson and read() already uses one per cycle,
+  // so at 200 Hz (5 ms) only one more fits. The heartbeat and the wheel command keep their
+  // 50 Hz and go out on different cycles; a slow loop (>= 10 ms) has time for both.
+  const double now = time.seconds();
+  const bool slow_loop = period.seconds() >= 0.01;
+  bool sent_heartbeat = false;
+
+  if (now - last_heartbeat_sec_ >= WRITE_PERIOD_SEC) {
+    opencr_->send_heartbeat(++heartbeat_);
+    last_heartbeat_sec_ = now;
+    sent_heartbeat = true;
+  }
+  if ((sent_heartbeat && !slow_loop) || now - last_command_sec_ < WRITE_PERIOD_SEC) {
+    return hardware_interface::return_type::OK;
+  }
+  last_command_sec_ = now;
 
   OpenCRBase::WheelArray commands = {};
   for (size_t i = 0; i < base::wheels::NUM; i++) {
