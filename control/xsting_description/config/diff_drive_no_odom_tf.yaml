@@ -1,0 +1,6 @@
+# Loaded after controllers.yaml when xsting_control.launch.py runs with wheel_odom_tf:=false.
+# Another odometry source (cuVSLAM) then publishes odom -> base_footprint, so the wheel odometry
+# must not, or base_footprint gets two parents. /odom is still published.
+diff_drive_controller:
+  ros__parameters:
+    enable_odom_tf: false
