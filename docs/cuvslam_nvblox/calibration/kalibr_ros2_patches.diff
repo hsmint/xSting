@@ -1,0 +1,71 @@
+diff --git a/aslam_offline_calibration/kalibr2/CMakeLists.txt b/aslam_offline_calibration/kalibr2/CMakeLists.txt
+index 58af864..acaca5c 100644
+--- a/aslam_offline_calibration/kalibr2/CMakeLists.txt
++++ b/aslam_offline_calibration/kalibr2/CMakeLists.txt
+@@ -8,6 +8,8 @@ project(kalibr2
+ 
+ find_package(aslam_backend_expressions REQUIRED)
+ find_package(aslam_cameras REQUIRED)
++# aslam_cameras_april does not export ethz_apriltag2, so its imported target needs this first.
++find_package(ethz_apriltag2 REQUIRED)
+ find_package(aslam_cameras_april REQUIRED)
+ find_package(aslam_time REQUIRED)
+ find_package(aslam_cv_error_terms REQUIRED)
+diff --git a/aslam_offline_calibration/kalibr2_ros/CMakeLists.txt b/aslam_offline_calibration/kalibr2_ros/CMakeLists.txt
+index 382db3f..16f9510 100644
+--- a/aslam_offline_calibration/kalibr2_ros/CMakeLists.txt
++++ b/aslam_offline_calibration/kalibr2_ros/CMakeLists.txt
+@@ -17,6 +17,8 @@ FetchContent_MakeAvailable(cli11)
+ 
+ find_package(ament_cmake REQUIRED)
+ find_package(aslam_time REQUIRED)
++# aslam_cameras_april (pulled in by kalibr2) does not export ethz_apriltag2.
++find_package(ethz_apriltag2 REQUIRED)
+ find_package(kalibr2 REQUIRED)
+ find_package(rclcpp REQUIRED)
+ find_package(rosbag2_cpp REQUIRED)
+diff --git a/aslam_offline_calibration/kalibr_imu_ros2/scripts/kalibr_calibrate_imu_camera b/aslam_offline_calibration/kalibr_imu_ros2/scripts/kalibr_calibrate_imu_camera
+index 53855cb..820866d 100755
+--- a/aslam_offline_calibration/kalibr_imu_ros2/scripts/kalibr_calibrate_imu_camera
++++ b/aslam_offline_calibration/kalibr_imu_ros2/scripts/kalibr_calibrate_imu_camera
+@@ -2,7 +2,7 @@
+ print("importing libraries")
+ import sm
+ # Import from ROS2 package paths
+-from kalibr_imu_ros2.kalibr_common import ConfigReader as kc
++from kalibr_common import ConfigReader as kc
+ from kalibr_imu_ros2.kalibr_imu_camera_calibration.IccCalibrator import IccCalibrator
+ from kalibr_imu_ros2.kalibr_imu_camera_calibration import IccSensors as sens
+ from kalibr_imu_ros2.kalibr_imu_camera_calibration import IccUtil as util
+@@ -97,6 +97,8 @@ def parseArgs():
+     groupOpt.add_argument('--no-time-calibration', action='store_true', dest='no_time', help='Disable the temporal calibration', required=False)      
+     groupOpt.add_argument('--max-iter', type=int, default=30, dest='max_iter', help='Max. iterations (default: %(default)s)', required=False)
+     groupOpt.add_argument('--recover-covariance', action='store_true', dest='recover_cov', help='Recover the covariance of the design variables.', required=False)
++    groupOpt.add_argument('--pose-knots-per-second', type=int, default=100, dest='pose_knots', help='Pose spline knots per second. Keep it near half the IMU rate or the spline can fit the IMU exactly (default: %(default)s)', required=False)
++    groupOpt.add_argument('--bias-knots-per-second', type=int, default=50, dest='bias_knots', help='IMU bias spline knots per second (default: %(default)s)', required=False)
+     groupOpt.add_argument('--timeoffset-padding', type=float, default=30.e-3, dest='timeoffset_padding', help='Maximum range in which the timeoffset may change during estimation [s] (default: %(default)s)', required=False)
+ 
+     #Result options  
+@@ -190,8 +192,8 @@ def main():
+     print("")
+     print("Building the problem")
+     iCal.buildProblem(splineOrder=6, 
+-                      poseKnotsPerSecond=100, 
+-                      biasKnotsPerSecond=50, 
++                      poseKnotsPerSecond=parsed.pose_knots, 
++                      biasKnotsPerSecond=parsed.bias_knots, 
+                       doPoseMotionError=False,
+                       doBiasMotionError=True,
+                       blakeZisserCam=-1,
+@@ -249,6 +251,11 @@ def main():
+ 
+ if __name__ == "__main__":
+     main()
++    # Leftover worker/queue threads from corner extraction keep the interpreter alive after
++    # all results are written, so exit explicitly once main() has returned.
++    sys.stdout.flush()
++    sys.stderr.flush()
++    os._exit(0)
+ #     try:
+ #         main()
+ #     except Exception,e:

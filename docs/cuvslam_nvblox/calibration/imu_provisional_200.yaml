@@ -1,0 +1,13 @@
+# PROVISIONAL noise values for a first Kalibr run. Replace with the Allan
+# variance results (step 03) before using the output for cuVSLAM.
+#
+# Base: MPU-9250 / ICM-20648 datasheet densities, multiplied by ~10 because the
+# OpenCR firmware applies a 41 Hz DLPF, a 3-tap gyro moving average and a
+# |ADC| <= 3 gyro deadband, and the samples arrive through ros2_control at about 175 Hz (200 Hz loop with overruns).
+rostopic: /opencr/imu_corrected
+update_rate: 175.0
+
+accelerometer_noise_density: 0.03     # [m/s^2/sqrt(Hz)]
+accelerometer_random_walk: 0.001      # [m/s^3/sqrt(Hz)]
+gyroscope_noise_density: 0.0026       # [rad/s/sqrt(Hz)]
+gyroscope_random_walk: 0.00003        # [rad/s^2/sqrt(Hz)]

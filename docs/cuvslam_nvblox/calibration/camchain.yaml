@@ -1,0 +1,10 @@
+# Left IR (infra1) of the D435, rectified stream. Values from the bag's
+# /camera/camera/infra1/camera_info: P[0], P[5], P[2], P[6]. D = 0, R = I.
+cam0:
+  camera_model: pinhole
+  distortion_model: radtan
+  intrinsics: [386.69085693359375, 386.69085693359375, 325.19293212890625, 242.71617126464844]
+  distortion_coeffs: [0.0, 0.0, 0.0, 0.0]
+  resolution: [640, 480]
+  rostopic: /camera/camera/infra1/image_rect_raw
+  cam_overlaps: []
