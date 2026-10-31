@@ -44,9 +44,10 @@ std::string velocity_of(const std::string & joint)
 
 // The arm and wheel OpenCRs share one by-id name, and by-path changes with the USB socket,
 // but each firmware answers only its own ID. So try every /dev/ttyACM* and keep the one where
-// this ID answers a ping. Returns nullptr, with usb_port untouched, if none answers.
-std::unique_ptr<OpenCR> find_opencr(
-  const uint8_t & id, const uint32_t & baud_rate, std::string & usb_port)
+// this ID answers a ping. Returns false, with usb_port untouched, if none answers.
+// Probes with the bare SDK wrapper, not OpenCR: ~OpenCR() moves the arm home and turns torque off,
+// which on a non-matching port would poll a board that never answers for the 15 s home timeout.
+bool find_port(const uint8_t & id, const uint32_t & baud_rate, std::string & usb_port)
 {
   std::vector<std::string> ports;
   for (const auto & entry : std::filesystem::directory_iterator("/dev")) {
@@ -57,18 +58,18 @@ std::unique_ptr<OpenCR> find_opencr(
   std::sort(ports.begin(), ports.end());
 
   for (const auto & port : ports) {
-    auto opencr = std::make_unique<OpenCR>(id);
-    if (!opencr->open_port(port) || !opencr->set_baud_rate(baud_rate)) {
+    DynamixelSDKWrapper probe(id);
+    if (!probe.open_port(port) || !probe.set_baud_rate(baud_rate)) {
       RCLCPP_WARN(logger, "Can't open %s. Is the user in the dialout group?", port.c_str());
       continue;
     }
-    if (opencr->ping() != 0) {
+    if (probe.ping() != 0) {
       usb_port = port;
-      return opencr;
+      return true;
     }
     RCLCPP_INFO(logger, "%s is not OpenCR ID %u, skipping", port.c_str(), id);
   }
-  return nullptr;
+  return false;
 }
 }  // namespace
 
@@ -101,28 +102,27 @@ hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_init(
   gripper_velocity_ = stoi(info_.hardware_parameters["dxl_gripper_profile_velocity"]);
 
   if (usb_port_ == "auto") {
-    opencr_ = find_opencr(id_, baud_rate_, usb_port_);
-    if (opencr_ == nullptr) {
+    if (!find_port(id_, baud_rate_, usb_port_)) {
       RCLCPP_FATAL(
         logger, "No OpenCR ID %u answered on /dev/ttyACM*. Is the arm board plugged in?", id_);
       return hardware_interface::CallbackReturn::ERROR;
     }
-    RCLCPP_INFO(logger, "Found OpenCR ID %u on %s at %u baud", id_, usb_port_.c_str(), baud_rate_);
-  } else {
-    opencr_ = std::make_unique<OpenCR>(id_);
-    if (opencr_->open_port(usb_port_)) {
-      RCLCPP_INFO(logger, "Succeeded to open port");
-    } else {
-      RCLCPP_FATAL(logger, "Failed to open port");
-      return hardware_interface::CallbackReturn::ERROR;
-    }
+    RCLCPP_INFO(logger, "Found OpenCR ID %u on %s", id_, usb_port_.c_str());
+  }
 
-    if (opencr_->set_baud_rate(baud_rate_)) {
-      RCLCPP_INFO(logger, "Succeeded to set baudrate");
-    } else {
-      RCLCPP_FATAL(logger, "Failed to set baudrate");
-      return hardware_interface::CallbackReturn::ERROR;
-    }
+  opencr_ = std::make_unique<OpenCR>(id_);
+  if (opencr_->open_port(usb_port_)) {
+    RCLCPP_INFO(logger, "Succeeded to open port");
+  } else {
+    RCLCPP_FATAL(logger, "Failed to open port");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  if (opencr_->set_baud_rate(baud_rate_)) {
+    RCLCPP_INFO(logger, "Succeeded to set baudrate");
+  } else {
+    RCLCPP_FATAL(logger, "Failed to set baudrate");
+    return hardware_interface::CallbackReturn::ERROR;
   }
 
   const uint16_t model_number = opencr_->ping();
