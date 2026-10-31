@@ -11,6 +11,7 @@ def generate_launch_description():
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_mock_base = LaunchConfiguration("use_mock_base")
     wheel_port = LaunchConfiguration("wheel_port")
+    arm_port = LaunchConfiguration("arm_port")
     wheel_odom_tf = LaunchConfiguration("wheel_odom_tf")
 
     pkg_share = FindPackageShare("xsting_description")
@@ -25,6 +26,7 @@ def generate_launch_description():
             " use_mock_hardware:=", use_mock_hardware,
             " use_mock_base:=", use_mock_base,
             " wheel_port:=", wheel_port,
+            " arm_port:=", arm_port,
         ]),
         value_type=str,
     )
@@ -95,6 +97,11 @@ def generate_launch_description():
             "wheel_port",
             default_value="auto",
             description="Wheel OpenCR port; 'auto' searches /dev/ttyACM* for the board's ID",
+        ),
+        DeclareLaunchArgument(
+            "arm_port",
+            default_value="auto",
+            description="Arm OpenCR port; 'auto' searches /dev/ttyACM* for the board's ID",
         ),
         DeclareLaunchArgument(
             "wheel_odom_tf",

@@ -1606,8 +1606,14 @@
 
 
   <xacro:arg name="use_mock_hardware" default="true"/>
+  <!-- Same as wheel_port below: "auto" pings opencr_id on every /dev/ttyACM*. The old by-id path
+       is shared with the wheel OpenCR, so with both boards plugged in it may point at either. -->
+  <xacro:arg name="arm_port" default="auto"/>
 
-  <ros2_control name="XStingSystem" type="system">
+  <!-- One arm cycle (read_all, heartbeat, joint and gripper goals) is about 6 OpenCR transactions,
+       roughly 12 ms on the Jetson, which does not fit the 5 ms loop the wheel IMU needs.
+       is_async runs it in its own thread at rw_rate so it never stalls the 200 Hz loop. -->
+  <ros2_control name="XStingSystem" type="system" is_async="true" rw_rate="50">
     <hardware>
       <xacro:if value="$(arg use_mock_hardware)">
         <plugin>mock_components/GenericSystem</plugin>
@@ -1615,7 +1621,7 @@
       <xacro:unless value="$(arg use_mock_hardware)">
         <plugin>xsting_manipulation_hardware/XStingManipulationSystemHardware</plugin>
         <param name="opencr_id">200</param>
-        <param name="opencr_usb_port">/dev/serial/by-id/usb-ROBOTIS_OpenCR_Virtual_ComPort_in_FS_Mode_FFFFFFFEFFFF-if00</param>
+        <param name="opencr_usb_port">$(arg arm_port)</param>
         <param name="opencr_baud_rate">1000000</param>
         <param name="dxl_joints_profile_acceleration">10</param>
         <param name="dxl_joints_profile_velocity">10</param>
