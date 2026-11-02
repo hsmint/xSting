@@ -116,7 +116,8 @@ map --(cuVSLAM)--> odom --(cuVSLAM)--> base_footprint --(URDF)--> base_link
 source ~/Documents/xSting/control/install/setup.bash && ros2 launch xsting_description xsting_control.launch.py use_mock_base:=false use_mock_hardware:=true
 # B: 가속도 보정 적용 + 자이로 바이어스. 시작 후 약 45초 로봇을 건드리지 말 것
 source ~/imu_calibration_ws/install/setup.bash && ros2 run imu_calib apply_calib_node --ros-args -r raw:=/imu -r corrected:=/opencr/imu_corrected -p calib_file:=$HOME/calibration/opencr_accel_v2.yaml -p calibrate_gyros:=true -p gyro_calib_samples:=8000
-# C: D435 (nvblox면 enable_depth:=true depth_module.depth_profile:=640x480x30)
+# C: D435 (nvblox면 enable_depth:=true depth_module.depth_profile:=640x480x30,
+#    메시에 색을 입히려면 추가로 enable_color:=true rgb_camera.color_profile:=640x480x30)
 ros2 launch realsense2_camera rs_launch.py camera_namespace:=camera camera_name:=camera enable_infra1:=true enable_infra2:=true enable_color:=false enable_depth:=false enable_gyro:=false enable_accel:=false depth_module.infra_profile:=640x480x30
 # C 다음에 반드시: 프로젝터 끄기 (launch 인자로는 안 꺼짐)
 ros2 param set /camera/camera depth_module.emitter_enabled 0
@@ -131,7 +132,7 @@ python3 ~/calibration/imu_time_shift.py
 | 카메라만 + RViz | C (**A는 끔**) | `... viz:=true` | PC: `cuvslam.rviz`, 영상 겹쳐보기는 Jetson에서 `ir_preview.py` |
 | **카메라 + IMU** (`tracking_mode 1`) | A, B, C, D | `... imu:=true` | 모니터 (좌표는 `base_footprint`: x 앞, z 위) |
 | 카메라 + IMU + TF (nvblox·Nav2용) | A(`wheel_odom_tf:=false`), B, C(깊이 켬), D | `... imu:=true tf:=true` | + nvblox |
-| **nvblox** | 위 + | `ros2 launch ~/calibration/nvblox_d435.launch.py` | PC: `cuvslam_nvblox.rviz` |
+| **nvblox** | 위 + | `ros2 launch ~/calibration/nvblox_d435.launch.py` (색 입힌 메시: `color:=true`, C에 컬러 켬) | PC: `cuvslam_nvblox.rviz` |
 
 PC에서 RViz (PC `~/.bashrc`는 도메인 42·LOCALHOST라 아래처럼 덮어써야 Jetson이 보임):
 ```bash
@@ -140,7 +141,8 @@ source /opt/ros/lyrical/setup.bash && ROS_DOMAIN_ID=0 ROS_AUTOMATIC_DISCOVERY_RA
 
 ### nvblox 설정 요점 (`nvblox_d435.launch.py`)
 - 기본값: `nvblox_examples_bringup/config/nvblox/nvblox_base.yaml`(복셀 5 cm, static TSDF, ESDF 2D)
-- 덮어쓴 값: `global_frame: odom`, 컬러 끔, 깊이 15 Hz 통합, 메시 2 Hz, 최대 거리 3 m,
+- 덮어쓴 값: `global_frame: odom`, 복셀 3 cm(`voxel_size:=0.05`로 바꿀 수 있음), 컬러 기본 끔(`color:=true`면 5 Hz로 메시에 색만 입힘, 지도·ESDF에는 영향 없음), 깊이 15 Hz 통합,
+  메시 계산·전송 0.2 Hz(`update_mesh_rate_hz`, `publish_layer_rate_hz`) + 전송 상한 10 Mbps (2 Hz·3 cm에서 메시가 약 10 MB/s로 Wi-Fi를 막았음), ESDF 2 Hz(10 Hz에서 ESDF 점군만 약 3 MB/s), 최대 거리 3 m,
   ESDF 슬라이스 높이 0.05–0.6 m(바닥 제외, 로봇 높이까지), 입력 QoS `SENSOR_DATA`
 - 출력: `/nvblox_node/mesh`, `/nvblox_node/static_esdf_pointcloud`, `/nvblox_node/static_occupancy_grid`, `/nvblox_node/static_map_slice`(Nav2용)
 

@@ -1442,13 +1442,16 @@
     <axis xyz="0 0 1"/>
     <limit lower="-3.1416" upper="3.1416" effort="1.5" velocity="4.8"/>
   </joint>
+  <!-- joint3-5 limits were measured by hand (control/my_tool/arm_freedrive.py, 2026-10-31) and set 5 deg
+       inside the stops, except the folded home side of joint4 (+88.7 deg) and joint5 (-105.5 deg), which is
+       the stop itself. Keep that side at or beyond HOME_TICK in opencr_definitions.hpp. -->
   <!-- M3 shoulder pitch servo -->
   <joint name="joint3" type="revolute">
     <parent link="shoulder_link"/>
     <child link="arm_link"/>
     <origin xyz="0 0 -0.0387" rpy="-1.5708 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-1.5708" upper="1.5708" effort="1.5" velocity="4.8"/>
+    <limit lower="-1.9431" upper="2.0189" effort="1.5" velocity="4.8"/>
   </joint>
   <!-- M4 elbow pitch servo -->
   <joint name="joint4" type="revolute">
@@ -1456,7 +1459,7 @@
     <child link="elbow_link"/>
     <origin xyz="0.024 0.128 0" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-1.5708" upper="1.5708" effort="1.5" velocity="4.8"/>
+    <limit lower="-2.0168" upper="1.5478" effort="1.5" velocity="4.8"/>
   </joint>
   <!-- M5 wrist pitch servo -->
   <joint name="joint5" type="revolute">
@@ -1464,7 +1467,7 @@
     <child link="wrist_link"/>
     <origin xyz="0.124 0 0" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-1.5708" upper="1.5708" effort="1.5" velocity="4.8"/>
+    <limit lower="-1.8417" upper="2.1032" effort="1.5" velocity="4.8"/>
   </joint>
   <!-- M6 wrist roll servo -->
   <joint name="joint6" type="revolute">

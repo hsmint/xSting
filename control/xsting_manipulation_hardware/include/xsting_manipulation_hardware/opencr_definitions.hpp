@@ -56,9 +56,10 @@ constexpr int32_t MIN_TICK = 0;
 constexpr double MAX_RADIAN = 3.14159265359;
 constexpr double MIN_RADIAN = -3.14159265359;
 
-// Home pose. 2048 is the DYNAMIXEL X-series center tick, i.e. 0 rad in the URDF
-// Must match the home pose the firmware moves to in xStingCore::begin() (firmware/mk1_arm)
-constexpr std::array<int32_t, NUM> HOME_TICK = {2048, 2048, 2048, 2048, 2048, 2048};
+// Home pose: the arm folded under the deck, read from the motors (2048 is 0 rad in the URDF).
+// joint4 (+86.7 deg) and joint5 (-105.3 deg) sit at the folded end of their range, so the URDF
+// limits on that side must stay at or beyond these ticks or ros2_control clamps commands off home.
+constexpr std::array<int32_t, NUM> HOME_TICK = {2022, 1995, 1747, 3035, 850, 2158};
 }  // namespace joints
 
 namespace grippers
@@ -66,10 +67,12 @@ namespace grippers
 constexpr double RAD_TO_METER = -0.015;
 constexpr int16_t GOAL_CURRENT = 200;
 
-// Gripper home, Same center tick and firmware counterpart as joints::HOME_TICK
-constexpr int32_t HOME_TICK = 2048;
+// Gripper home, read in the same folded pose as joints::HOME_TICK
+constexpr int32_t HOME_TICK = 2022;
 }  // namespace grippers
 }  // namespace opencr
 }  // namespace xsting_manipulation_hardware
+
+#include <limits>
 
 #endif  // XSTING_MANIPULATION_HARDWARE__OPENCR_DEFINITIONS_HPP_
