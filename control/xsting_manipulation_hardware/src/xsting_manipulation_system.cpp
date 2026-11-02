@@ -101,6 +101,17 @@ hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_init(
   gripper_acceleration_ = stoi(info_.hardware_parameters["dxl_gripper_profile_acceleration"]);
   gripper_velocity_ = stoi(info_.hardware_parameters["dxl_gripper_profile_velocity"]);
 
+  // The motors report and take angles in their own direction; flipping here keeps /joint_states and the
+  // commands in the URDF sign, so the limits, the home pose and the TF all match the model.
+  for (size_t i = 0; i < opencr::joints::NUM; i++) {
+    const auto & params = info_.joints[i].parameters;
+    const auto it = params.find("direction");
+    directions_[i] = (it != params.end() && std::stod(it->second) < 0.0) ? -1.0 : 1.0;
+    if (directions_[i] < 0.0) {
+      RCLCPP_INFO(logger, "%s: motor direction reversed", info_.joints[i].name.c_str());
+    }
+  }
+
   if (usb_port_ == "auto") {
     if (!find_port(id_, baud_rate_, usb_port_)) {
       RCLCPP_FATAL(
@@ -183,7 +194,7 @@ hardware_interface::CallbackReturn XStingManipulationSystemHardware::on_activate
   if (opencr_->read_all()) {
     const auto positions = opencr_->get_joint_positions();
     for (size_t i = 0; i < opencr::joints::NUM; i++) {
-      set_command(position_of(info_.joints[i].name), positions[i]);
+      set_command(position_of(info_.joints[i].name), directions_[i] * positions[i]);
     }
     set_command(position_of(info_.joints[GRIPPER_INDEX].name), opencr_->get_gripper_position());
   } else {
@@ -219,9 +230,9 @@ hardware_interface::return_type XStingManipulationSystemHardware::read(
   const auto positions = opencr_->get_joint_positions();
   const auto velocities = opencr_->get_joint_velocities();
   for (size_t i = 0; i < opencr::joints::NUM; i++) {
-    set_state(position_of(info_.joints[i].name), positions[i]);
+    set_state(position_of(info_.joints[i].name), directions_[i] * positions[i]);
     if (has_state(velocity_of(info_.joints[i].name))) {
-      set_state(velocity_of(info_.joints[i].name), velocities[i]);
+      set_state(velocity_of(info_.joints[i].name), directions_[i] * velocities[i]);
     }
   }
 
@@ -266,6 +277,7 @@ hardware_interface::return_type XStingManipulationSystemHardware::write(
     if (std::isnan(joint_commands[i])) {
       return hardware_interface::return_type::OK;
     }
+    joint_commands[i] *= directions_[i];  // URDF sign -> motor sign
   }
 
   if (opencr_->set_joint_positions(joint_commands) == false) {

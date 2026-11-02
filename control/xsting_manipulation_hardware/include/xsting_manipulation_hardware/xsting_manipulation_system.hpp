@@ -46,6 +46,9 @@ private:
   int32_t gripper_acceleration_;
   int32_t gripper_velocity_;
 
+  // +1 or -1 per arm joint from the URDF <param name="direction">; -1 where the motor turns against the URDF axis.
+  std::array<double, opencr::joints::NUM> directions_;
+
   std::unique_ptr<OpenCR> opencr_;
 };
 }  // namespace xsting_manipulation_hardware
