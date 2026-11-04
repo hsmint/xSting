@@ -16,6 +16,35 @@
 
 #include "../include/xSting_sensor.hpp"
 
+namespace
+{
+// Shared with the interrupt handler for the board's single HC-SR04.
+enum EchoState { IDLE, WAIT_RISE, WAIT_FALL, COMPLETE };
+volatile EchoState echo_state = IDLE;
+volatile uint32_t echo_start_us = 0;
+volatile uint32_t echo_width_us = 0;
+volatile uint32_t trigger_time_us = 0;
+uint32_t ultrasonic_distance_mm = 0;
+
+void ultrasonicEchoInterrupt()
+{
+  const uint32_t now = micros();
+  if (uint32_t(now - trigger_time_us) >= ULTRASONIC_TIMEOUT_US)
+    return;
+
+  if (echo_state == WAIT_RISE && digitalRead(ULTRASONIC_ECHO_PIN) == HIGH)
+  {
+    echo_start_us = now;
+    echo_state = WAIT_FALL;
+  }
+  else if (echo_state == WAIT_FALL && digitalRead(ULTRASONIC_ECHO_PIN) == LOW)
+  {
+    echo_width_us = now - echo_start_us;
+    echo_state = COMPLETE;
+  }
+}
+}
+
 xStingSensor::xStingSensor()
 {
 }
@@ -29,6 +58,7 @@ bool xStingSensor::init(void)
 
   initBumper();
   initLED();
+  initUltrasonic();
 
   uint8_t get_error_code = imu_.begin();
 
@@ -248,6 +278,68 @@ void xStingSensor::initBumper(void)
 {
   ollo_.begin(3, TOUCH_SENSOR);
   ollo_.begin(4, TOUCH_SENSOR);
+}
+
+void xStingSensor::initUltrasonic(void)
+{
+  detachInterrupt(digitalPinToInterrupt(ULTRASONIC_ECHO_PIN));
+  digitalWrite(ULTRASONIC_TRIG_PIN, LOW);
+  pinMode(ULTRASONIC_TRIG_PIN, OUTPUT);
+  pinMode(ULTRASONIC_ECHO_PIN, INPUT);
+  echo_state = IDLE;
+  echo_start_us = 0;
+  echo_width_us = 0;
+  ultrasonic_distance_mm = 0;
+  trigger_time_us = micros();
+  attachInterrupt(digitalPinToInterrupt(ULTRASONIC_ECHO_PIN),
+                  ultrasonicEchoInterrupt, CHANGE);
+}
+
+void xStingSensor::updateUltrasonic(void)
+{
+  // Called only from the main loop; keep the ISR snapshot atomic and brief.
+  noInterrupts();
+  const uint32_t now = micros();
+  const EchoState state = echo_state;
+  const uint32_t width = echo_width_us;
+  const uint32_t elapsed = now - trigger_time_us;
+  const bool timed_out = (state == WAIT_RISE || state == WAIT_FALL)
+                        && elapsed >= ULTRASONIC_TIMEOUT_US;
+  if (state == COMPLETE || timed_out)
+    echo_state = IDLE;
+  interrupts();
+
+  if (state == COMPLETE)
+  {
+    // Datasheet: pulse duration / 58 = cm. Reject out-of-range raw pulses.
+    ultrasonic_distance_mm = (width >= 116 && width <= 23200)
+                             ? (width * 10 + 29) / 58 : 0;
+  }
+  else if (timed_out)
+  {
+    ultrasonic_distance_mm = 0;
+  }
+
+  if (echo_state != IDLE || elapsed < ULTRASONIC_INTERVAL_US)
+    return;
+
+  // A stuck-high ECHO must not be mistaken for a new measurement.
+  if (digitalRead(ULTRASONIC_ECHO_PIN) == HIGH)
+  {
+    ultrasonic_distance_mm = 0;
+    return;
+  }
+
+  trigger_time_us = micros();
+  echo_state = WAIT_RISE;
+  digitalWrite(ULTRASONIC_TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(ULTRASONIC_TRIG_PIN, LOW);
+}
+
+uint32_t xStingSensor::getUltrasonicDistanceMm(void)
+{
+  return ultrasonic_distance_mm;
 }
 
 uint8_t xStingSensor::checkPushBumper(void)

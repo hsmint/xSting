@@ -84,6 +84,8 @@ enum ControlTableItemAddr{
   ADDR_BUMPER_1        = 28,
   ADDR_BUMPER_2        = 29,
 
+  ADDR_ULTRASONIC_DISTANCE_MM = 30,
+
   ADDR_BATTERY_VOLTAGE = 42,
   ADDR_BATTERY_PERCENT = 46,
 
@@ -147,6 +149,7 @@ typedef struct ControlItemVariables{
   bool user_led[4];
   bool push_button[2];
   bool bumper[2];
+  uint32_t ultrasonic_distance_mm;
 
   uint32_t bat_voltage_x100;
   uint32_t bat_percent_x100;
@@ -234,6 +237,9 @@ void xStingMotor::begin()
   dxl_slave.addControlItem(ADDR_BUTTON_2, control_items.push_button[1]);
   dxl_slave.addControlItem(ADDR_BUMPER_1, control_items.bumper[0]);
   dxl_slave.addControlItem(ADDR_BUMPER_2, control_items.bumper[1]);
+
+  // HC-SR04 distance (mm), 0 when unavailable.
+  dxl_slave.addControlItem(ADDR_ULTRASONIC_DISTANCE_MM, control_items.ultrasonic_distance_mm);
 
   // Items for Battery
   dxl_slave.addControlItem(ADDR_BATTERY_VOLTAGE, control_items.bat_voltage_x100);
@@ -334,6 +340,8 @@ void xStingMotor::run()
   /* For sensing and run buzzer */
   // Update the IMU unit
   sensors.updateIMU();
+  sensors.updateUltrasonic();
+  control_items.ultrasonic_distance_mm = sensors.getUltrasonicDistanceMm();
 
   // Run buzzer if there is still melody to play.
   sensors.onMelody();
@@ -493,6 +501,11 @@ static void dxl_slave_write_callback_func(uint16_t item_addr, uint8_t &dxl_err_c
   {
     case ADDR_MODEL_INFORM:
       control_items.model_inform = MODEL_INFO;
+      dxl_err_code = DXL_ERR_ACCESS;
+      break;
+
+    case ADDR_ULTRASONIC_DISTANCE_MM:
+      control_items.ultrasonic_distance_mm = sensors.getUltrasonicDistanceMm();
       dxl_err_code = DXL_ERR_ACCESS;
       break;
 

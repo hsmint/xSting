@@ -11,6 +11,12 @@
 
 #define MAG_FACTOR                        15e-8
 
+// OpenCR Arduino header pins. ECHO must support external interrupts.
+const uint8_t ULTRASONIC_TRIG_PIN = 2;
+const uint8_t ULTRASONIC_ECHO_PIN = 3;
+const uint32_t ULTRASONIC_INTERVAL_US = 65000;
+const uint32_t ULTRASONIC_TIMEOUT_US = 30000;
+
 typedef struct LED_PIN_ARRAY
 {
   int front_left;
@@ -53,6 +59,12 @@ class xStingSensor
   bool getBumper1State();
   bool getBumper2State();
   uint8_t checkPushBumper(void);
+
+  // HC-SR04 (one module per board). Call updateUltrasonic from the main loop.
+  void initUltrasonic(void);
+  void updateUltrasonic(void);
+  // Latest distance in mm; 0 means not measured, timeout, or outside 20..4000 mm.
+  uint32_t getUltrasonicDistanceMm(void);
 
   // led pattern
   void initLED(void);
