@@ -1,0 +1,10 @@
+# Left IR (infra1) of the 3rd-deck D435 (serial 261322072019, camera_name:=lower_camera), rectified stream at 1280x720.
+# Values from lower_opencr_motion1's /camera/lower_camera/infra1/camera_info (2026-11-06): P[0], P[5], P[2], P[6]. D = 0, R = I.
+cam0:
+  camera_model: pinhole
+  distortion_model: radtan
+  intrinsics: [640.9053344726562, 640.9053344726562, 649.6454467773438, 366.0627746582031]
+  distortion_coeffs: [0.0, 0.0, 0.0, 0.0]
+  resolution: [1280, 720]
+  rostopic: /camera/lower_camera/infra1/image_rect_raw
+  cam_overlaps: []

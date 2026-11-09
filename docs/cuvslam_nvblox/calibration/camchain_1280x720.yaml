@@ -1,0 +1,11 @@
+# Left IR (infra1) of the D435, rectified stream at 1280x720 (the cuVSLAM resolution from 2026-11-02).
+# Values from the bag's /camera/camera/infra1/camera_info: P[0], P[5], P[2], P[6]. D = 0, R = I.
+# Same sensor as camchain.yaml (640x480); only the intrinsics and resolution differ.
+cam0:
+  camera_model: pinhole
+  distortion_model: radtan
+  intrinsics: [644.4847412109375, 644.4847412109375, 648.6549072265625, 364.5269470214844]
+  distortion_coeffs: [0.0, 0.0, 0.0, 0.0]
+  resolution: [1280, 720]
+  rostopic: /camera/camera/infra1/image_rect_raw
+  cam_overlaps: []

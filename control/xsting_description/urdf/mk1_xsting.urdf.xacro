@@ -14,15 +14,18 @@
   <link name="camera_link"/>
   <link name="lower_camera_link"/>
 
-  <!-- Top front D435, camera_name:=camera (cuVSLAM, nvblox). Origin from Kalibr through the CAD imu_link (not the
-       CAD lens position x 0.0083, y 0.0174): mean of motion6/7 (2026-10-29, IMU ~180 Hz), which agree within
-       0.25 deg, 0.9 cm and 0.7 ms. Camera ~37 cm above the IMU, ~28 deg down; timeshift_cam_imu = +12.4 ms.
-       Expressed in front_camera_link, so it follows the top plate when the pillars change; the robot was
-       calibrated with the top plate at 45.5 cm (measured), which the URDF then matched. -->
+  <!-- Top front D435, camera_name:=camera (cuVSLAM, nvblox). From Kalibr through the CAD imu_link
+       (docs/cuvslam_nvblox/tools/compute_d435_joint.py), 2026-11-02, top plate at 55.5 cm, IR at 1280x720:
+       rotation = mean of motion8/9 (agree within 0.2 deg; ~1 deg off the pre-rebuild motion6/7, so the rebuild
+       tilted the camera), translation = motion9 alone. The two translations differ by 5.3 cm (motion8 put the
+       camera 4.6 cm lower); motion9 had twice the rotation, matches the pre-rebuild 37.0 cm + 10 cm pillar = 47 cm
+       above the IMU, and is within 1 cm of the CAD-propagated height. Camera ~27.4 deg down,
+       timeshift_cam_imu = +17.1 ms (mean of 18.7 / 15.5). Re-run Kalibr with gentler, rotation-heavy motion
+       (the taller robot sways, residuals were 2.5x those of motion6/7) to settle translation and timeshift. -->
   <joint name="d435_joint" type="fixed">
     <parent link="front_camera_link"/>
     <child link="camera_link"/>
-    <origin xyz="0.01846 0.01268 -0.02405" rpy="-0.01654 -0.03745 -0.00868"/>
+    <origin xyz="0.04204 0.02198 -0.00886" rpy="-0.00503 -0.04540 -0.01867"/>
   </joint>
 
   <!-- 3rd deck D435, camera_name:=lower_camera. CAD only, not calibrated. -->
