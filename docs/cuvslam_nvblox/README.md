@@ -13,12 +13,12 @@
 
 | 항목 | 내용 |
 |---|---|
-| 로봇 | xSting mk1: TurtleBot3 Waffle Pi 차체, 바퀴 4개(스키드 스티어), 팔(rm-x52, 지금은 미장착), 맨 윗판 앞쪽 브래킷에 **RealSense D435**(IMU 없음, D435i 아님) |
+| 로봇 | xSting mk1: TurtleBot3 Waffle Pi 차체, 바퀴 4개(스키드 스티어), 팔(rm-x52, 판 아래에 매달려 접힘), 맨 윗판 앞쪽 브래킷에 **RealSense D435**(IMU 없음, D435i 아님) |
 | 바퀴 OpenCR | Dynamixel ID **201**, 2층판 앞쪽, 펌웨어 `firmware/mk1_motor`. **cuVSLAM이 쓰는 IMU(MPU9250)가 여기 있음** |
 | 팔 OpenCR | ID **200**, 윗판 (`firmware/mk1_arm`) |
 | 로봇 컴퓨터 | Jetson Orin Nano, `pa03@jon.local` (IP 예: 10.2.12.61, DHCP라 바뀔 수 있음), JetPack R39.2, ROS 2 **Lyrical**, Isaac ROS **5.0** (bare metal) |
 | 분석 PC | Ubuntu 24.04 x86, ROS 2 Lyrical, RTX 노트북. Kalibr 계산·RViz용. 로봇 하드웨어는 연결 안 됨 |
-| 카메라 사용 | cuVSLAM은 **IR 좌우 영상**(infra1/2, 640×480@30)만 사용. 컬러는 안 씀. nvblox는 **깊이 영상** 사용 |
+| 카메라 사용 | cuVSLAM은 **IR 좌우 영상**(infra1/2, **1280×720@30**, 11-02부터. 그전엔 640×480)만 사용. 컬러는 안 씀. nvblox는 **깊이 영상** 사용 |
 | IR 프로젝터 | **꺼서 사용** (점 무늬가 cuVSLAM·Kalibr를 방해). 아래 [함정 1](#7-트러블슈팅) 참고 |
 
 ### 1-1. 무엇을 보정했고 어디에 들어가 있나
@@ -28,8 +28,8 @@
 | 카메라 내부값 | **D435 공장값** (Kalibr 재투영 0.09px로 확인) | 드라이버의 `camera_info`가 자동 제공 |
 | 가속도계 오차(스케일·바이어스) | 6면 보정 v2 | Jetson `~/calibration/opencr_accel_v2.yaml` → `apply_calib_node` |
 | 자이로 바이어스 | 시작할 때 정지 측정 (8000샘플 ≈ 45초) | `apply_calib_node` 실행 시마다 |
-| 카메라–IMU 위치·각도 | Kalibr (motion6/7 평균) | URDF `d435_joint` |
-| 카메라–IMU 시간차 | Kalibr: **+12.4 ms** | `imu_time_shift.py` (IMU 시각 −12.4 ms) |
+| 카메라–IMU 위치·각도 | Kalibr (motion8/9: 각도 평균, 위치 motion9) | URDF `d435_joint` |
+| 카메라–IMU 시간차 | Kalibr: **+17.1 ms** (IR 1280×720. 640×480은 +12.4 ms) | `imu_time_shift.py` (IMU 시각 −17.1 ms) |
 | IMU 노이즈 | **임시값** (데이터시트×10, Allan 미실시) | cuVSLAM 런치 파라미터 |
 
 ---
@@ -43,7 +43,7 @@
                                                                             v
                                                               /opencr/imu_corrected
                                                                             |
-                                                   imu_time_shift.py (stamp - 12.4 ms)
+                                                   imu_time_shift.py (stamp - 17.1 ms)
                                                                             v
 [D435] infra1/2 (30 Hz) ---------------------------> cuVSLAM <------- /opencr/imu_synced
 [D435] depth (30 Hz) ------> nvblox <---- TF (odom -> ... -> camera_depth_optical_frame)
@@ -81,9 +81,11 @@ map --(cuVSLAM)--> odom --(cuVSLAM)--> base_footprint --(URDF)--> base_link
 ### 3-2. 도구 (`docs/cuvslam_nvblox/tools/`, Jetson `~/calibration/`)
 | 파일 | 어디서 | 용도 |
 |---|---|---|
-| `cuvslam_stereo.launch.py` | Jetson | cuVSLAM. 인자 `imu`, `tf`, `viz` ([4장](#4-실행-방법)) |
-| `nvblox_d435.launch.py` | Jetson | nvblox (깊이 → 3D 메시, 2D ESDF) |
-| `imu_time_shift.py` | Jetson | `/opencr/imu_corrected` → `/opencr/imu_synced`, 시각 −12.4 ms |
+| `cuvslam_stereo.launch.py` | Jetson / PC | cuVSLAM. 인자 `imu`, `tf`, `viz` ([4장](#4-실행-방법)), bag 재생은 PC에서 `use_sim_time:=true` |
+| `nvblox_d435.launch.py` | Jetson / PC | nvblox (깊이 → 3D 메시, 2D ESDF). bag 재생은 PC에서 `use_sim_time:=true` |
+| `record_nvblox_bag.sh` | Jetson | PC 재생용 센서 원본 녹화(4층 IR·IMU, 깊이·컬러, `/tf`). 3층 D435도 켜져 있으면 같이. 필요한 토픽이 없거나 위치 TF가 겹치면 녹화 안 함 |
+| `imu_time_shift.py` | Jetson | `/opencr/imu_corrected` → `/opencr/imu_synced`, 시각 −17.1 ms (640×480이면 `-p shift_ms:=12.4`) |
+| `compute_d435_joint.py` | PC | Kalibr 결과(`*-camchain-imucam.yaml`) → URDF `d435_joint` 값 (6장 8번) |
 | `cuvslam_monitor.py` | Jetson | cuVSLAM 위치·추적 상태를 한 줄로 출력 (영상 전송 없음) |
 | `ir_preview.py` | Jetson | IR 영상을 320×240, 5 fps로 줄여 재발행 (Wi-Fi로 볼 때) |
 | `cuvslam.rviz` | PC | 카메라 모드 + `viz:=true`용 (특징점 지도, 영상 겹쳐보기) |
@@ -116,11 +118,19 @@ map --(cuVSLAM)--> odom --(cuVSLAM)--> base_footprint --(URDF)--> base_link
 source ~/Documents/xSting/control/install/setup.bash && ros2 launch xsting_description xsting_control.launch.py use_mock_base:=false use_mock_hardware:=true
 # B: 가속도 보정 적용 + 자이로 바이어스. 시작 후 약 45초 로봇을 건드리지 말 것
 source ~/imu_calibration_ws/install/setup.bash && ros2 run imu_calib apply_calib_node --ros-args -r raw:=/imu -r corrected:=/opencr/imu_corrected -p calib_file:=$HOME/calibration/opencr_accel_v2.yaml -p calibrate_gyros:=true -p gyro_calib_samples:=8000
-# C: D435 (nvblox면 enable_depth:=true depth_module.depth_profile:=640x480x30,
-#    메시에 색을 입히려면 추가로 enable_color:=true rgb_camera.color_profile:=640x480x30)
-ros2 launch realsense2_camera rs_launch.py camera_namespace:=camera camera_name:=camera enable_infra1:=true enable_infra2:=true enable_color:=false enable_depth:=false enable_gyro:=false enable_accel:=false depth_module.infra_profile:=640x480x30
+# C: 4층(맨 윗판) D435 (시리얼 261322071425, USB 2-1.3), IR 1280x720 (시간차 17.1 ms가 이 모드 기준). cuVSLAM만이면 이대로,
+#    nvblox면 enable_depth:=true depth_module.depth_profile:=1280x720x30, 색을 입히려면 enable_color:=true rgb_camera.color_profile:=1920x1080x30
+#    (D435 최고 모드: IR·깊이 1280x720, 컬러 1920x1080, 모두 30 Hz. 다 켜면 카메라 1대에 약 300 MB/s)
+ros2 launch realsense2_camera rs_launch.py camera_namespace:=camera camera_name:=camera serial_no:="'_261322071425'" enable_infra1:=true enable_infra2:=true enable_color:=false enable_depth:=false enable_gyro:=false enable_accel:=false depth_module.infra_profile:=1280x720x30
 # C 다음에 반드시: 프로젝터 끄기 (launch 인자로는 안 꺼짐)
 ros2 param set /camera/camera depth_module.emitter_enabled 0
+# C2: 3층(아래) D435 (시리얼 261322072019, USB 2-1.4, URDF lower_camera_link). 아래는 IR·깊이·컬러 모두 최고 모드.
+#     두 대를 같이 쓰면 serial_no로 각자 카메라를 지정해야 함(앞의 '_'는 숫자로 읽히지 않게). 시리얼은 rs-enumerate-devices -s.
+#     드라이버의 rs_multi_camera_launch.py는 두 카메라 사이에 가짜 TF를 내서 URDF와 충돌하므로 쓰지 않음.
+#     두 대 모두 최고 모드면 약 600 MB/s: Orin Nano CPU·디스크에 부담, 프레임이 빠지면 컬러를 1280x720x30으로
+ros2 launch realsense2_camera rs_launch.py camera_namespace:=camera camera_name:=lower_camera serial_no:="'_261322072019'" enable_infra1:=true enable_infra2:=true enable_color:=true enable_depth:=true depth_module.infra_profile:=1280x720x30 depth_module.depth_profile:=1280x720x30 rgb_camera.color_profile:=1920x1080x30 enable_gyro:=false enable_accel:=false
+# C2 다음: 3층 프로젝터도 끄기 (점 무늬가 앞 카메라 IR에 보이면 cuVSLAM을 방해. 3층 깊이는 무늬 없는 면에서 나빠짐)
+ros2 param set /camera/lower_camera depth_module.emitter_enabled 0
 # D: IMU 시각 보정
 python3 ~/calibration/imu_time_shift.py
 ```
@@ -139,10 +149,31 @@ PC에서 RViz (PC `~/.bashrc`는 도메인 42·LOCALHOST라 아래처럼 덮어�
 source /opt/ros/lyrical/setup.bash && ROS_DOMAIN_ID=0 ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET rviz2 -d docs/cuvslam_nvblox/tools/cuvslam_nvblox.rviz
 ```
 
+### bag으로 PC에서 cuVSLAM + nvblox 돌리기 (Wi-Fi 없이)
+Jetson은 센서 원본만 녹화하고, cuVSLAM과 nvblox는 PC에서 돌린다 (Jetson 부담이 적고, 같은 bag으로 설정을 바꿔 여러 번 재생 가능).
+1. Jetson: A(`use_mock_base:=false use_mock_hardware:=true wheel_odom_tf:=false`), B, C(IR·깊이 켬, 색을 원하면 컬러 켬),
+   D, 필요하면 C2(3층). **cuVSLAM은 띄우지 않음.** `bash ~/calibration/record_nvblox_bag.sh <이름>` → 한 바퀴 → Ctrl+C
+   - 녹화: 4층 IR 좌우·IMU(`/opencr/imu_synced`, cuVSLAM 입력), 4층·3층 깊이(+컬러, 3층 IR), `/tf`(바퀴·팔 관절), `/tf_static`
+   - 스크립트가 막는 경우: 필요한 토픽이 실제로 발행되지 않을 때, Jetson에서 cuVSLAM이 돌 때, 바퀴 odom TF가 켜져 있을 때
+     (bag의 `/tf`에 `odom → base_footprint`가 있으면 PC의 cuVSLAM과 겹침)
+   - 처음엔 10–20초만 찍고 `ros2 bag info`로 영상 토픽이 초당 약 30개인지 확인. 두 대 최고 모드는 USB가 못 따라감(11-02 실측)
+   - Jetson에서 cuVSLAM까지 돌려 그 결과로만 nvblox를 볼 거면 `--with-slam` (cuVSLAM `imu:=true tf:=true`가 떠 있어야 함)
+2. `~/bags/<이름>_<날짜>`를 PC로 복사 (USB·유선 권장)
+3. PC: `sudo apt install ros-lyrical-isaac-ros-cuvslam ros-lyrical-isaac-ros-nvblox ros-lyrical-nvblox-examples-bringup` (처음 한 번)
+4. PC (저장소 루트에서, 순서대로 터미널 3개):
+   ```bash
+   ros2 launch docs/cuvslam_nvblox/tools/cuvslam_stereo.launch.py imu:=true tf:=true use_sim_time:=true
+   ros2 launch docs/cuvslam_nvblox/tools/nvblox_d435.launch.py use_sim_time:=true color:=true   # 3층도 녹화했으면 lower:=true
+   ros2 bag play <bag> --clock
+   ```
+   RViz는 PC 안에서 `cuvslam_nvblox.rviz` (도메인 덮어쓰기 불필요). 로봇 base launch는 PC에서 띄우지 않음 (`/tf_static`·`/tf`가 bag에 있음)
+- cuVSLAM·nvblox 인자(`max_distance`, `voxel_size`, `color`, `lower`)는 처리 방법만 정하므로, 같은 bag을 값만 바꿔 여러 번 재생해도 됨
+- `--with-slam`으로 녹화한 bag은 위치가 bag에 있으므로 PC에서 cuVSLAM을 띄우지 않고 nvblox만
+
 ### nvblox 설정 요점 (`nvblox_d435.launch.py`)
 - 기본값: `nvblox_examples_bringup/config/nvblox/nvblox_base.yaml`(복셀 5 cm, static TSDF, ESDF 2D)
 - 덮어쓴 값: `global_frame: odom`, 복셀 3 cm(`voxel_size:=0.05`로 바꿀 수 있음), 컬러 기본 끔(`color:=true`면 5 Hz로 메시에 색만 입힘, 지도·ESDF에는 영향 없음), 깊이 15 Hz 통합,
-  메시 계산·전송 0.2 Hz(`update_mesh_rate_hz`, `publish_layer_rate_hz`) + 전송 상한 10 Mbps (2 Hz·3 cm에서 메시가 약 10 MB/s로 Wi-Fi를 막았음), ESDF 2 Hz(10 Hz에서 ESDF 점군만 약 3 MB/s), 최대 거리 3 m,
+  메시 계산·전송 0.2 Hz(`update_mesh_rate_hz`, `publish_layer_rate_hz`) + 전송 상한 10 Mbps (2 Hz·3 cm에서 메시가 약 10 MB/s로 Wi-Fi를 막았음), ESDF 2 Hz(10 Hz에서 ESDF 점군만 약 3 MB/s), 최대 거리 3 m(`max_distance:=`, D435 오차가 거리 제곱에 비례해 4–5 m면 10 cm 이상),
   ESDF 슬라이스 높이 0.05–0.6 m(바닥 제외, 로봇 높이까지), 입력 QoS `SENSOR_DATA`
 - 출력: `/nvblox_node/mesh`, `/nvblox_node/static_esdf_pointcloud`, `/nvblox_node/static_occupancy_grid`, `/nvblox_node/static_map_slice`(Nav2용)
 
@@ -150,8 +181,24 @@ source /opt/ros/lyrical/setup.bash && ROS_DOMAIN_ID=0 ROS_AUTOMATIC_DISCOVERY_RA
 
 ## 5. 보정 결과와 근거
 
-### 5-1. 카메라–IMU (Kalibr, 최종)
-| | motion6 | motion7 | 평균(URDF에 반영) |
+### 5-1. 카메라–IMU (Kalibr, 최종: 2026-11-02, 맨 윗판 55.5 cm, IR 1280×720)
+| | motion8 | motion9 | URDF에 반영 |
+|---|---|---|---|
+| IMU 기준 카메라 위치 (앞/좌/위) | 9.3 / 1.4 / 42.5 cm | 11.8 / 2.2 / 47.1 cm | **motion9** |
+| 카메라 방향 | 27.4° 아래 | 27.4° 아래 | 두 결과 평균 (서로 0.20°) |
+| 시간차 `timeshift_cam_imu` | +18.7 ms | +15.5 ms | **+17.1 ms** (평균) |
+| 재투영 / 자이로 / 가속도 잔차 | 0.16 px / 0.0093 rad/s / 0.083 m/s² | 0.20 px / 0.0109 / 0.090 | |
+
+위치 차 5.3 cm, 시간 차 3.3 ms로 기준(2 cm·2 ms)을 넘음. 각도는 일치. motion9를 택한 이유: 회전이 두 배(최대 1.9 rad/s),
+기둥 10 cm 높이기 전 37.0 cm + 10 cm = 47 cm 예상과 일치, CAD로 옮긴 높이와 1 cm 이내. motion8은 4.6 cm 낮게 튐.
+잔차가 motion6/7의 약 2.5배: 높아진 로봇(+팔)이 흔들 때 휘청거려 강체 가정이 깨진 것으로 추정. **나중에 회전 위주로
+부드럽게(급정지 없이) 다시 찍어 위치·시간차 확정할 것.** 기둥 재조립 뒤 각도가 motion6/7보다 약 1° 달라짐.
+camchain은 `calibration/camchain_1280x720.yaml`(bag의 `camera_info` P값). 7번 Kalibr 명령의 `--cams`를 이것으로.
+URDF `d435_joint`: `xyz="0.04204 0.02198 -0.00886" rpy="-0.00503 -0.04540 -0.01867"` (`tools/compute_d435_joint.py`).
+
+이전 결과 (기둥 높이기 전, 맨 윗판 45.5 cm, IR 640×480, 지금은 쓰지 않음):
+
+| | motion6 | motion7 | 평균(당시 URDF에 반영) |
 |---|---|---|---|
 | IMU 기준 카메라 위치 (앞/좌/위) | 9.1 / 1.4 / 36.6 cm | 8.8 / 1.1 / 37.4 cm | 8.95 / 1.27 / 37.0 cm |
 | 카메라 방향 | 27.9° 아래, 좌우 −0.7° | 27.8° 아래, 좌우 −0.5° | |
@@ -159,7 +206,7 @@ source /opt/ros/lyrical/setup.bash && ROS_DOMAIN_ID=0 ROS_AUTOMATIC_DISCOVERY_RA
 | 재투영 / 자이로 / 가속도 잔차 | 0.087 px / 0.0036 rad/s / 0.034 m/s² | 0.091 px / 0.0046 / 0.041 | |
 
 두 결과 차이: 회전 0.25°, 위치 0.9 cm, 시간 0.7 ms → 신뢰 가능.
-URDF `d435_joint`(`front_camera_link -> camera_link`): `xyz="0.01846 0.01268 -0.02405" rpy="-0.01654 -0.03745 -0.00868"`.
+당시 URDF `d435_joint`(`front_camera_link -> camera_link`): `xyz="0.01846 0.01268 -0.02405" rpy="-0.01654 -0.03745 -0.00868"`.
 계산 방법: `T(base->camera_link) = T(base->imu, CAD) · T(imu->infra1_optical, Kalibr) · T(optical->camera_link)`를
 `front_camera_link` 기준으로 표현. **IMU(CAD 위치)와 카메라의 상대 관계가 Kalibr와 같아지도록** 넣은 값이라,
 CAD의 D435 위치(브래킷 높이가 실물과 다름)와는 다르다.
@@ -174,6 +221,7 @@ CAD의 D435 위치(브래킷 높이가 실물과 다름)와는 다르다.
 
 ### 5-3. 측정으로 확인한 것
 - 바닥 → 맨 윗판 윗면 45.5 cm (URDF 45.9 cm), 바닥 → OpenCR 약 6 cm (CAD 6.1 cm): URDF 기둥·판 높이 OK
+- 11-02: 기둥을 높여 맨 윗판 윗면 55.5 cm (v62 URDF 55.9 cm, 2·3판 사이 기둥 45 cm)
 - CAD의 D435 위치는 실물보다 낮게 그려져 있음 → `d435_joint`는 CAD가 아니라 Kalibr 기준
 
 ---
@@ -205,7 +253,7 @@ CAD의 D435 위치(브래킷 높이가 실물과 다름)와는 다르다.
    ```bash
    source /opt/ros/lyrical/setup.bash && source ~/calibration_tools/kalibr_ws/install/setup.bash
    systemd-run --user --scope -p MemoryMax=20G ros2 run kalibr_imu_ros2 kalibr_calibrate_imu_camera \
-     --bag <trim>/xxx.mcap --cams ~/calibration/camchain.yaml --imu ~/calibration/imu_provisional_200.yaml \
+     --bag <trim>/xxx.mcap --cams ~/calibration/camchain_1280x720.yaml --imu ~/calibration/imu_provisional_200.yaml \
      --target ~/calibration/checkerboard_25mm.yaml --timeoffset-padding 0.1 --dont-show-report --num-threads 1
    ```
    결과: bag 옆 `*-results-imucam.txt`, `*-camchain-imucam.yaml`. 두 번 결과가 회전 1°·위치 2 cm·시간 2 ms 안에서 맞는지 확인
@@ -243,7 +291,7 @@ Kalibr 빌드 (PC, 이미 됨): `MAKEFLAGS=-j4` + `systemd-run --user --scope -p
 | 17 | RViz 영상 겹쳐보기·점이 안 뜸 | cuVSLAM이 꺼져 있음 / `viz:=true`가 아님 / 로봇 base와 TF 충돌 | Jetson에서 `pgrep -af component_container`, `viz:=true` 확인, `viz` 모드에선 A를 끔 |
 | 18 | `camera_link`에 부모가 둘, TF 경고 | cuVSLAM `viz:=true`/`tf:=true`인데 로봇 URDF나 바퀴 odom TF도 켜짐 | `viz`는 A 끔. `tf:=true`는 A를 `wheel_odom_tf:=false`로 |
 | 19 | D435 프레임이 그리퍼에 붙어 보임 | 예전 URDF(그리퍼 카메라가 `camera_link`) | 새 URDF(커밋 e4d1058) 사용 확인: `xacro ... | grep d435_joint` |
-| 20 | cuVSLAM IMU 모드인데 지도가 기울어짐 | `imu_link` TF나 `d435_joint` 틀림 / IMU 토픽 미수신 | `ros2 run tf2_ros tf2_echo camera_infra1_optical_frame imu_link` (IMU가 카메라 아래 약 37 cm), `/opencr/imu_synced` 주기 확인 |
+| 20 | cuVSLAM IMU 모드인데 지도가 기울어짐 | `imu_link` TF나 `d435_joint` 틀림 / IMU 토픽 미수신 | `ros2 run tf2_ros tf2_echo camera_infra1_optical_frame imu_link` (IMU가 카메라 아래 약 47 cm), `/opencr/imu_synced` 주기 확인 |
 | 21 | 정지 상태에서 IMU 모드 위치가 계속 흐름 | 자이로 바이어스 측정 중 로봇이 움직였음 / IMU 노이즈 임시값 | B를 다시 띄우고 45초 정지. 계속되면 Allan 측정(미실시) |
 | 22 | nvblox 지도에 흰 벽이 비거나 구멍 | 프로젝터 끔 → 무늬 없는 면은 스테레오 깊이 실패 | NVIDIA 방식: 프로젝터 on/off 번갈아 + `realsense_splitter` (켠 프레임→nvblox, 끈 프레임→cuVSLAM), 카메라 60 fps 권장 (미구현) |
 | 23 | nvblox ESDF가 온통 장애물 | 슬라이스 높이에 바닥이 포함 | `static_mapper.esdf_slice_min_height`가 0.05 이상인지, `odom` z=0이 바닥인지(IMU 모드) 확인 |
@@ -275,7 +323,7 @@ $CLI --config-file ~/.arduinoIDE/arduino-cli.yaml upload -p /dev/ttyACM0 --fqbn 
 | 정지 10초 드리프트 | 카메라만 0 mm, IMU 약 6 mm |
 | IMU 모드 자세 | 평평한 바닥에서 롤·피치 ±0.5° 이내 |
 | 직선 시험 | 60 cm 이동에 옆 흐름 2.5 cm, 1.7 m 왕복(턱 포함) 오차 약 3 cm (카메라만) |
-| TF `camera_infra1_optical_frame → imu_link` | 이동 약 (0.006, 0.369, 0.094) m — 카메라 아래 37 cm |
+| TF `camera_infra1_optical_frame → imu_link` | 이동 약 (0.017, 0.473, 0.113) m — 카메라 아래 47 cm (11-02 이전 37 cm) |
 | nvblox | 메시 약 6 Hz, ESDF·점유 지도 약 10 Hz, Jetson CPU 약 30%, RAM 2.9/7.3 GB |
 
 ---
@@ -306,3 +354,5 @@ $CLI --config-file ~/.arduinoIDE/arduino-cli.yaml upload -p /dev/ttyACM0 --fqbn 
 | 10-29 | `d435_joint` = Kalibr(motion6/7 평균) | 두 번 결과가 0.25°·0.9 cm·0.7 ms로 일치 |
 | 10-29 | cuVSLAM은 IMU 모드 권장 | 지도가 중력 기준 수평, 출력이 `base_footprint` 기준. 이 환경에선 카메라만으로도 `lost` 0 |
 | 10-29 | nvblox는 프로젝터 끈 채로 먼저 시험 | 설정이 단순. 흰 벽 품질 보고 splitter 방식 결정 |
+| 11-02 | URDF를 xSting_v62로 교체(기둥 +10 cm, 2번째 D435), joint3~5 방향 반전 | 실물 맨 윗판 55.5 cm와 일치. 모터 방향이 URDF 축과 반대 |
+| 11-02 | cuVSLAM IR 1280×720, Kalibr 재보정(motion8/9), 시간차 17.1 ms | 기둥 재조립. 두 결과 위치·시간이 어긋나 각도 평균 + motion9 위치, 나중에 재녹화 |

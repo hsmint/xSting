@@ -7,11 +7,12 @@ emitter off).
   ros2 launch ~/calibration/cuvslam_stereo.launch.py viz:=true        # stereo + TF/clouds for RViz, robot base launch must be off
   ros2 launch ~/calibration/cuvslam_stereo.launch.py imu:=true        # stereo + IMU, robot base launch must run
   ros2 launch ~/calibration/cuvslam_stereo.launch.py imu:=true tf:=true  # + map -> odom -> base_footprint TF
+  ros2 launch docs/cuvslam_nvblox/tools/cuvslam_stereo.launch.py imu:=true tf:=true use_sim_time:=true  # laptop, bag replay
       (robot base launch with wheel_odom_tf:=false; needed by nvblox / Nav2)
 
 imu:=true (tracking_mode 1): needs the robot base launch (robot_state_publisher gives the
 camera -> imu_link TF from the URDF, d435_joint holds the Kalibr result), apply_calib_node
-(/opencr/imu_corrected) and imu_time_shift.py (/opencr/imu_synced, Kalibr's 12.4 ms applied).
+(/opencr/imu_corrected) and imu_time_shift.py (/opencr/imu_synced, Kalibr's 17.1 ms at IR 1280x720 applied).
 The pose is reported for base_footprint, so x is the robot's forward direction.
 
 viz:=false (default): TF publishing off. The robot's URDF already gives camera_link a parent and
@@ -44,6 +45,8 @@ def visual_slam(context):
         raise RuntimeError('viz:=true needs the robot base launch off, imu:=true needs it on')
 
     params = {
+        # Bag replay on the laptop (record_nvblox_bag.sh): follow /clock so poses carry the bag's stamps.
+        'use_sim_time': is_true(context, 'use_sim_time'),
         'tracking_mode': 1 if imu else 0,
         'rectified_images': True,           # image_rect_raw from the D435
         'enable_image_denoising': False,
@@ -108,5 +111,7 @@ def generate_launch_description():
         DeclareLaunchArgument('tf', default_value='false',
                               description='with imu:=true, publish map -> odom -> base_footprint '
                                           '(robot base launch with wheel_odom_tf:=false)'),
+        DeclareLaunchArgument('use_sim_time', default_value='false',
+                              description='true when replaying a bag with ros2 bag play --clock'),
         OpaqueFunction(function=visual_slam),
     ])

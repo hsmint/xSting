@@ -1,0 +1,10 @@
+# ros2 bag record --qos-profile-overrides-path tf_qos_override.yaml
+# /tf has two publishers on the robot: robot_state_publisher (VOLATILE, wheel and arm joints) and
+# diff_drive_controller (TRANSIENT_LOCAL, odom TF, silent when wheel_odom_tf:=false). Left alone, the recorder
+# matched the TRANSIENT_LOCAL one and dropped robot_state_publisher as incompatible: 0 /tf messages in the bag.
+# A VOLATILE subscription accepts both.
+/tf:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile
