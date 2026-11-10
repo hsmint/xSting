@@ -69,6 +69,7 @@
   .plan ol { margin: 4px 0 2px; padding-left: 22px; }
   .plan li.next { font-weight: 700; }
   .chg { background: #fff6e6; border-left: 3px solid #e8892b; border-radius: 4px; padding: 5px 8px; margin: 5px 0; }
+  .calctag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #e6f4ea; color: #1e7a3c; font-weight: 600; }
   .chgtag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #fff0d6; color: #a25a00; font-weight: 600; }
   #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1d2330; color: #fff;
            padding: 8px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 10; }
@@ -96,7 +97,8 @@
     <h2>AI 계획</h2><div class="card plan" id="planCardLLM"></div>
     <div class="row">누가 <select id="whoFilter"><option value="">전체</option><option value="ai">AI</option>
       <option value="rule">규칙(테스트)</option><option value="user">사용자</option></select>
-      <label><input type="checkbox" id="onlyThink"> 생각 요약이 있는 판단만</label></div>
+      <label><input type="checkbox" id="onlyThink"> 생각 요약이 있는 판단만</label>
+      <label><input type="checkbox" id="onlyCalc"> 경로 비교한 판단만</label></div>
     <div style="margin-top:8px" id="decisions"><span class="muted">아직 판단 기록 없음 (llm_commander를 실행하면 여기에 쌓입니다)</span></div>
   </div>
   <div id="tabRobot">
@@ -439,6 +441,7 @@ function renderDecisions() {
   const rid = String(decisions[0].run_id);
   const source = rid.startsWith('replay:') ? ['다시 실행', rid.slice(7)] : rid.startsWith('log:') ? ['기록 보기', rid.slice(4)] : null;
   const thinkCount = decisions.filter(d => d.reasoning && d.reasoning.length).length;
+  const calcDecs = decisions.filter(d => d.calcs && d.calcs.length);
   const whoCount = {}; decisions.forEach(d => { const t = whoOf(d) + '|' + tagOf(d); whoCount[t] = (whoCount[t] || 0) + 1; });
   const aiRec = decisions.find(d => whoOf(d) === 'ai' && d.model);
   const sum = f => decisions.reduce((a, d) => a + (usageOf(d)[f] || 0), 0);
@@ -449,12 +452,15 @@ function renderDecisions() {
     <span class="muted">모델</span><span>${aiRec ? `${esc(aiRec.model)} · effort ${esc(aiRec.effort)}` : decisions.some(d => whoOf(d) === 'ai') ? '<span class="muted">이 판에는 기록 없음</span>' : '<span class="muted">LLM을 쓰지 않음</span>'}</span>
     <span class="muted">판단 수</span><span>${decisions.length}회 · 평균 ${(lat.reduce((a, b) => a + b, 0) / Math.max(lat.length, 1)).toFixed(1)}초 · 최대 ${Math.max(0, ...lat).toFixed(1)}초</span>
     <span class="muted">생각 요약</span><span>${thinkCount}회 (effort가 낮으면 생각이 짧아 요약이 없는 판단이 많음)</span>
+    <span class="muted">경로 비교</span><span>${calcDecs.length ? `판단 ${calcDecs.length}개에서 COMPARE_ROUTES ${calcDecs.reduce((a, d) => a + d.calcs.length, 0)}번 (#${calcDecs.map(d => d.turn).join(', #')})` : '쓰지 않음'}</span>
     <span class="muted">토큰 합계</span><span>입력 ${k(sum('input'))} (캐시 ${k(sum('cached'))}) · 출력 ${k(sum('output'))} (생각 ${k(sum('reasoning'))})</span></div>`;
   const newest = decisions[decisions.length - 1];
   const keepOpen = new Set([...document.querySelectorAll('#decisions details[open]')].map(x => x.dataset.key));
   const onlyThink = document.getElementById('onlyThink').checked, who = document.getElementById('whoFilter').value;
+  const onlyCalc = document.getElementById('onlyCalc').checked;
   document.getElementById('decisions').innerHTML = decisions.map((d, i) => [d, i]).reverse()
-    .filter(([d]) => (!onlyThink || (d.reasoning && d.reasoning.length)) && (!who || whoOf(d) === who)).map(([d, i]) => {
+    .filter(([d]) => (!onlyThink || (d.reasoning && d.reasoning.length)) && (!who || whoOf(d) === who)
+      && (!onlyCalc || (d.calcs && d.calcs.length))).map(([d, i]) => {
     const w = whoOf(d), id = `${d.run_id}:${i}`, u = usageOf(d), o = d.outcome;
     const open = decOpen.has(id) || (d === newest && !decClosed.has(id));
     const act = d.error ? `<span class="bad">${esc(d.error)}</span>` : `<b>${esc(d.name)}</b> <span class="mono">${esc(argText(d.args))}</span>`;
@@ -467,23 +473,31 @@ function renderDecisions() {
       <div class="muted" style="margin-top:6px">생각 요약</div>
       ${d.reasoning && d.reasoning.length ? d.reasoning.map(r => `<div class="think">${esc(r)}</div>`).join('') : '<div class="muted">요약 없음 (계정·모델이 요약을 지원하지 않거나 생각이 짧았음)</div>'}
       ${d.text && d.text.length ? `<div class="muted">응답 문장</div><div class="say">${esc(d.text.join('\n'))}</div>` : ''}
+      ${d.calcs && d.calcs.length ? `<div class="muted">도구 호출 순서</div><div><span class="calctag">${'COMPARE_ROUTES → '.repeat(d.calcs.length)}${esc(d.name || '?')}</span></div>` : ''}
       <div class="muted">고른 도구</div><pre>${esc(d.name ? `${d.name}(${d.arguments ?? JSON.stringify(d.args || {})})` : '없음')}</pre>
       <div class="muted">토큰</div><div class="mono">입력 ${k(u.input)} (캐시 ${k(u.cached)}) · 출력 ${k(u.output)} (생각 ${k(u.reasoning)}) · ${d.latency_s}초</div>`;
+    const calcPart = !(d.calcs && d.calcs.length) ? '' : `<div class="muted" style="margin-top:6px">경로 비교 (COMPARE_ROUTES, 로봇은 안 움직임)</div>`
+      + d.calcs.map((c, n) => {
+        const rs = (c.result && c.result.routes) || [], best = Math.min(...rs.map(r => r.total_mm ?? Infinity));
+        return `<div class="mono" style="margin:2px 0">#${n + 1} 출발 (${c.result ? c.result.from.x + ', ' + c.result.from.y : '-'})</div>` + rs.map(r =>
+          `<div class="mono" style="${r.total_mm === best ? 'font-weight:700' : ''}">${r.total_mm == null ? '갈 수 없음' : (r.total_mm / 1000).toFixed(2) + 'm'} · ${esc(r.route.join('→'))}</div>`).join('');
+      }).join('');
     const planPart = !d.plan ? '' : `<div class="muted" style="margin-top:6px">계획 ${d.plan.change ? '<span class="chgtag">계획 변경</span>' : ''}</div>
       ${d.plan.change ? `<div class="chg">${esc(d.plan.change)}</div>` : ''}
       <div class="kv"><span class="muted">할당</span><span>${esc(d.plan.assignment || '-')}</span>
         <span class="muted">근거</span><span>${esc(d.plan.reason || '-')}</span></div>${routeHTML(d.plan.route)}`;
-    const body = !open ? '' : `<div class="body">${llmPart}${planPart}
+    const body = !open ? '' : `<div class="body">${llmPart}${calcPart}${planPart}
       ${o ? `<div class="muted" style="margin-top:6px">로봇 결과 → 다음 페이즈 ${esc(o.phase_after)}</div><pre>${esc(JSON.stringify(o.result, null, 1))}</pre>` : ''}
       ${d.input_state ? `<details data-key="${id}:state" ${keepOpen.has(id + ':state') ? 'open' : ''}><summary>보낸 상태 (MissionState, phase=${esc(d.input_state.phase)}, here=${esc(d.input_state.robot.here)})${d.input_state_rebuilt ? ' · 기록된 로봇 결과로 다시 계산함' : ''}</summary><pre>${esc(JSON.stringify(d.input_state, null, 1))}</pre></details>` : '<div class="muted">보낸 상태 기록 없음</div>'}
       ${w === 'ai' ? `<details data-key="${id}:raw" ${keepOpen.has(id + ':raw') ? 'open' : ''}><summary>응답 원문 (response.output)</summary><pre>${esc(JSON.stringify(d.raw_output || [], null, 1))}</pre></details>` : ''}
     </div>`;
     return `<div class="dec"><div class="head" data-id="${id}" data-newest="${d === newest}">
-      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}${d.plan && d.plan.change ?  ' <span class="chgtag" title="' + escAttr(d.plan.change) + '">계획 변경</span>' : ''}
+      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}${d.plan && d.plan.change ?  ' <span class="chgtag" title="' + escAttr(d.plan.change) + '">계획 변경</span>' : ''}${d.calcs && d.calcs.length ? ` <span class="calctag" title="COMPARE_ROUTES ${d.calcs.length}번 (후보 ${d.calcs.map(c => (c.routes || []).length).join('·')}개)">경로 비교 ×${d.calcs.length}</span>` : ''}
       <span class="muted" style="margin-left:auto">${w === 'ai' ? `${d.latency_s ?? '-'}초 · ${k(u.input)}/${k(u.output)}` : ''}</span></div>${body}</div>`;
   }).join('');
 }
 document.getElementById('onlyThink').addEventListener('change', renderDecisions);
+document.getElementById('onlyCalc').addEventListener('change', renderDecisions);
 document.getElementById('whoFilter').addEventListener('change', renderDecisions);
 document.getElementById('decisions').addEventListener('click', e => {
   const h = e.target.closest('.head');

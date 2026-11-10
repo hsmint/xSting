@@ -1,5 +1,7 @@
-"""LLM에 보여 줄 도구(행동) 정의. 이름과 enum은 고정 프롬프트(mission.md)와 똑같아야 한다.
+"""LLM에 보여 줄 도구 정의. 이름과 enum은 고정 프롬프트(mission.md)와 똑같아야 한다.
 
+- ROBOT_TOOLS: 로봇 행동. 중계 노드가 로봇에 보낸다. 모두 plan을 함께 받는다.
+- COMPARE_ROUTES: 계산 도구. 로봇에 보내지 않고 중계 노드가 노트북에서 경로 길이를 계산해 바로 돌려준다.
 순서와 내용을 바꾸지 않아야 프롬프트 캐시가 유지된다.
 """
 from .rules import LOCATIONS, NUM_CELLS, NUM_PUCKS, PLACES
@@ -51,7 +53,7 @@ _ITEMS = {
     },
 }
 
-TOOLS = [
+ROBOT_TOOLS = [
     _tool("READ_MISSION_INPUT",
           f"위치 조건: here=HOME. 바코드와 신호등 12회 점멸을 관측한다. 신호는 반복되므로 놓치면 다음 주기를 본다."),
     _tool("GOTO",
@@ -73,4 +75,26 @@ TOOLS = [
           {"items": _ITEMS}),
 ]
 
-TOOL_NAMES = [t["name"] for t in TOOLS]
+TOOL_NAMES = [t["name"] for t in ROBOT_TOOLS]  # 로봇 행동 이름 (기록·화면 명령 검사에 쓴다)
+
+CALC_TOOL = "COMPARE_ROUTES"
+MAX_ROUTES = 6  # 한 번에 비교할 수 있는 후보 순서 수
+COMPARE_ROUTES = {
+    "type": "function",
+    "name": CALC_TOOL,
+    "description": "계산 도구 (로봇은 움직이지 않는다). 지금 로봇 위치(robot.pose)에서 출발해 후보 순서마다 "
+                   "장소를 차례로 도는 실제 경로 길이(벽·박스를 피한 A*, mm)를 돌려준다. "
+                   f"후보는 {MAX_ROUTES}개까지. 판단 한 번에 3번까지 부를 수 있고, 그다음에는 로봇 행동을 하나 고른다.",
+    "strict": True,
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "routes": {"type": "array", "description": "후보 순서 목록. 각 후보는 들를 장소 ID를 순서대로 (예: [\"S2\", \"S6\", \"L3\", \"HOME\"])",
+                       "items": {"type": "array", "items": {"type": "string", "enum": list(PLACES)}}},
+        },
+        "required": ["routes"],
+        "additionalProperties": False,
+    },
+}
+
+TOOLS = ROBOT_TOOLS + [COMPARE_ROUTES]  # LLM에 보여 주는 전체

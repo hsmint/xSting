@@ -29,17 +29,46 @@ from xsting_interfaces.action import RobotCommand
 
 from . import planner
 from .state import ToolError, apply_result, check_location, check_unload, new_state, stamp_now, to_message
-from .tools import TOOL_NAMES, TOOLS
+from .arena_map import ArenaMap
+from .tools import CALC_TOOL, MAX_ROUTES, ROBOT_TOOLS, TOOL_NAMES, TOOLS
 
 # 행동별 결과 대기 시간(초). 신호는 반복되므로 놓치면 다음 주기까지 기다릴 수 있다
 ACTION_TIMEOUT_S = {"READ_MISSION_INPUT": 600.0, "GOTO": 180.0, "UNLOAD": 300.0}
 DEFAULT_TIMEOUT_S = 120.0
 # OpenAI 안전 필터 오탐은 같은 입력이라도 다시 보내면 통과하는 경우가 많다. 이만큼 더 보내 본다
 FLAGGED_RETRIES = 3
+MAX_CALC_CALLS = 3  # 판단 한 번에 계산 도구(COMPARE_ROUTES)를 부를 수 있는 횟수. 넘으면 로봇 행동만 보여 준다
 
 
 class LlmUnavailable(Exception):
     """이번 판단에 LLM을 쓸 수 없음. 미션을 멈춘다."""
+
+
+def _input_item(item):
+    """응답 항목을 다음 요청의 입력 항목으로 (없는 값은 뺀다)."""
+    return item.model_dump(exclude_none=True)
+
+
+def _log_item(item):
+    """기록용 응답 항목. 암호화된 생각(encrypted_content)은 길고 읽을 수 없으니 뺀다."""
+    data = item.model_dump()
+    data.pop("encrypted_content", None)
+    return data
+
+
+def _sum_usage(usages):
+    """여러 응답의 토큰 사용량을 더한다 (계산 도구로 여러 번 요청한 판단)."""
+    if not usages:
+        return None
+
+    def add(a, b):
+        if isinstance(a, dict):
+            return {k: add(a.get(k), b.get(k)) if isinstance(b, dict) else a.get(k) for k in a}
+        return (a or 0) + (b or 0) if isinstance(a, (int, float)) or isinstance(b, (int, float)) else a
+    total = usages[0]
+    for u in usages[1:]:
+        total = add(total, u)
+    return total
 
 
 def _is_flagged(e):
@@ -60,6 +89,7 @@ class LlmCommander(Node):
         # 생각 요약(reasoning summary): auto | detailed | concise | none. 원문 생각은 OpenAI가 공개하지 않는다
         self.declare_parameter("reasoning_summary", "auto")
         self.declare_parameter("prompt_file", os.path.join(share, "prompts", "mission.md"))
+        self.declare_parameter("arena_file", os.path.join(share, "config", "arena.yaml"))  # 경로 길이 계산용 지도
         self.declare_parameter("log_dir", os.path.expanduser("~/xsting_logs"))
         self.declare_parameter("max_turns", 200)
         self.declare_parameter("run_name", "")  # 이 판의 이름 (웹 지난 판 목록에 보임, 나중에 웹에서 바꿀 수 있음)
@@ -123,6 +153,8 @@ class LlmCommander(Node):
             with open(self.get_parameter("prompt_file").value, encoding="utf-8") as f:
                 # 경기 중 바꾸지 않는다. 도구 + 고정 프롬프트가 매번 같아서 앞부분이 자동으로 캐시된다.
                 self.instructions = f.read()
+            with open(self.get_parameter("arena_file").value, encoding="utf-8") as f:
+                self.arena_map = ArenaMap(yaml.safe_load(f))  # COMPARE_ROUTES 계산 (가짜 경기장과 같은 지도·코스트맵)
         self.save("meta.json", {"decider": self.decider, "model": self.model, "effort": self.effort,
                                 "guard": self.guard, "reasoning_summary": self.reasoning_summary})
         self.get_logger().info(f"llm_commander decider={self.decider}, model={self.model}, effort={self.effort}, "
@@ -279,23 +311,41 @@ class LlmCommander(Node):
         return json.loads(result_future.result().result.result_json)
 
     # ---------- 판단 (ChatGPT) ----------
-    def request(self, sent_state):
+    def request(self, sent_state, extra=(), tools=TOOLS):
+        """extra: 이번 판단 안에서 앞서 받은 응답 항목과 계산 도구 결과 (계산 도구를 쓴 뒤 다시 요청할 때)."""
         reasoning = {"effort": self.effort}
         if self.reasoning_summary:
             reasoning["summary"] = self.reasoning_summary
+        text = "현재 MissionState입니다. 규칙과 상태를 보고 다음 행동 하나를 도구로 호출하세요.\n" + to_message(sent_state)
         return self.client.responses.create(
             model=self.model,
             instructions=self.instructions,
-            input="현재 MissionState입니다. 규칙과 상태를 보고 다음 행동 하나를 도구로 호출하세요.\n"
-                  + to_message(sent_state),
-            tools=TOOLS,
+            input=[{"role": "user", "content": text}, *extra],
+            tools=list(tools),
             tool_choice="auto",
-            parallel_tool_calls=False,  # 한 번에 행동 하나
+            parallel_tool_calls=False,  # 한 번에 도구 하나
             reasoning=reasoning,
             max_output_tokens=16000,
             prompt_cache_key="xsting_mission",
             store=False,  # 대화를 서버에 남기지 않는다. 매번 상태만 보내므로 필요 없다
+            # store=False에서 계산 도구 결과를 주고 이어서 판단하려면 앞 응답의 생각(암호화)을 돌려줘야 한다
+            include=["reasoning.encrypted_content"],
         )
+
+    def compare_routes(self, args):
+        """COMPARE_ROUTES: 지금 로봇 위치에서 후보 순서마다 경로 길이를 계산한다 (로봇에는 보내지 않는다)."""
+        routes = [list(r) for r in (args.get("routes") or [])][:MAX_ROUTES]
+        pose, here = self.state["robot"]["pose"], self.state["robot"]["here"]
+        if pose:
+            start = (pose["x"], pose["y"])
+        else:  # 첫 판단 등 pose를 아직 모르면 지금 장소의 등록 위치에서
+            start = self.arena_map.targets.get(here, self.arena_map.targets["HOME"])
+        result = {"from": {"x": round(start[0]), "y": round(start[1])},
+                  "routes": self.arena_map.route_lengths(start, routes),
+                  "note": "길이는 mm. 장소는 대상 둘레(330~520mm)의 가장 가까운 자리까지. None은 갈 수 없는 구간."}
+        if len(args.get("routes") or []) > MAX_ROUTES:
+            result["note"] += f" 후보는 {MAX_ROUTES}개까지만 계산했다."
+        return result
 
     def decide_script(self):
         """고정 행동 목록에서 다음 행동. 직전 행동이 실패했으면 retries번까지 같은 행동을 다시 보낸다."""
@@ -329,6 +379,46 @@ class LlmCommander(Node):
                               "latency_s": 0, "plan": plan}
         return name, args
 
+    def _request_with_retries(self, sent_state, extra, tools, t0):
+        """요청 한 번. 생각 요약이 막혔거나 안전 필터 오탐이면 다시 보낸다. 쓸 수 없으면 LlmUnavailable."""
+        openai = self.openai
+        try:
+            flagged_retries = FLAGGED_RETRIES
+            request_state = sent_state
+            while True:
+                try:
+                    return self.request(request_state, extra, tools)
+                except openai.BadRequestError as e:
+                    # 생각 요약은 계정(조직 인증)이나 모델에 따라 막혀 있을 수 있다. 그때는 요약 없이 다시 요청한다
+                    if self.reasoning_summary and "summar" in str(e).lower():
+                        self.get_logger().warning(f"reasoning summary unavailable, retrying without it: {e}")
+                        self.reasoning_summary = None
+                    # OpenAI 안전 필터가 입력을 잘못 걸러내는 경우가 있다 (오탐). 지난 계획의 근거 문장(reason)이
+                    # 걸린 것일 수 있으니, 그 문장을 빼고(할당·순서는 남김) 다시 보낸다
+                    elif _is_flagged(e) and flagged_retries > 0:
+                        self.get_logger().warning(f"prompt flagged, retrying without plan text "
+                                                  f"({FLAGGED_RETRIES - flagged_retries + 1}/{FLAGGED_RETRIES}): {e}")
+                        self.log("flagged", {"error": repr(e)})
+                        flagged_retries -= 1
+                        request_state = copy.deepcopy(sent_state)
+                        plan = request_state["memory"]["plan"]
+                        if plan:
+                            plan.pop("reason", None)
+                    else:
+                        raise
+        except openai.BadRequestError as e:
+            if _is_flagged(e):  # 몇 번을 다시 보내도 걸렸다. 노드를 죽이지 않고 기록을 남긴 뒤 멈춘다
+                self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"PROMPT_FLAGGED {e!r}",
+                                       "latency_s": round(time.monotonic() - t0, 2)})
+                raise LlmUnavailable(f"PROMPT_FLAGGED {e!r}")
+            raise  # 요청 형식 오류는 코드나 설정 문제라 숨기지 않는다
+        except (openai.AuthenticationError, openai.NotFoundError):
+            raise  # 키·모델 이름 오류는 설정 문제라 숨기지 않는다
+        except (openai.RateLimitError, openai.APIConnectionError, openai.APIStatusError) as e:
+            self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"API_ERROR {e!r}",
+                                   "latency_s": round(time.monotonic() - t0, 2)})
+            raise LlmUnavailable(f"API_ERROR {e!r}")
+
     def set_plan(self, plan):
         """LLM이 적은 계획을 다음 판단에 돌려줄 memory.plan에 저장한다. 처음 세우거나 바뀐 계획은 이력에 남긴다."""
         if not plan:
@@ -356,65 +446,48 @@ class LlmCommander(Node):
         if self.decider == "script":
             self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
             return self.decide_script()
-        openai = self.openai
         self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
         sent_state = copy.deepcopy(self.state)  # 이번 판단에 보낸 상태 그대로 기록한다
         t0 = time.monotonic()
-        try:
-            flagged_retries = FLAGGED_RETRIES
-            request_state = sent_state
-            while True:
-                try:
-                    response = self.request(request_state)
-                    break
-                except openai.BadRequestError as e:
-                    # 생각 요약은 계정(조직 인증)이나 모델에 따라 막혀 있을 수 있다. 그때는 요약 없이 다시 요청한다
-                    if self.reasoning_summary and "summar" in str(e).lower():
-                        self.get_logger().warning(f"reasoning summary unavailable, retrying without it: {e}")
-                        self.reasoning_summary = None
-                    # OpenAI 안전 필터가 입력을 잘못 걸러내는 경우가 있다 (오탐). 지난 계획의 근거 문장(reason)이
-                    # 걸린 것일 수 있으니, 그 문장을 빼고(할당·순서는 남김) 한 번 더 보낸다
-                    elif _is_flagged(e) and flagged_retries > 0:
-                        self.get_logger().warning(f"prompt flagged, retrying without plan text "
-                                                  f"({FLAGGED_RETRIES - flagged_retries + 1}/{FLAGGED_RETRIES}): {e}")
-                        self.log("flagged", {"error": repr(e)})
-                        flagged_retries -= 1
-                        request_state = copy.deepcopy(sent_state)
-                        plan = request_state["memory"]["plan"]
-                        if plan:
-                            plan.pop("reason", None)
-                    else:
-                        raise
-        except openai.BadRequestError as e:
-            if _is_flagged(e):  # 몇 번을 다시 보내도 걸렸다. 노드를 죽이지 않고 기록을 남긴 뒤 멈춘다
-                self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"PROMPT_FLAGGED {e!r}",
-                                       "latency_s": round(time.monotonic() - t0, 2)})
-                raise LlmUnavailable(f"PROMPT_FLAGGED {e!r}")
-            raise  # 요청 형식 오류는 코드나 설정 문제라 숨기지 않는다
-        except (openai.AuthenticationError, openai.NotFoundError):
-            raise  # 키·모델 이름 오류는 설정 문제라 숨기지 않는다
-        except (openai.RateLimitError, openai.APIConnectionError, openai.APIStatusError) as e:
-            self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"API_ERROR {e!r}",
-                                   "latency_s": round(time.monotonic() - t0, 2)})
-            raise LlmUnavailable(f"API_ERROR {e!r}")
+        extra, calcs, responses = [], [], []
+        while True:
+            # 계산 도구를 MAX_CALC_CALLS번 쓰면 로봇 행동만 보여 줘서 하나를 고르게 한다
+            tools = TOOLS if len(calcs) < MAX_CALC_CALLS else ROBOT_TOOLS
+            response = self._request_with_retries(sent_state, extra, tools, t0)
+            responses.append(response)
+            call = next((item for item in response.output if item.type == "function_call"), None)
+            if (call is None or call.name != CALC_TOOL or response.status != "completed"
+                    or len(calcs) >= MAX_CALC_CALLS):
+                break
+            try:
+                calc_args = json.loads(call.arguments)
+            except json.JSONDecodeError:
+                calc_args = {}
+            result = self.compare_routes(calc_args)
+            calcs.append({"routes": calc_args.get("routes"), "result": result})
+            self.log("calc", calcs[-1])
+            # 앞 응답(생각·호출)과 계산 결과를 붙여 같은 판단을 이어서 요청한다
+            extra += [_input_item(item) for item in response.output]
+            extra.append({"type": "function_call_output", "call_id": call.call_id,
+                          "output": json.dumps(result, ensure_ascii=False)})
 
         latency = time.monotonic() - t0
-        texts, refusals, reasoning, call = [], [], [], None
-        for item in response.output:
-            if item.type == "function_call" and call is None:
-                call = item
-            elif item.type == "reasoning":
-                reasoning += [part.text for part in (item.summary or []) if getattr(part, "text", None)]
-            elif item.type == "message":
-                for part in item.content:
-                    if part.type == "output_text":
-                        texts.append(part.text)
-                    elif part.type == "refusal":
-                        refusals.append(part.refusal)
-        usage = response.usage.model_dump() if response.usage else None
+        texts, refusals, reasoning = [], [], []
+        for resp in responses:
+            for item in resp.output:
+                if item.type == "reasoning":
+                    reasoning += [part.text for part in (item.summary or []) if getattr(part, "text", None)]
+                elif item.type == "message":
+                    for part in item.content:
+                        if part.type == "output_text":
+                            texts.append(part.text)
+                        elif part.type == "refusal":
+                            refusals.append(part.refusal)
+        usage = _sum_usage([resp.usage.model_dump() for resp in responses if resp.usage])
         record = {"input_state": sent_state, "latency_s": round(latency, 2), "status": response.status,
                   "reasoning": reasoning, "text": texts, "refusal": refusals, "usage": usage,
-                  "raw_output": [item.model_dump() for item in response.output],
+                  "raw_output": [_log_item(item) for resp in responses for item in resp.output],
+                  "calcs": calcs, "rounds": len(responses),
                   "name": call.name if call else None, "arguments": call.arguments if call else None}
         self.log("llm", {k: v for k, v in record.items() if k != "input_state"})
 
@@ -425,6 +498,8 @@ class LlmCommander(Node):
             error = f"REFUSAL {refusals}"
         elif call is None:
             error = f"NO_TOOL_CALL {texts}"
+        elif call.name == CALC_TOOL:  # 계산 도구만 계속 부르고 로봇 행동을 고르지 않음
+            error = "TOO_MANY_CALC_CALLS"
         else:
             try:
                 args = json.loads(call.arguments)
@@ -437,7 +512,7 @@ class LlmCommander(Node):
         plan = args.pop("plan", None)  # 계획은 상태에 남기고, 로봇에는 행동 인자만 보낸다
         self.set_plan(plan)
         self.publish_decision({**record, "decider": "ai", "args": args, "plan": plan})
-        self.last_decision = {"model": self.model, "name": call.name, "args": args, "plan": plan,
+        self.last_decision = {"model": self.model, "name": call.name, "args": args, "plan": plan, "calcs": calcs,
                               "text": " ".join(texts), "reasoning": " ".join(reasoning),
                               "latency_s": round(latency, 2)}
         return call.name, args

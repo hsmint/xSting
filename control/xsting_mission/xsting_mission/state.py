@@ -96,8 +96,17 @@ def check_unload(state, args):
         need = state["world"]["signal"]["counts"][color]
     except PlanError as e:
         raise ToolError(f"PARTIAL_UNLOAD: {e}. 바코드·신호를 읽은 뒤 UNLOAD한다")
-    placed = sum(c["state"] == "occupied" for c in state["world"]["locations"][loc]["cells"])
-    if placed + len(args.get("items", [])) != need:
+    cells_now = state["world"]["locations"][loc]["cells"]
+    placed = sum(c["state"] == "occupied" for c in cells_now)
+    items = args.get("items", [])
+    # cell은 그 눈 개수의 cell 목록에서만, 겹치지 않게, 이미 놓은 칸이 아닌 곳에 놓는다
+    allowed = rules.DICE_CELLS.get(need, [])
+    cells = [it.get("cell") for it in items]
+    used = [c["cell"] for c in cells_now if c["state"] == "occupied"]
+    if any(c not in allowed for c in cells) or len(set(cells)) != len(cells) or any(c in used for c in cells):
+        raise ToolError(f"WRONG_CELLS: {loc}는 눈 {need}개라 cell {allowed}에 하나씩 놓는다 "
+                        f"(받은 cell {cells}" + (f", 이미 놓은 cell {used}" if used else "") + ")")
+    if placed + len(items) != need:
         raise ToolError(f"PARTIAL_UNLOAD: {loc}에는 퍽 {need}개를 한 번에 놓아야 한다 "
                         f"(이미 놓은 것 {placed}개 + 이번 items {len(args.get('items', []))}개). "
                         f"그 하차 박스에 놓을 퍽이 모두 적재함에 있을 때 UNLOAD한다")
