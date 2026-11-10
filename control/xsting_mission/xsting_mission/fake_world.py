@@ -33,6 +33,7 @@ class FakeWorld(ArenaMap):
         self.commander = None  # 중계 노드가 발행한 MissionState (화면 표시용)
         self.web_last = None  # 화면에서 보낸 마지막 명령과 결과
         self.decisions = []  # 중계 노드의 LLM 판단 기록 (화면 "LLM 판단" 탭)
+        self.decisions_version = 0  # 판단 기록이 바뀔 때마다 올린다 (카드를 교체해도 화면이 다시 불러오게)
         self.replay = None  # 다시 실행 중이면 {"run_id", "turn", "total"}
         self.paused = False  # 일시정지: 시간이 흐르지 않는다
         self.abort = False  # 미션 정지: 진행 중인 명령을 취소한다
@@ -118,6 +119,7 @@ class FakeWorld(ArenaMap):
     def add_decision(self, record):
         """중계 노드가 보낸 판단 기록. 같은 turn의 결과(outcome)는 그 판단에 합친다. 새 실행이면 비운다."""
         with self.lock:
+            self.decisions_version += 1
             prev = self.decisions[-1]["run_id"] if self.decisions else None
             # 다른 판의 기록이면 비운다. 단, 화면에서 먼저 보낸 명령("web") 뒤에 중계 노드가 시작하면 이어 붙인다
             if prev is not None and prev != record["run_id"] and not (
@@ -129,8 +131,14 @@ class FakeWorld(ArenaMap):
                         d["outcome"] = record["outcome"]
                         break
             else:
-                self.decisions.append(record)
-                del self.decisions[:-100]
+                k = next((k for k in range(len(self.decisions) - 1, -1, -1)
+                          if record.get("decider") != "user" and self.decisions[k].get("turn") == record.get("turn")
+                          and (self.decisions[k].get("prefetch") or {}).get("status") in ("requested", "answered")), None)
+                if k is None:
+                    self.decisions.append(record)
+                    del self.decisions[:-100]
+                else:  # "미리 판단 요청함/받음" 카드를 실제 판단(또는 버림)으로 바꾼다
+                    self.decisions[k] = record
 
     def decision_list(self):
         with self.lock:
@@ -258,7 +266,7 @@ class FakeWorld(ArenaMap):
                 "answer": {"barcode": self.barcode, "signal": "".join(self.signal), "pucks": self.initial_pucks},
                 "paused": self.paused, "replay": self.replay,
                 "decisions_key": f"{self.decisions[0]['run_id'] if self.decisions else ''}:{len(self.decisions)}:"
-                                 f"{sum('outcome' in d for d in self.decisions)}",
+                                 f"{sum('outcome' in d for d in self.decisions)}:{self.decisions_version}",
             })
 
     def begin(self, name, args, source):

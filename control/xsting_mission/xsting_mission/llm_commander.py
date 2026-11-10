@@ -15,6 +15,7 @@ decider:=script면 AI 없이 config/fixed_actions.yaml의 행동을 순서대로
 import copy
 import json
 import os
+import threading
 import time
 
 import rclpy
@@ -42,6 +43,17 @@ MAX_CALC_CALLS = 3  # 판단 한 번에 계산 도구(COMPARE_ROUTES)를 부를 
 
 class LlmUnavailable(Exception):
     """이번 판단에 LLM을 쓸 수 없음. 미션을 멈춘다."""
+
+
+def _pending_prefetch_index(records, record):
+    """record로 바꿔야 할 "미리 판단 요청함/받음" 카드의 위치 (같은 turn). 없으면 None. 사람이 보낸 명령은 바꾸지 않는다."""
+    if record.get("decider") == "user":
+        return None
+    for k in range(len(records) - 1, -1, -1):
+        d = records[k]
+        if d.get("turn") == record.get("turn") and (d.get("prefetch") or {}).get("status") in ("requested", "answered"):
+            return k
+    return None
 
 
 def _input_item(item):
@@ -92,6 +104,9 @@ class LlmCommander(Node):
         self.declare_parameter("arena_file", os.path.join(share, "config", "arena.yaml"))  # 경로 길이 계산용 지도
         self.declare_parameter("log_dir", os.path.expanduser("~/xsting_logs"))
         self.declare_parameter("max_turns", 200)
+        # 로봇이 GOTO·UNLOAD·VERIFY_LOCATION을 하는 동안 "성공했다"고 가정한 다음 판단을 미리 받아 둔다
+        # (결과가 가정과 같으면 바로 쓴다)
+        self.declare_parameter("prefetch", True)
         self.declare_parameter("run_name", "")  # 이 판의 이름 (웹 지난 판 목록에 보임, 나중에 웹에서 바꿀 수 있음)
         # 가드: 위치 조건을 만족하지 않는 명령을 로봇에 보내기 전에 거절한다.
         # 기본은 꺼 둔다(LLM 단독 판단 시험). 실물 로봇에서는 true를 권장한다.
@@ -104,6 +119,10 @@ class LlmCommander(Node):
         self.effort = self.get_parameter("effort").value
         self.max_turns = self.get_parameter("max_turns").value
         self.guard = self.get_parameter("guard").value
+        self.prefetch_enabled = self.get_parameter("prefetch").value
+        self.prefetch = None  # 미리 받는 중이거나 받은 다음 판단
+        self._log_lock = threading.Lock()  # 미리 판단하는 스레드도 기록을 쓴다
+        self._records_lock = threading.Lock()
         self.decider = self.get_parameter("decider").value
         if self.decider not in ("llm", "script"):
             raise ValueError(f"decider는 llm 또는 script: {self.decider}")
@@ -183,9 +202,11 @@ class LlmCommander(Node):
 
     # ---------- 기록 ----------
     def log(self, kind, data):
-        self._log.write(json.dumps({"t": time.time(), "turn": self.turn, "kind": kind,
-                                    "data": data}, ensure_ascii=False, default=str) + "\n")
-        self._log.flush()
+        line = json.dumps({"t": time.time(), "turn": self.turn, "kind": kind, "data": data},
+                          ensure_ascii=False, default=str)
+        with self._log_lock:
+            self._log.write(line + "\n")
+            self._log.flush()
 
     def save(self, filename, data):
         with open(os.path.join(self.run_dir, filename), "w", encoding="utf-8") as f:
@@ -194,16 +215,21 @@ class LlmCommander(Node):
     def publish_decision(self, record):
         record = {"run_id": self.run_id, "turn": self.turn, "t": time.time(), "model": self.model,
                   "effort": self.effort, **record}
-        self.decision_pub.publish(String(data=json.dumps(record, ensure_ascii=False, default=str)))
-        # 파일에도 같은 내용을 남긴다. 결과(outcome)는 같은 turn의 판단에 합친다
-        if "outcome" in record and record.get("decider") != "user":
-            for d in reversed(self.records):
-                if d["turn"] == record["turn"] and d.get("decider") != "user":
-                    d["outcome"] = record["outcome"]
-                    break
-        else:
-            self.records.append(record)
-        self.save("decisions.json", self.records)
+        with self._records_lock:  # 미리 판단 스레드도 카드를 발행한다
+            self.decision_pub.publish(String(data=json.dumps(record, ensure_ascii=False, default=str)))
+            # 파일에도 같은 내용을 남긴다. 결과(outcome)는 같은 turn의 판단에 합친다
+            if "outcome" in record and record.get("decider") != "user":
+                for d in reversed(self.records):
+                    if d["turn"] == record["turn"] and d.get("decider") != "user":
+                        d["outcome"] = record["outcome"]
+                        break
+            else:
+                k = _pending_prefetch_index(self.records, record)
+                if k is None:
+                    self.records.append(record)
+                else:  # "미리 판단 요청함/받음" 카드를 실제 판단(또는 버림)으로 바꾼다
+                    self.records[k] = record
+            self.save("decisions.json", self.records)
 
     def write_report(self):
         """판 전체를 사람이 읽기 쉬운 마크다운으로 남긴다."""
@@ -332,10 +358,10 @@ class LlmCommander(Node):
             include=["reasoning.encrypted_content"],
         )
 
-    def compare_routes(self, args):
-        """COMPARE_ROUTES: 지금 로봇 위치에서 후보 순서마다 경로 길이를 계산한다 (로봇에는 보내지 않는다)."""
+    def compare_routes(self, args, state):
+        """COMPARE_ROUTES: 그 판단에 보낸 상태의 로봇 위치에서 후보 순서마다 경로 길이를 계산한다 (로봇에는 보내지 않는다)."""
         routes = [list(r) for r in (args.get("routes") or [])][:MAX_ROUTES]
-        pose, here = self.state["robot"]["pose"], self.state["robot"]["here"]
+        pose, here = state["robot"]["pose"], state["robot"]["here"]
         if pose:
             start = (pose["x"], pose["y"])
         else:  # 첫 판단 등 pose를 아직 모르면 지금 장소의 등록 위치에서
@@ -379,8 +405,11 @@ class LlmCommander(Node):
                               "latency_s": 0, "plan": plan}
         return name, args
 
-    def _request_with_retries(self, sent_state, extra, tools, t0):
-        """요청 한 번. 생각 요약이 막혔거나 안전 필터 오탐이면 다시 보낸다. 쓸 수 없으면 LlmUnavailable."""
+    def _request_with_retries(self, sent_state, extra, tools, t0, quiet=False):
+        """요청 한 번. 생각 요약이 막혔거나 안전 필터 오탐이면 다시 보낸다. 쓸 수 없으면 LlmUnavailable.
+
+        quiet: 미리 판단(이동 중)일 때는 실패해도 판단 기록을 남기지 않는다 (버리고 도착 뒤에 새로 판단한다).
+        """
         openai = self.openai
         try:
             flagged_retries = FLAGGED_RETRIES
@@ -408,15 +437,17 @@ class LlmCommander(Node):
                         raise
         except openai.BadRequestError as e:
             if _is_flagged(e):  # 몇 번을 다시 보내도 걸렸다. 노드를 죽이지 않고 기록을 남긴 뒤 멈춘다
-                self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"PROMPT_FLAGGED {e!r}",
-                                       "latency_s": round(time.monotonic() - t0, 2)})
+                if not quiet:
+                    self.publish_decision({"decider": "ai", "input_state": sent_state,
+                                           "error": f"PROMPT_FLAGGED {e!r}", "latency_s": round(time.monotonic() - t0, 2)})
                 raise LlmUnavailable(f"PROMPT_FLAGGED {e!r}")
             raise  # 요청 형식 오류는 코드나 설정 문제라 숨기지 않는다
         except (openai.AuthenticationError, openai.NotFoundError):
             raise  # 키·모델 이름 오류는 설정 문제라 숨기지 않는다
         except (openai.RateLimitError, openai.APIConnectionError, openai.APIStatusError) as e:
-            self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"API_ERROR {e!r}",
-                                   "latency_s": round(time.monotonic() - t0, 2)})
+            if not quiet:
+                self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"API_ERROR {e!r}",
+                                       "latency_s": round(time.monotonic() - t0, 2)})
             raise LlmUnavailable(f"API_ERROR {e!r}")
 
     def set_plan(self, plan):
@@ -443,17 +474,33 @@ class LlmCommander(Node):
         return items
 
     def decide(self):
-        if self.decider == "script":
-            self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
-            return self.decide_script()
         self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
-        sent_state = copy.deepcopy(self.state)  # 이번 판단에 보낸 상태 그대로 기록한다
+        if self.decider == "script":
+            return self.decide_script()
+        decided = self._take_prefetch()  # 이동하는 동안 미리 받아 둔 판단 (가정이 맞았을 때만)
+        if decided is None:
+            sent_state = copy.deepcopy(self.state)  # 이번 판단에 보낸 상태 그대로 기록한다
+            decided = self._llm_decide(sent_state)
+        name, args, plan, record = decided
+        self.set_plan(plan)
+        self.publish_decision({**record, "decider": "ai", "args": args, "plan": plan})
+        self.last_decision = {"model": self.model, "name": name, "args": args, "plan": plan,
+                              "calcs": record.get("calcs"), "prefetched": record.get("prefetched", False),
+                              "text": " ".join(record.get("text") or []),
+                              "reasoning": " ".join(record.get("reasoning") or []), "latency_s": record["latency_s"]}
+        return name, args
+
+    def _llm_decide(self, sent_state, quiet=False):
+        """sent_state를 보내 LLM의 다음 행동을 받는다. 상태·계획은 바꾸지 않는다 (확정은 decide가 한다).
+
+        반환: (행동 이름, 인자, 계획, 판단 기록). 쓸 수 없으면 LlmUnavailable (quiet가 아니면 기록을 남긴다).
+        """
         t0 = time.monotonic()
         extra, calcs, responses = [], [], []
         while True:
             # 계산 도구를 MAX_CALC_CALLS번 쓰면 로봇 행동만 보여 줘서 하나를 고르게 한다
             tools = TOOLS if len(calcs) < MAX_CALC_CALLS else ROBOT_TOOLS
-            response = self._request_with_retries(sent_state, extra, tools, t0)
+            response = self._request_with_retries(sent_state, extra, tools, t0, quiet)
             responses.append(response)
             call = next((item for item in response.output if item.type == "function_call"), None)
             if (call is None or call.name != CALC_TOOL or response.status != "completed"
@@ -463,7 +510,7 @@ class LlmCommander(Node):
                 calc_args = json.loads(call.arguments)
             except json.JSONDecodeError:
                 calc_args = {}
-            result = self.compare_routes(calc_args)
+            result = self.compare_routes(calc_args, sent_state)
             calcs.append({"routes": calc_args.get("routes"), "result": result})
             self.log("calc", calcs[-1])
             # 앞 응답(생각·호출)과 계산 결과를 붙여 같은 판단을 이어서 요청한다
@@ -506,16 +553,118 @@ class LlmCommander(Node):
             except json.JSONDecodeError:
                 error = f"BAD_ARGUMENTS {call.arguments!r}"
         if error:
-            self.publish_decision({**record, "decider": "ai", "error": error})
+            if not quiet:
+                self.publish_decision({**record, "decider": "ai", "error": error})
             raise LlmUnavailable(error)
 
         plan = args.pop("plan", None)  # 계획은 상태에 남기고, 로봇에는 행동 인자만 보낸다
-        self.set_plan(plan)
-        self.publish_decision({**record, "decider": "ai", "args": args, "plan": plan})
-        self.last_decision = {"model": self.model, "name": call.name, "args": args, "plan": plan, "calcs": calcs,
-                              "text": " ".join(texts), "reasoning": " ".join(reasoning),
-                              "latency_s": round(latency, 2)}
-        return call.name, args
+        return call.name, args, plan, record
+
+    # ---------- 이동 중 미리 판단 ----------
+    def start_prefetch(self, name, args):
+        """로봇에 행동을 보낼 때, 그 행동이 성공했다고 가정한 상태로 다음 판단을 백그라운드에서 미리 받는다.
+
+        - GOTO: 그 장소에 도착 (도착 좌표는 모르므로 pose는 비운다). 마지막 HOME 복귀는 하지 않는다.
+        - UNLOAD: 보낸 items가 모두 놓였다.
+        - VERIFY_LOCATION: 보낸 items가 모두 일치하고 남는 퍽이 없다.
+        결과가 나오면 decide가 가정이 맞았는지 보고 쓴다(_take_prefetch). 결과 내용이 판단 재료인 행동
+        (READ_MISSION_INPUT, LOAD)은 하지 않는다.
+        """
+        self.prefetch = None
+        if self.decider != "llm" or not self.prefetch_enabled:
+            return
+        here = self.state["robot"]["here"]
+        if name == "GOTO" and args.get("t") != "HOME":
+            assumed = {"success": True, "robot": {"here": args["t"], "pose": None}}
+        elif name == "UNLOAD":
+            assumed = {"success": True, "stopped_at": None, "robot": {"here": here},
+                       "items": [{**it, "ok": True, "offset_mm": [0.0, 0.0]} for it in args["items"]]}
+        elif name == "VERIFY_LOCATION" and here in self.state["world"]["locations"]:
+            pucks = self.state["world"]["pucks"]
+            cells = [{"cell": c["cell"], "state": c["state"], "puck_id": c["puck_id"],
+                      "color": pucks[c["puck_id"]]["color"] if c["puck_id"] is not None else None,
+                      "shape": pucks[c["puck_id"]]["shape"] if c["puck_id"] is not None else None, "offset_mm": None}
+                     for c in self.state["world"]["locations"][here]["cells"]]
+            assumed = {"success": True, "all_ok": True, "extra": [], "cells": cells, "robot": {"here": here},
+                       "items": [{**it, "ok": True, "seen_puck_id": it["puck_id"]} for it in args["items"]]}
+        else:
+            return
+        predicted = copy.deepcopy(self.state)
+        apply_result(predicted, name, args, assumed)
+        predicted["meta"] = {"seq": self.turn + 1, "stamp": stamp_now()}
+        assume = f"{name} {args['t']}" if name == "GOTO" else f"{name} {here} ({len(args['items'])}개)"
+        box = {"turn": self.turn + 1, "name": name, "args": args, "assume": f"{assume} 성공 가정",
+               "done": threading.Event(), "lock": threading.Lock(), "discarded": False, "result": None, "error": None}
+
+        def work():
+            try:
+                box["result"] = self._llm_decide(predicted, quiet=True)
+                n, a, _, rec = box["result"]
+                with box["lock"]:  # 이미 버렸으면 "받음" 카드를 띄우지 않는다
+                    if not box["discarded"]:
+                        self._prefetch_card(box, "answered", answer=f"{n} {json.dumps(a, ensure_ascii=False)}",
+                                            latency_s=rec["latency_s"])
+            except Exception as e:  # 미리 판단이 안 되면 결과가 나온 뒤 평소처럼 판단한다
+                box["error"] = repr(e)
+            finally:
+                box["done"].set()
+
+        self.prefetch = box
+        self._prefetch_card(box, "requested")
+        threading.Thread(target=work, daemon=True).start()
+        self.log("prefetch", {"start": True, "turn": box["turn"], "assume": box["assume"]})
+
+    def _prefetch_card(self, box, status, **extra):
+        """웹 LLM 판단 탭에 미리 판단 진행 상황 카드를 띄운다 (요청함 → 받음 → 실제 판단으로 교체 / 버림)."""
+        label = {"requested": "미리 판단 요청함", "answered": "미리 판단 받음 (로봇 결과 확인 중)",
+                 "discarded": "미리 판단 버림"}[status]
+        note = f"{label}: {box['assume']}" + (f" → {extra['answer']}" if extra.get("answer") else "") \
+            + (f" · {extra['reason']}" if extra.get("reason") else "")
+        self.publish_decision({"turn": box["turn"], "decider": "ai", "name": None, "text": [note],
+                               "prefetch": {"status": status, "assume": box["assume"], **extra}})
+
+    def _discard_prefetch(self, box, reason):
+        with box["lock"]:
+            box["discarded"] = True
+            self._prefetch_card(box, "discarded", reason=reason)
+        self.log("prefetch", {"used": False, "reason": reason, "turn": box["turn"]})
+
+    def _prefetch_matches(self, box):
+        """실제 결과가 미리 판단에서 가정한 결과와 같은지. 다르면 그 이유, 같으면 None."""
+        last = self.state["last_action"]
+        if box["turn"] != self.turn or not last or last["name"] != box["name"] or last["args"] != box["args"]:
+            return "다른 행동의 결과"
+        if not last["success"]:
+            return f"실패 ({last['error']})"
+        result = last["result"]
+        if box["name"] == "GOTO" and self.state["robot"]["here"] != box["args"]["t"]:
+            return "다른 곳에 도착"
+        if box["name"] in ("UNLOAD", "VERIFY_LOCATION") and not all(i.get("ok") for i in result.get("items", [])):
+            return "일부 항목이 성공·일치하지 않음"
+        if box["name"] == "UNLOAD" and len(result.get("items", [])) != len(box["args"]["items"]):
+            return "일부만 놓음"
+        if box["name"] == "VERIFY_LOCATION" and result.get("extra"):
+            return "목록에 없는 cell에 퍽이 있음"
+        return None
+
+    def _take_prefetch(self):
+        """미리 받은 판단을 쓸 수 있으면 (행동, 인자, 계획, 기록). 가정한 결과와 실제가 다르면 버린다."""
+        box, self.prefetch = self.prefetch, None
+        if box is None:
+            return None
+        mismatch = self._prefetch_matches(box)
+        if mismatch:
+            self._discard_prefetch(box, f"가정과 다름: {mismatch}")
+            return None
+        t = time.monotonic()
+        box["done"].wait()  # 아직 답을 받는 중이면 남은 시간만 기다린다
+        waited = round(time.monotonic() - t, 2)
+        if box["result"] is None:
+            self._discard_prefetch(box, f"미리 판단 실패: {box['error']}")
+            return None
+        name, args, plan, record = box["result"]
+        self.log("prefetch", {"used": True, "turn": box["turn"], "waited_s": waited})
+        return name, args, plan, {**record, "prefetched": True, "prefetch_wait_s": waited}
 
     # ---------- 실행 ----------
     def run_tool(self, name, args):
@@ -531,6 +680,7 @@ class LlmCommander(Node):
             except ToolError as e:
                 result = {"success": False, "error": "REJECTED", "message": str(e)}
             else:
+                self.start_prefetch(name, args)  # 로봇이 움직이는 동안 다음 판단을 미리 받아 둔다
                 result = self.call_robot(name, args)
 
         apply_result(state, name, args, result)

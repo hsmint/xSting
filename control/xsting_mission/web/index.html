@@ -65,10 +65,16 @@
   .dec > .head { padding: 6px 10px; cursor: pointer; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
   .dec > .head:hover { background: #f6f8fb; }
   .dec > .body { padding: 0 10px 8px; border-top: 1px solid #f0f2f4; }
+  /* 미리 판단 진행 카드: 실제 판단이 아니므로 작고 흐리게, 점선 테두리로 구별한다 */
+  .dec.pre { border: 1px dashed #d4c8ef; background: #fbf9ff; margin: -4px 0 6px 18px; border-radius: 6px; }
+  .dec.pre.gone { border-color: var(--line); background: #f8f9fb; }
+  .dec.pre > .head { padding: 2px 8px; font-size: 11px; cursor: default; gap: 4px; color: var(--muted); }
+  .dec.pre > .head:hover { background: transparent; }
   .think { background: #f3f0fb; border-left: 3px solid #8b6fd6; border-radius: 4px; padding: 6px 8px; margin: 6px 0; white-space: pre-wrap; }
   .plan ol { margin: 4px 0 2px; padding-left: 22px; }
   .plan li.next { font-weight: 700; }
   .chg { background: #fff6e6; border-left: 3px solid #e8892b; border-radius: 4px; padding: 5px 8px; margin: 5px 0; }
+  .pretag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #efe9fb; color: #5b3fa8; font-weight: 600; }
   .calctag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #e6f4ea; color: #1e7a3c; font-weight: 600; }
   .chgtag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #fff0d6; color: #a25a00; font-weight: 600; }
   #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1d2330; color: #fff;
@@ -442,16 +448,19 @@ function renderDecisions() {
   const source = rid.startsWith('replay:') ? ['다시 실행', rid.slice(7)] : rid.startsWith('log:') ? ['기록 보기', rid.slice(4)] : null;
   const thinkCount = decisions.filter(d => d.reasoning && d.reasoning.length).length;
   const calcDecs = decisions.filter(d => d.calcs && d.calcs.length);
-  const whoCount = {}; decisions.forEach(d => { const t = whoOf(d) + '|' + tagOf(d); whoCount[t] = (whoCount[t] || 0) + 1; });
+  const preDecs = decisions.filter(d => d.prefetched);
+  const real = decisions.filter(d => !d.prefetch);  // 미리 판단 진행 카드는 판단 수에 넣지 않는다
+  const whoCount = {}; real.forEach(d => { const t = whoOf(d) + '|' + tagOf(d); whoCount[t] = (whoCount[t] || 0) + 1; });
   const aiRec = decisions.find(d => whoOf(d) === 'ai' && d.model);
   const sum = f => decisions.reduce((a, d) => a + (usageOf(d)[f] || 0), 0);
-  const lat = decisions.filter(d => d.latency_s).map(d => d.latency_s);
+  const lat = real.filter(d => d.latency_s).map(d => d.latency_s);
   document.getElementById('decSummary').innerHTML = `<div class="kv">
     ${source ? `<span class="muted">기록</span><span><b>${source[0]}</b> ${esc(source[1])}</span>` : ''}
     <span class="muted">누가</span><span>${Object.entries(whoCount).map(([t, n]) => `<span class="who ${t.split('|')[0]}">${esc(t.split('|')[1])}</span> ${n}회`).join(' · ')}</span>
     <span class="muted">모델</span><span>${aiRec ? `${esc(aiRec.model)} · effort ${esc(aiRec.effort)}` : decisions.some(d => whoOf(d) === 'ai') ? '<span class="muted">이 판에는 기록 없음</span>' : '<span class="muted">LLM을 쓰지 않음</span>'}</span>
-    <span class="muted">판단 수</span><span>${decisions.length}회 · 평균 ${(lat.reduce((a, b) => a + b, 0) / Math.max(lat.length, 1)).toFixed(1)}초 · 최대 ${Math.max(0, ...lat).toFixed(1)}초</span>
+    <span class="muted">판단 수</span><span>${real.length}회 · 평균 ${(lat.reduce((a, b) => a + b, 0) / Math.max(lat.length, 1)).toFixed(1)}초 · 최대 ${Math.max(0, ...lat).toFixed(1)}초</span>
     <span class="muted">생각 요약</span><span>${thinkCount}회 (effort가 낮으면 생각이 짧아 요약이 없는 판단이 많음)</span>
+    <span class="muted">미리 판단</span><span>${preDecs.length ? `${preDecs.length}회 · 기다리지 않은 시간 약 ${preDecs.reduce((a, d) => a + Math.max(0, (d.latency_s || 0) - (d.prefetch_wait_s || 0)), 0).toFixed(0)}초` : '없음'}</span>
     <span class="muted">경로 비교</span><span>${calcDecs.length ? `판단 ${calcDecs.length}개에서 COMPARE_ROUTES ${calcDecs.reduce((a, d) => a + d.calcs.length, 0)}번 (#${calcDecs.map(d => d.turn).join(', #')})` : '쓰지 않음'}</span>
     <span class="muted">토큰 합계</span><span>입력 ${k(sum('input'))} (캐시 ${k(sum('cached'))}) · 출력 ${k(sum('output'))} (생각 ${k(sum('reasoning'))})</span></div>`;
   const newest = decisions[decisions.length - 1];
@@ -463,6 +472,15 @@ function renderDecisions() {
       && (!onlyCalc || (d.calcs && d.calcs.length))).map(([d, i]) => {
     const w = whoOf(d), id = `${d.run_id}:${i}`, u = usageOf(d), o = d.outcome;
     const open = decOpen.has(id) || (d === newest && !decClosed.has(id));
+    if (d.prefetch) {  // 미리 판단 진행 카드: 요청함 → 받음 → (실제 판단으로 교체) / 버림
+      const p = d.prefetch, label = { requested: '미리 판단 요청함', answered: '미리 판단 받음', discarded: '미리 판단 버림' }[p.status];
+      const detail = p.status === 'requested' ? `${esc(p.assume)} · 답 받는 중…`
+        : p.status === 'answered' ? `${esc(p.assume)} → <b>${esc(p.answer)}</b> · 로봇 결과 확인 중`
+        : `${esc(p.reason || '')}`;
+      return `<div class="dec pre${p.status === 'discarded' ? ' gone' : ''}"><div class="head"><span class="mono">#${d.turn}</span>
+        <span class="pretag" style="${p.status === 'discarded' ? 'background:#eef1f5;color:#5b6472' : ''}">${label}</span>
+        <span>${detail}</span></div></div>`;
+    }
     const act = d.error ? `<span class="bad">${esc(d.error)}</span>` : `<b>${esc(d.name)}</b> <span class="mono">${esc(argText(d.args))}</span>`;
     const res = (o ? `<span class="${o.success ? 'ok' : 'bad'}">${o.success ? '✓' : '✗ ' + esc(o.error || '')}</span>` : (d.error ? '' : '<span class="muted">실행 중…</span>'))
       + (o && o.recorded ? ` <span class="bad" title="다시 실행 결과가 원래 기록과 다름">⚠ 기록: ${o.recorded.success ? '✓' : '✗ ' + esc(o.recorded.error || '')}</span>` : '');
@@ -492,7 +510,7 @@ function renderDecisions() {
       ${w === 'ai' ? `<details data-key="${id}:raw" ${keepOpen.has(id + ':raw') ? 'open' : ''}><summary>응답 원문 (response.output)</summary><pre>${esc(JSON.stringify(d.raw_output || [], null, 1))}</pre></details>` : ''}
     </div>`;
     return `<div class="dec"><div class="head" data-id="${id}" data-newest="${d === newest}">
-      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}${d.plan && d.plan.change ?  ' <span class="chgtag" title="' + escAttr(d.plan.change) + '">계획 변경</span>' : ''}${d.calcs && d.calcs.length ? ` <span class="calctag" title="COMPARE_ROUTES ${d.calcs.length}번 (후보 ${d.calcs.map(c => (c.routes || []).length).join('·')}개)">경로 비교 ×${d.calcs.length}</span>` : ''}
+      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}${d.plan && d.plan.change ?  ' <span class="chgtag" title="' + escAttr(d.plan.change) + '">계획 변경</span>' : ''}${d.prefetched ? ` <span class="pretag" title="로봇이 앞 행동을 하는 동안 미리 받은 판단: AI 응답 ${d.latency_s}초 중 도착 뒤 ${d.prefetch_wait_s}초만 기다림">미리 판단</span>` : ''}${d.calcs && d.calcs.length ? ` <span class="calctag" title="COMPARE_ROUTES ${d.calcs.length}번 (후보 ${d.calcs.map(c => (c.routes || []).length).join('·')}개)">경로 비교 ×${d.calcs.length}</span>` : ''}
       <span class="muted" style="margin-left:auto">${w === 'ai' ? `${d.latency_s ?? '-'}초 · ${k(u.input)}/${k(u.output)}` : ''}</span></div>${body}</div>`;
   }).join('');
 }
@@ -501,7 +519,7 @@ document.getElementById('onlyCalc').addEventListener('change', renderDecisions);
 document.getElementById('whoFilter').addEventListener('change', renderDecisions);
 document.getElementById('decisions').addEventListener('click', e => {
   const h = e.target.closest('.head');
-  if (!h) return;
+  if (!h || !h.dataset.id) return;  // 미리 판단 진행 카드는 펼칠 내용이 없다
   const id = h.dataset.id, isOpen = !!h.nextElementSibling;
   if (isOpen) { decOpen.delete(id); decClosed.add(id); } else { decOpen.add(id); decClosed.delete(id); }
   renderDecisions();
