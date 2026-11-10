@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from . import rules
 
 PHASES = ("READ_MISSION_INPUT", "LOAD", "UNLOAD", "VERIFY_LOCATION", "GOTO", "DONE")
-ROBOT_FIELDS = ("status", "error", "here", "localization", "arm_stowed", "gripper")
+ROBOT_FIELDS = ("status", "error", "here", "pose", "localization", "arm_stowed", "gripper")
 
 # 행동별 위치 조건 (robot.here가 이 중 하나여야 한다). GOTO는 어디서든 가능하다.
 LOCATION_CONDITION = {
@@ -40,6 +40,7 @@ def new_state():
             "status": "OK",  # OK | BUSY | WARN | FAULT
             "error": None,  # {"code", "message"}
             "here": rules.HOME,  # HOME | S1~S6 | L1~L3 | MOVING | UNKNOWN
+            "pose": None,  # {"x", "y" (mm), "yaw" (deg)}. 로봇이 결과마다 알려 준다
             "localization": "ok",  # ok | degraded | lost
             "arm_stowed": True,
             "gripper": "empty",  # empty | holding
@@ -61,6 +62,8 @@ def new_state():
             },
         },
         "last_action": None,
+        # LLM이 직전 판단에 적은 계획 {turn, assignment, route, reason}. 대화 기록이 없으므로 계획은 여기로 이어진다
+        "memory": {"plan": None},
     }
 
 
@@ -76,6 +79,28 @@ def check_location(state, name):
     here = state["robot"]["here"]
     if allowed and here not in allowed:
         raise ToolError(f"LOCATION_CONDITION: {name}은(는) {'/'.join(allowed)}에서만 가능, 지금 here={here}")
+
+
+def check_unload(state, args):
+    """UNLOAD는 하차 박스 하나에 놓을 퍽을 한 번에 모두 놓아야 한다 (나눠 놓지 않는다).
+
+    이미 놓은 퍽 수 + 이번 items 수 = 그 하차 박스의 눈 개수여야 한다. 처음에는 전부를 한 번에,
+    도중에 실패해 멈췄으면 남은 퍽 전부를 한 번에 놓는 경우만 통과한다.
+    """
+    from .planner import PlanError, group_order  # planner가 rules만 쓰므로 순환하지 않는다
+    loc = state["robot"]["here"]
+    if loc not in rules.LOCATIONS:
+        return  # 위치 조건은 check_location(가드)이 본다
+    try:
+        color = group_order(state)[loc]  # 바코드·신호가 없으면 여기서 PlanError
+        need = state["world"]["signal"]["counts"][color]
+    except PlanError as e:
+        raise ToolError(f"PARTIAL_UNLOAD: {e}. 바코드·신호를 읽은 뒤 UNLOAD한다")
+    placed = sum(c["state"] == "occupied" for c in state["world"]["locations"][loc]["cells"])
+    if placed + len(args.get("items", [])) != need:
+        raise ToolError(f"PARTIAL_UNLOAD: {loc}에는 퍽 {need}개를 한 번에 놓아야 한다 "
+                        f"(이미 놓은 것 {placed}개 + 이번 items {len(args.get('items', []))}개). "
+                        f"그 하차 박스에 놓을 퍽이 모두 적재함에 있을 때 UNLOAD한다")
 
 
 def apply_result(state, name, args, result, t=None):
@@ -106,16 +131,19 @@ def apply_result(state, name, args, result, t=None):
     elif name == "LOAD":
         box = world["boxes"].get(robot["here"])
         if ok:
-            puck, slot = result["puck"], result["slot"]
-            robot["storage"][slot] = {"slot": slot, "state": "occupied" if puck.get("id") is not None else "unknown",
-                                      "puck_id": puck.get("id"), "color": puck.get("color"),
-                                      "shape": puck.get("shape")}
-            if puck.get("id") is not None:
-                world["pucks"][puck["id"]].update(color=puck.get("color"), shape=puck.get("shape"),
-                                                  conf=puck.get("conf"), origin=robot["here"],
-                                                  where="storage", slot=slot)
-                if box is not None:
-                    box["loaded"].append(puck["id"])
+            # 한 번에 그 박스의 퍽을 모두 싣는다. 예전 기록은 {"slot", "puck"} 하나짜리 형식이다
+            loaded = result["pucks"] if "pucks" in result else [{"slot": result["slot"], "puck": result["puck"]}]
+            for item in loaded:
+                puck, slot = item["puck"], item["slot"]
+                robot["storage"][slot] = {"slot": slot, "state": "occupied" if puck.get("id") is not None else "unknown",
+                                          "puck_id": puck.get("id"), "color": puck.get("color"),
+                                          "shape": puck.get("shape")}
+                if puck.get("id") is not None:
+                    world["pucks"][puck["id"]].update(color=puck.get("color"), shape=puck.get("shape"),
+                                                      conf=puck.get("conf"), origin=robot["here"],
+                                                      where="storage", slot=slot)
+                    if box is not None:
+                        box["loaded"].append(puck["id"])
         if box is not None and result.get("box_remaining") == 0:
             box["status"] = "CLEARED"
 

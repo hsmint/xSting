@@ -3,6 +3,8 @@
 ChatGPT(OpenAI Responses API)가 [고정 프롬프트 + 현재 상태]를 보고 도구(행동) 하나를 고른다(대화 기록 없음).
 중계 노드는 할당·순서를 계산하지 않는다. API 오류·거절·도구 미호출이면 미션을 멈춘다.
 
+decider:=script면 AI 없이 config/fixed_actions.yaml의 행동을 순서대로 보낸다 (주행·적재 시험용).
+
 기록: log_dir/run_<시각>/ 에
   mission.jsonl     판단·명령·진행 상황 (한 줄에 하나)
   decisions.json    판단 전체 기록: 보낸 상태, 생각 요약, 응답 원문, 토큰, 로봇 결과 (매 판단마다 갱신)
@@ -16,6 +18,7 @@ import os
 import time
 
 import rclpy
+import yaml
 from ament_index_python.packages import get_package_share_directory
 from rclpy.action import ActionClient
 from rclpy.node import Node
@@ -24,16 +27,25 @@ from std_msgs.msg import String
 
 from xsting_interfaces.action import RobotCommand
 
-from .state import ToolError, apply_result, check_location, new_state, stamp_now, to_message
+from . import planner
+from .state import ToolError, apply_result, check_location, check_unload, new_state, stamp_now, to_message
 from .tools import TOOL_NAMES, TOOLS
 
 # 행동별 결과 대기 시간(초). 신호는 반복되므로 놓치면 다음 주기까지 기다릴 수 있다
 ACTION_TIMEOUT_S = {"READ_MISSION_INPUT": 600.0, "GOTO": 180.0, "UNLOAD": 300.0}
 DEFAULT_TIMEOUT_S = 120.0
+# OpenAI 안전 필터 오탐은 같은 입력이라도 다시 보내면 통과하는 경우가 많다. 이만큼 더 보내 본다
+FLAGGED_RETRIES = 3
 
 
 class LlmUnavailable(Exception):
     """이번 판단에 LLM을 쓸 수 없음. 미션을 멈춘다."""
+
+
+def _is_flagged(e):
+    """OpenAI 안전 필터가 입력(프롬프트)을 걸러낸 400 오류인지."""
+    msg = str(e).lower()
+    return "flagged" in msg or "usage policy" in msg
 
 
 class LlmCommander(Node):
@@ -50,14 +62,21 @@ class LlmCommander(Node):
         self.declare_parameter("prompt_file", os.path.join(share, "prompts", "mission.md"))
         self.declare_parameter("log_dir", os.path.expanduser("~/xsting_logs"))
         self.declare_parameter("max_turns", 200)
+        self.declare_parameter("run_name", "")  # 이 판의 이름 (웹 지난 판 목록에 보임, 나중에 웹에서 바꿀 수 있음)
         # 가드: 위치 조건을 만족하지 않는 명령을 로봇에 보내기 전에 거절한다.
         # 기본은 꺼 둔다(LLM 단독 판단 시험). 실물 로봇에서는 true를 권장한다.
         self.declare_parameter("guard", False)
+        # 판단 주체: llm(ChatGPT) | script(고정 행동 목록, AI를 쓰지 않는다)
+        self.declare_parameter("decider", "llm")
+        self.declare_parameter("script_file", os.path.join(share, "config", "fixed_actions.yaml"))
 
         self.model = self.get_parameter("model").value
         self.effort = self.get_parameter("effort").value
         self.max_turns = self.get_parameter("max_turns").value
         self.guard = self.get_parameter("guard").value
+        self.decider = self.get_parameter("decider").value
+        if self.decider not in ("llm", "script"):
+            raise ValueError(f"decider는 llm 또는 script: {self.decider}")
         summary = self.get_parameter("reasoning_summary").value
         self.reasoning_summary = None if summary == "none" else summary
 
@@ -65,6 +84,10 @@ class LlmCommander(Node):
         self.run_dir = os.path.join(self.get_parameter("log_dir").value, f"run_{stamp}")
         os.makedirs(self.run_dir, exist_ok=True)
         self._log = open(os.path.join(self.run_dir, "mission.jsonl"), "a", encoding="utf-8")
+        run_name = " ".join(self.get_parameter("run_name").value.split())[:60]
+        if run_name:
+            with open(os.path.join(self.run_dir, "name.txt"), "w", encoding="utf-8") as f:
+                f.write(run_name)
 
         self.robot = ActionClient(self, RobotCommand, "robot_command")
         self.state = new_state()
@@ -72,6 +95,7 @@ class LlmCommander(Node):
         self.last_decision = None
         self.records = []  # decisions.json
         self.halt = None  # 미션을 멈춘 이유
+        self.plan_history = []  # 계획을 처음 세우거나 바꾼 판단만 [{turn, plan}] (화면 표시용)
         # 가짜 로봇 웹 화면이 판단 내용을 보여 줄 수 있게 상태를 발행한다 (늦게 켠 쪽도 마지막 값을 받음)
         qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.state_pub = self.create_publisher(String, "/mission/state", qos)
@@ -89,16 +113,41 @@ class LlmCommander(Node):
         # 사람이 웹 화면에서 직접 보낸 명령: 상태에 반영하고 판단 기록에 "사용자"로 남긴다
         self.create_subscription(String, "/mission/user_command", self.on_user_command, 10)
 
-        import openai  # 이 노드에서만 쓰므로 여기서 불러온다
-        self.openai = openai
-        self.client = openai.OpenAI(timeout=60.0, max_retries=2)  # 키: OPENAI_API_KEY
-        with open(self.get_parameter("prompt_file").value, encoding="utf-8") as f:
-            # 경기 중 바꾸지 않는다. 도구 + 고정 프롬프트가 매번 같아서 앞부분이 자동으로 캐시된다.
-            self.instructions = f.read()
-        self.save("meta.json", {"model": self.model, "effort": self.effort, "guard": self.guard,
-                                "reasoning_summary": self.reasoning_summary})
-        self.get_logger().info(f"llm_commander model={self.model}, effort={self.effort}, "
+        if self.decider == "script":
+            self.load_script(self.get_parameter("script_file").value)
+            self.model, self.effort = "script", None
+        else:
+            import openai  # 이 노드에서만 쓰므로 여기서 불러온다
+            self.openai = openai
+            self.client = openai.OpenAI(timeout=60.0, max_retries=2)  # 키: OPENAI_API_KEY
+            with open(self.get_parameter("prompt_file").value, encoding="utf-8") as f:
+                # 경기 중 바꾸지 않는다. 도구 + 고정 프롬프트가 매번 같아서 앞부분이 자동으로 캐시된다.
+                self.instructions = f.read()
+        self.save("meta.json", {"decider": self.decider, "model": self.model, "effort": self.effort,
+                                "guard": self.guard, "reasoning_summary": self.reasoning_summary})
+        self.get_logger().info(f"llm_commander decider={self.decider}, model={self.model}, effort={self.effort}, "
                                f"guard={'on' if self.guard else 'off'}, logs in {self.run_dir}")
+
+    def load_script(self, path):
+        """고정 행동 목록을 [(이름, 인자)]로 읽는다. 형식은 config/fixed_actions.yaml 주석 참고."""
+        with open(path, encoding="utf-8") as f:
+            script = yaml.safe_load(f)
+        self.script, self.script_pos = [], 0
+        self.script_retries = script.get("retries", 0)
+        self.script_stop_on_fail = script.get("stop_on_fail", False)
+        for item in script["actions"]:
+            if isinstance(item, str):
+                name, args = item, {}
+            else:
+                (name, value), = item.items()
+                if value == "auto":  # UNLOAD·VERIFY_LOCATION: 그 자리에서 할당 계획(planner)으로 채운다
+                    args = {"items": "auto"}
+                else:
+                    args = {"t": value} if isinstance(value, str) else {"items": value} if isinstance(value, list) else value
+            if name not in TOOL_NAMES:
+                raise ValueError(f"{path}: 모르는 행동 {name}")
+            self.script.append((name, args))
+        self.script_fails = 0  # 지금 행동의 연속 실패 수
 
     # ---------- 기록 ----------
     def log(self, kind, data):
@@ -172,7 +221,8 @@ class LlmCommander(Node):
     def publish_state(self):
         msg = String()
         msg.data = json.dumps({"model": self.model, "turn": self.turn, "state": self.state,
-                               "decision": self.last_decision, "halt": self.halt},
+                               "decision": self.last_decision, "halt": self.halt,
+                               "plan_history": self.plan_history},
                               ensure_ascii=False, default=str)
         self.state_pub.publish(msg)
 
@@ -247,23 +297,102 @@ class LlmCommander(Node):
             store=False,  # 대화를 서버에 남기지 않는다. 매번 상태만 보내므로 필요 없다
         )
 
+    def decide_script(self):
+        """고정 행동 목록에서 다음 행동. 직전 행동이 실패했으면 retries번까지 같은 행동을 다시 보낸다."""
+        last = self.state["last_action"]
+        if self.script_pos > 0 and last is not None and not last["success"] and self.script_fails < self.script_retries:
+            self.script_fails += 1
+            name, args = self.script[self.script_pos - 1]
+            note = f"고정 행동 {self.script_pos}/{len(self.script)} 다시 시도 ({self.script_fails}/{self.script_retries})"
+        else:
+            if self.script_pos > 0 and last is not None and not last["success"] and self.script_stop_on_fail:
+                raise LlmUnavailable(f"SCRIPT_FAILED {last['name']} {last['error']}")
+            if self.script_pos >= len(self.script):
+                raise LlmUnavailable("SCRIPT_END")
+            name, args = self.script[self.script_pos]
+            self.script_pos += 1
+            self.script_fails = 0
+            note = f"고정 행동 {self.script_pos}/{len(self.script)}"
+        if args.get("items") == "auto":
+            args = {"items": self.planned_items(name)}
+            note += " (할당 계획으로 items 채움)"
+        # 고정 행동 목록의 남은 순서를 계획으로 보여 준다 (화면 표시용)
+        rest = [f"{n} {a.get('t', '')}".strip() if "items" not in a else f"{n} {a['items'] if a['items'] == 'auto' else '…'}"
+                for n, a in self.script[self.script_pos:]]
+        plan = {"assignment": "UNLOAD·VERIFY_LOCATION auto는 할당 계획(planner.py)으로 채움", "route": rest,
+                "reason": "고정 행동 목록 (config/fixed_actions.yaml)", "change": ""}
+        sent_state = copy.deepcopy(self.state)
+        self.set_plan(plan)
+        self.publish_decision({"decider": "rule", "input_state": sent_state, "name": name,
+                               "args": args, "text": [note], "plan": plan})
+        self.last_decision = {"model": self.model, "name": name, "args": args, "text": note, "reasoning": "",
+                              "latency_s": 0, "plan": plan}
+        return name, args
+
+    def set_plan(self, plan):
+        """LLM이 적은 계획을 다음 판단에 돌려줄 memory.plan에 저장한다. 처음 세우거나 바뀐 계획은 이력에 남긴다."""
+        if not plan:
+            return
+        prev = self.state["memory"]["plan"]
+        self.state["memory"]["plan"] = {"turn": self.turn, "assignment": plan.get("assignment"),
+                                        "route": plan.get("route"), "reason": plan.get("reason")}
+        if prev is None or plan.get("change"):
+            self.plan_history.append({"turn": self.turn, "plan": plan})
+
+    def planned_items(self, name):
+        """지금 있는 하차 박스에 놓을(UNLOAD) / 확인할(VERIFY_LOCATION) items를 할당 계획에서 꺼낸다."""
+        loc = self.state["robot"]["here"]
+        try:
+            items = planner.assign(self.state).get(loc)
+        except planner.PlanError as e:
+            raise LlmUnavailable(f"PLAN_FAILED {e}")
+        if items is None:
+            raise LlmUnavailable(f"PLAN_FAILED {name} auto는 하차 박스에서만 (지금 here={loc})")
+        if name == "UNLOAD":  # 이미 놓은 퍽은 빼고, 적재함에 있는 것만
+            items = [i for i in items if self.state["world"]["pucks"][i["puck_id"]]["where"] == "storage"]
+        return items
+
     def decide(self):
+        if self.decider == "script":
+            self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
+            return self.decide_script()
         openai = self.openai
         self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
         sent_state = copy.deepcopy(self.state)  # 이번 판단에 보낸 상태 그대로 기록한다
         t0 = time.monotonic()
         try:
-            try:
-                response = self.request(sent_state)
-            except openai.BadRequestError as e:
-                # 생각 요약은 계정(조직 인증)이나 모델에 따라 막혀 있을 수 있다. 그때는 요약 없이 다시 요청한다
-                if not self.reasoning_summary or "summar" not in str(e).lower():
-                    raise
-                self.get_logger().warning(f"reasoning summary unavailable, retrying without it: {e}")
-                self.reasoning_summary = None
-                response = self.request(sent_state)
-        except (openai.BadRequestError, openai.AuthenticationError, openai.NotFoundError):
-            raise  # 요청 형식·키·모델 이름 오류는 코드나 설정 문제라 숨기지 않는다
+            flagged_retries = FLAGGED_RETRIES
+            request_state = sent_state
+            while True:
+                try:
+                    response = self.request(request_state)
+                    break
+                except openai.BadRequestError as e:
+                    # 생각 요약은 계정(조직 인증)이나 모델에 따라 막혀 있을 수 있다. 그때는 요약 없이 다시 요청한다
+                    if self.reasoning_summary and "summar" in str(e).lower():
+                        self.get_logger().warning(f"reasoning summary unavailable, retrying without it: {e}")
+                        self.reasoning_summary = None
+                    # OpenAI 안전 필터가 입력을 잘못 걸러내는 경우가 있다 (오탐). 지난 계획의 근거 문장(reason)이
+                    # 걸린 것일 수 있으니, 그 문장을 빼고(할당·순서는 남김) 한 번 더 보낸다
+                    elif _is_flagged(e) and flagged_retries > 0:
+                        self.get_logger().warning(f"prompt flagged, retrying without plan text "
+                                                  f"({FLAGGED_RETRIES - flagged_retries + 1}/{FLAGGED_RETRIES}): {e}")
+                        self.log("flagged", {"error": repr(e)})
+                        flagged_retries -= 1
+                        request_state = copy.deepcopy(sent_state)
+                        plan = request_state["memory"]["plan"]
+                        if plan:
+                            plan.pop("reason", None)
+                    else:
+                        raise
+        except openai.BadRequestError as e:
+            if _is_flagged(e):  # 몇 번을 다시 보내도 걸렸다. 노드를 죽이지 않고 기록을 남긴 뒤 멈춘다
+                self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"PROMPT_FLAGGED {e!r}",
+                                       "latency_s": round(time.monotonic() - t0, 2)})
+                raise LlmUnavailable(f"PROMPT_FLAGGED {e!r}")
+            raise  # 요청 형식 오류는 코드나 설정 문제라 숨기지 않는다
+        except (openai.AuthenticationError, openai.NotFoundError):
+            raise  # 키·모델 이름 오류는 설정 문제라 숨기지 않는다
         except (openai.RateLimitError, openai.APIConnectionError, openai.APIStatusError) as e:
             self.publish_decision({"decider": "ai", "input_state": sent_state, "error": f"API_ERROR {e!r}",
                                    "latency_s": round(time.monotonic() - t0, 2)})
@@ -305,8 +434,10 @@ class LlmCommander(Node):
             self.publish_decision({**record, "decider": "ai", "error": error})
             raise LlmUnavailable(error)
 
-        self.publish_decision({**record, "decider": "ai", "args": args})
-        self.last_decision = {"model": self.model, "name": call.name, "args": args,
+        plan = args.pop("plan", None)  # 계획은 상태에 남기고, 로봇에는 행동 인자만 보낸다
+        self.set_plan(plan)
+        self.publish_decision({**record, "decider": "ai", "args": args, "plan": plan})
+        self.last_decision = {"model": self.model, "name": call.name, "args": args, "plan": plan,
                               "text": " ".join(texts), "reasoning": " ".join(reasoning),
                               "latency_s": round(latency, 2)}
         return call.name, args
@@ -320,6 +451,8 @@ class LlmCommander(Node):
             try:
                 if self.guard:
                     check_location(state, name)
+                if name == "UNLOAD":  # 나눠 놓기는 가드와 관계없이 항상 막는다
+                    check_unload(state, args)
             except ToolError as e:
                 result = {"success": False, "error": "REJECTED", "message": str(e)}
             else:
@@ -372,7 +505,10 @@ class LlmCommander(Node):
                 name, args = self.decide()
             except LlmUnavailable as e:
                 self.halt = str(e)
-                self.get_logger().error(f"LLM unavailable, mission halted: {e}")
+                if self.halt == "SCRIPT_END":
+                    self.get_logger().info("fixed actions finished")
+                else:
+                    self.get_logger().error(f"LLM unavailable, mission halted: {e}")
                 self.log("halt", {"reason": self.halt})
                 break
             self.publish_state()

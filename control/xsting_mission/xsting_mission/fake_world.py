@@ -1,6 +1,6 @@
 """backend:=fake용 가짜 경기장.
 
-경기장 지도(arena_map.pgm) 위에서 로봇을 벽을 피하는 경로로 움직이고, 퍽·바구니·장소·신호등 상태를 들고 있다.
+경기장 정의(config/arena.yaml: 벽, 장애물, 로봇 크기)로 만든 지도 위에서 로봇을 벽을 피하는 경로로 움직이고, 퍽·바구니·장소·신호등 상태를 들고 있다.
 웹 화면(sim_view)은 snapshot()과 static_map()으로 이 상태를 읽는다. 좌표는 미션지 기준 mm, yaw는 deg.
 """
 import base64
@@ -10,22 +10,13 @@ import math
 import random
 import threading
 import time
-from pathlib import Path
 
 import numpy as np
-import yaml
 
-ROBOT_RADIUS_MM = 200  # 경로 계산에서 벽·박스와 띄우는 거리 (차체 반경)
-ROBOT_SIZE_MM = 300  # 화면에 그리는 차체 크기
-PLAN_CELL_MM = 50  # 경로 계산 격자
-BOX_MM = 205
-APPROACH_MM = (330, 420, 520)  # 대상 중심에서 로봇 중심까지 거리 후보. 가까운 것부터 쓴다
-# 중앙 받침대: 410 박스 4개(820x820). L2는 그 북쪽 절반 가운데라서 중심을 L2에서 205 mm 아래로 둔다(추정).
-PEDESTAL_CENTER_MM = (2202, 3495)
-PEDESTAL_MM = 820
-START_ZONE_MM = 600  # 화면 표시용 출발 구역 크기(추정)
-LIGHT_MM = (80, 950)
-BARCODE_MM = (80, 650)
+MAP_RES_MM = 10  # 벽 지도 해상도
+MAP_MARGIN_MM = 100  # 바깥 벽 밖으로 지도를 이만큼 더 그린다
+PLAN_CELL_MM = 50  # 코스트맵·경로 계산 격자 (Nav2 costmap resolution 0.05 m와 같다)
+APPROACH_MM = (330, 520)  # GOTO 도착 자리: 대상 중심에서 로봇 중심까지 이 범위 안 무작위 거리
 BARCODES = ("P2-01", "P2-02", "P2-03", "P2-04")
 PUCK_OFFSET_MM = (-40, 40)  # 시작 박스 위 퍽 두 개의 X 오프셋 (화면 표시용)
 STORAGE_SLOTS = 12
@@ -36,7 +27,9 @@ class Canceled(Exception):
 
 
 class FakeWorld:
-    def __init__(self, scenario, places, map_yaml, time_scale=1.0, speed_mps=0.3):
+    def __init__(self, scenario, arena, time_scale=1.0, speed_mps=0.3):
+        """arena: config/arena.yaml을 읽은 dict (장소, 벽, 장애물, 로봇 크기)."""
+        places = arena["places"]
         self.lock = threading.Lock()
         self.time_scale = time_scale
         self.speed_mmps = speed_mps * 1000
@@ -49,14 +42,14 @@ class FakeWorld:
         self.abort = False  # 미션 정지: 진행 중인 명령을 취소한다
 
         self.targets = {name: tuple(p["target"]) for name, p in places.items()}
-        self._load_map(map_yaml)
+        self.arena = arena
+        self._load_map(arena)
         self._build_plan_grid()
         self.home = tuple(places["HOME"]["approach"])
+        # 정해 둔 도착 자리 (arena.yaml의 approach). 없는 장소는 GOTO마다 대상 둘레에서 무작위로 정한다
+        self.approaches = {name: tuple(p["approach"]) for name, p in places.items() if p.get("approach")}
+        self._reach = self._reachable()
         self.reset()
-        self.approaches = {"HOME": self.home}
-        for name in self.targets:
-            if name != "HOME":
-                self.approaches[name] = places[name].get("approach") or self._auto_approach(name)
 
     def reset(self, problem=None):
         """시나리오 처음 상태로 되돌린다 (퍽 배치, 로봇 위치, 기록).
@@ -161,41 +154,67 @@ class FakeWorld:
             return self.time_scale
 
     # ---------- 지도와 경로 ----------
-    def _load_map(self, map_yaml):
-        meta = yaml.safe_load(Path(map_yaml).read_text(encoding="utf-8"))
-        data = (Path(map_yaml).parent / meta["image"]).read_bytes()
-        _, size, _, pixels = data.split(b"\n", 3)
-        w, h = map(int, size.split())
-        img = np.frombuffer(pixels, dtype=np.uint8, count=w * h).reshape(h, w)[::-1]  # 0행 = 아래쪽
-        self.map_occ = img < 128
-        self.map_res_mm = meta["resolution"] * 1000
-        self.map_origin_mm = (meta["origin"][0] * 1000, meta["origin"][1] * 1000)
+    def wall_segments(self):
+        """바깥 벽 4개 + 안쪽 벽. [((x1, y1), (x2, y2)), ...]"""
+        w, h = self.arena["size"]
+        corners = [(0, 0), (w, 0), (w, h), (0, h)]
+        segs = [(corners[k], corners[(k + 1) % 4]) for k in range(4)]
+        return segs + [(tuple(v["from"]), tuple(v["to"])) for v in (self.arena.get("walls") or {}).values()]
+
+    def virtual_wall_segments(self):
+        """가벽 (팀이 정한 진입 금지선). 경로 계산에서는 벽과 똑같이 막지만 화면에는 따로 그린다."""
+        return [(tuple(v["from"]), tuple(v["to"])) for v in (self.arena.get("virtual_walls") or {}).values()]
+
+    def _load_map(self, arena):
+        """arena.yaml의 벽(map_occ)과 가벽(map_virtual)을 MAP_RES_MM 격자에 두께 wall_thickness로 그린다. 0행 = 아래쪽."""
+        res, m = MAP_RES_MM, MAP_MARGIN_MM
+        w_mm, h_mm = arena["size"]
+        w, h = int((w_mm + 2 * m) // res) + 1, int((h_mm + 2 * m) // res) + 1
+        self.map_res_mm = res
+        self.map_origin_mm = (-m, -m)
+        self.map_occ = self._raster(self.wall_segments(), w, h)
+        self.map_virtual = self._raster(self.virtual_wall_segments(), w, h)
+
+    def _raster(self, segments, w, h):
+        res, m = self.map_res_mm, -self.map_origin_mm[0]
+        xs, ys = -m + (np.arange(w) + 0.5) * res, -m + (np.arange(h) + 0.5) * res
+        occ = np.zeros((h, w), dtype=bool)
+        half = self.arena["wall_thickness"] / 2
+        for (x1, y1), (x2, y2) in segments:
+            # 선분 둘레 사각형 안의 칸만 선분까지 거리를 잰다
+            i0, i1 = np.searchsorted(xs, min(x1, x2) - half), np.searchsorted(xs, max(x1, x2) + half)
+            j0, j1 = np.searchsorted(ys, min(y1, y2) - half), np.searchsorted(ys, max(y1, y2) + half)
+            px, py = np.meshgrid(xs[i0:i1], ys[j0:j1])
+            dx, dy = x2 - x1, y2 - y1
+            t = np.clip(((px - x1) * dx + (py - y1) * dy) / max(dx * dx + dy * dy, 1e-9), 0, 1)
+            occ[j0:j1, i0:i1] |= np.hypot(px - (x1 + t * dx), py - (y1 + t * dy)) <= half
+        return occ
 
     def _obstacle_rects(self):
-        """벽 외에 피해야 할 것: 시작 박스, L1·L3 박스, 중앙 받침대. (중심 x, 중심 y, 크기)"""
-        rects = [(*self.targets[b], BOX_MM) for b in self.targets if b.startswith("S")]
-        rects += [(*self.targets[loc], BOX_MM) for loc in ("L1", "L3")]
-        rects.append((*PEDESTAL_CENTER_MM, PEDESTAL_MM))
+        """벽 외에 피해야 할 것: 시작·하차 박스, arena.yaml의 obstacles. {이름: (중심 x, 중심 y, 가로, 세로)}"""
+        box = self.arena["box_size"]
+        rects = {b: (*self.targets[b], box, box) for b in self.targets if b[0] in "SL"}
+        rects.update({o["name"]: (*o["center"], *o["size"]) for o in self.arena.get("obstacles") or []})
         return rects
 
     def _build_plan_grid(self):
-        c, (ox, oy) = PLAN_CELL_MM, self.map_origin_mm
-        k = int(round(c / self.map_res_mm))
-        h, w = self.map_occ.shape[0] // k, self.map_occ.shape[1] // k
-        occ = self.map_occ[:h * k, :w * k].reshape(h, k, w, k).any(axis=(1, 3))
-        for cx, cy, size in self._obstacle_rects():
-            i0, i1 = int((cx - size / 2 - ox) // c), int((cx + size / 2 - ox) // c)
-            j0, j1 = int((cy - size / 2 - oy) // c), int((cy + size / 2 - oy) // c)
+        """코스트맵: 로봇을 점으로 보고, 벽·박스에서 costmap.padding 안을 못 가는 칸으로 막는다."""
+        from scipy import ndimage
+
+        res, (ox, oy) = self.map_res_mm, self.map_origin_mm
+        occ = self.map_occ | self.map_virtual  # 가벽도 벽처럼 막는다
+        for cx, cy, sx, sy in self._obstacle_rects().values():
+            i0, i1 = int((cx - sx / 2 - ox) // res), int((cx + sx / 2 - ox) // res)
+            j0, j1 = int((cy - sy / 2 - oy) // res), int((cy + sy / 2 - oy) // res)
             occ[max(j0, 0):j1 + 1, max(i0, 0):i1 + 1] = True
-        # 차체 반경만큼 부풀린다
-        r = int(math.ceil(ROBOT_RADIUS_MM / c))
-        blocked = occ.copy()
-        for dj in range(-r, r + 1):
-            for di in range(-r, r + 1):
-                if di * di + dj * dj <= r * r:
-                    blocked |= np.roll(np.roll(occ, dj, axis=0), di, axis=1)
-        self.blocked = blocked
+        k = PLAN_CELL_MM / res
+        h, w = int(occ.shape[0] // k), int(occ.shape[1] // k)
         self.grid_w, self.grid_h = w, h
+        rows = ((np.arange(h) + 0.5) * k).astype(int)
+        cols = ((np.arange(w) + 0.5) * k).astype(int)
+        # 경로 격자 칸 중심이 장애물에서 padding 안이면 막힌다
+        clear_mm = (ndimage.distance_transform_edt(~occ) * res)[np.ix_(rows, cols)]
+        self.blocked = clear_mm <= self.arena["costmap"]["padding"]
 
     def _cell(self, x, y):
         return (int((x - self.map_origin_mm[0]) // PLAN_CELL_MM), int((y - self.map_origin_mm[1]) // PLAN_CELL_MM))
@@ -203,12 +222,13 @@ class FakeWorld:
     def _center(self, i, j):
         return (self.map_origin_mm[0] + (i + 0.5) * PLAN_CELL_MM, self.map_origin_mm[1] + (j + 0.5) * PLAN_CELL_MM)
 
-    def _free(self, i, j):
-        return 0 <= i < self.grid_w and 0 <= j < self.grid_h and not self.blocked[j, i]
+    def _free(self, i, j, blocked=None):
+        blocked = self.blocked if blocked is None else blocked
+        return 0 <= i < self.grid_w and 0 <= j < self.grid_h and not blocked[j, i]
 
     def _reachable(self):
-        """출발 위치에서 갈 수 있는 칸 (자동 접근점이 막힌 곳에 생기지 않게)."""
-        start = self._cell(self.pose["x"], self.pose["y"])
+        """HOME에서 갈 수 있는 칸 (도착 자리가 갈 수 없는 곳에 생기지 않게)."""
+        start = self._cell(*self.home[:2])
         seen, stack = {start}, [start]
         while stack:
             i, j = stack.pop()
@@ -219,36 +239,49 @@ class FakeWorld:
                     stack.append(n)
         return seen
 
-    def _auto_approach(self, name):
-        """places.yaml에 approach가 없으면, 대상 둘레에서 갈 수 있는 가장 가까운 자리를 고른다."""
-        if not hasattr(self, "_reach"):
-            self._reach = self._reachable()
+    def _arrival(self, name):
+        """GOTO의 도착 자리. arena.yaml에 approach가 있으면 그 자리, 없으면 대상 둘레의 갈 수 있는 곳 중 무작위.
+
+        실물에서도 정확히 같은 자리에 서지 않으므로, LLM은 도착한 robot.pose를 보고 다음 경로를 판단한다.
+        """
+        if name in self.approaches:
+            return self.approaches[name]
         tx, ty = self.targets[name]
-        for d in APPROACH_MM:
-            best = None
-            for k in range(24):
-                a = math.radians(k * 15)
-                x, y = tx + d * math.cos(a), ty + d * math.sin(a)
-                if self._cell(x, y) in self._reach:
-                    cost = math.hypot(x - self.pose["x"], y - self.pose["y"])
-                    if best is None or cost < best[0]:
-                        best = (cost, x, y)
-            if best:
-                _, x, y = best
-                yaw = math.degrees(math.atan2(ty - y, tx - x))
-                return (round(x), round(y), round(yaw, 1))
-        raise RuntimeError(f"no free approach for {name}")
+        for _ in range(500):
+            d, a = self.rng.uniform(*APPROACH_MM), self.rng.uniform(0, 2 * math.pi)
+            x, y = round(tx + d * math.cos(a)), round(ty + d * math.sin(a))
+            if self._cell(x, y) in self._reach:
+                return (x, y, round(math.degrees(math.atan2(ty - y, tx - x)), 1))
+        return None
 
-    def _line_free(self, a, b):
-        (i0, j0), (i1, j1) = a, b
-        n = max(abs(i1 - i0), abs(j1 - j0)) * 2 + 1
-        return all(self._free(round(i0 + (i1 - i0) * t / n), round(j0 + (j1 - j0) * t / n)) for t in range(n + 1))
+    def _line_free(self, a, b, blocked=None):
+        """a → b 직선(mm)이 지나는 칸이 모두 갈 수 있는지.
 
-    def plan(self, goal_xy):
-        """A* (8방향) 후 직선으로 이어지는 점은 건너뛰어 경로를 단순하게 만든다."""
-        start = self._cell(self.pose["x"], self.pose["y"])
-        goal = self._cell(*goal_xy)
-        if not self._free(*goal):
+        직선이 칸 경계를 넘는 지점을 모두 구해, 그 사이 구간마다 어느 칸에 있는지 본다 (모서리를 스치는 칸도 빠지지 않는다).
+        """
+        blocked = self.blocked if blocked is None else blocked
+        (ox, oy), c = self.map_origin_mm, PLAN_CELL_MM
+        ts = [0.0, 1.0]
+        for p0, p1, o in ((a[0], b[0], ox), (a[1], b[1], oy)):
+            if p1 != p0:
+                lo, hi = sorted(((p0 - o) / c, (p1 - o) / c))
+                ts += [(o + k * c - p0) / (p1 - p0) for k in range(math.ceil(lo), math.floor(hi) + 1)]
+        t = np.unique(np.clip(ts, 0, 1))
+        mid = (t[:-1] + t[1:]) / 2 if len(t) > 1 else t
+        i = ((a[0] + (b[0] - a[0]) * mid - ox) // c).astype(int)
+        j = ((a[1] + (b[1] - a[1]) * mid - oy) // c).astype(int)
+        if (i < 0).any() or (j < 0).any() or (i >= self.grid_w).any() or (j >= self.grid_h).any():
+            return False
+        return not blocked[j, i].any()
+
+    def plan(self, goal_xy, start_xy=None):
+        """A* (8방향) 후 직선으로 이어지는 점은 건너뛰어 경로를 단순하게 만든다. 기본은 지금 위치에서 출발."""
+        start_xy = (self.pose["x"], self.pose["y"]) if start_xy is None else tuple(start_xy)
+        blocked = self.blocked
+        free = lambda i, j: self._free(i, j, blocked)  # noqa: E731
+        start = self._cell(*start_xy)
+        goal = self._cell(*goal_xy[:2])
+        if not free(*goal):
             return None
         g, came, heap = {start: 0.0}, {}, [(0.0, start)]
         while heap:
@@ -260,7 +293,10 @@ class FakeWorld:
                     if di == dj == 0:
                         continue
                     n = (cur[0] + di, cur[1] + dj)
-                    if not self._free(*n) and n != start:
+                    if not free(*n) and n != start:
+                        continue
+                    # 대각선은 옆 두 칸도 비어 있어야 한다 (막힌 칸의 모서리를 자르지 않게)
+                    if di and dj and not (free(cur[0] + di, cur[1]) and free(cur[0], cur[1] + dj)):
                         continue
                     ng = g[cur] + math.hypot(di, dj)
                     if ng < g.get(n, 1e18):
@@ -273,13 +309,14 @@ class FakeWorld:
         while cells[-1] != start:
             cells.append(came[cells[-1]])
         cells.reverse()
-        keep = [cells[0]]
-        for k in range(1, len(cells)):
-            if not self._line_free(keep[-1], cells[k]):
-                keep.append(cells[k - 1])
-        keep.append(cells[-1])
-        pts = [self._center(*c) for c in keep[1:-1]]
-        return [(self.pose["x"], self.pose["y"])] + pts + [tuple(goal_xy)]
+        # 실제 좌표 점 (처음·끝은 정확한 출발·도착 위치). 직선으로 갈 수 있으면 사이 점은 건너뛴다
+        pts = [start_xy] + [self._center(*c) for c in cells[1:-1]] + [tuple(goal_xy[:2])]
+        keep = [pts[0]]
+        for k in range(2, len(pts)):
+            if not self._line_free(keep[-1], pts[k], blocked):
+                keep.append(pts[k - 1])
+        keep.append(pts[-1])
+        return keep
 
     # ---------- 시간과 취소 ----------
     def sleep(self, seconds, is_canceled):
@@ -304,10 +341,11 @@ class FakeWorld:
             self.sleep(0.03, is_canceled)
 
     def drive_to(self, place, is_canceled, feedback):
-        ax, ay, ayaw = self.approaches[place]
-        path = self.plan((ax, ay))
+        arrival = self._arrival(place)
+        path = None if arrival is None else self.plan(arrival)
         if path is None:
             return {"success": False, "error": "NO_PATH"}
+        ax, ay, ayaw = arrival
         with self.lock:
             self.path = [list(p) for p in path]
         for (x0, y0), (x1, y1) in zip(path, path[1:]):
@@ -327,7 +365,7 @@ class FakeWorld:
         with self.lock:
             self.path = []
             self.here = place
-        return {"success": True, "pose_error_mm": round(self.rng.uniform(0, 15), 1)}
+        return {"success": True, "dist_to_target_mm": round(math.hypot(ax - self.targets[place][0], ay - self.targets[place][1]))}
 
     # ---------- 화면용 ----------
     def static_map(self):
@@ -337,9 +375,18 @@ class FakeWorld:
             "occupied_b64": base64.b64encode(self.map_occ.astype(np.uint8).tobytes()).decode(),
             "targets": {k: list(v) for k, v in self.targets.items()},
             "approaches": {k: list(v) for k, v in self.approaches.items()},
-            "box_mm": BOX_MM, "pedestal": [*PEDESTAL_CENTER_MM, PEDESTAL_MM],
-            "start_zone_mm": START_ZONE_MM, "light_mm": list(LIGHT_MM), "barcode_mm": list(BARCODE_MM),
-            "puck_offset_mm": list(PUCK_OFFSET_MM), "robot_size_mm": ROBOT_SIZE_MM,
+            # 로봇 중심(점)이 갈 수 없는 칸 (벽·박스에서 costmap.padding 안). 화면에 옅게 칠한다
+            "blocked_b64": base64.b64encode(self.blocked.astype(np.uint8).tobytes()).decode(),
+            "plan_w": self.grid_w, "plan_h": self.grid_h, "plan_cell_mm": PLAN_CELL_MM,
+            "virtual_walls": [{"id": k, "from": v["from"], "to": v["to"]}
+                              for k, v in (self.arena.get("virtual_walls") or {}).items()],
+            "wall_mm": self.arena["wall_thickness"],
+            "box_mm": self.arena["box_size"],
+            "obstacles": [{"name": o["name"], "center": o["center"], "size": o["size"]}
+                          for o in self.arena.get("obstacles") or []],
+            "start_zone_mm": self.arena["start_zone"], "light_mm": self.arena["signal_light"],
+            "barcode_mm": self.arena["barcode"], "puck_offset_mm": list(PUCK_OFFSET_MM),
+            "footprint_mm": self.arena["robot"]["footprint"],
         }
 
     def snapshot(self):
@@ -379,7 +426,8 @@ class FakeWorld:
     # ---------- 행동 ----------
     def robot_status(self):
         """매 결과에 함께 싣는 로봇 상태 (MissionState.robot)."""
-        return {"status": "OK", "error": None, "here": self.here, "localization": "ok",
+        pose = {"x": round(self.pose["x"]), "y": round(self.pose["y"]), "yaw": round(self.pose["yaw"], 1)}
+        return {"status": "OK", "error": None, "here": self.here, "pose": pose, "localization": "ok",
                 "arm_stowed": True, "gripper": "empty"}
 
     def run(self, name, args, is_canceled, feedback):
@@ -425,32 +473,36 @@ class FakeWorld:
         return out
 
     def _load(self, args, is_canceled, feedback):
+        """지금 있는 시작 박스의 퍽을 한 번에 모두 집어 적재함 빈 slot에 싣는다."""
         box = self.here
         if box not in self.boxes:
             return {"success": False, "error": "NOT_AT_START_BOX"}
         with self.lock:
-            k = next((i for i, p in enumerate(self.boxes[box]) if p is not None), None)
-            slot = next((i for i in range(STORAGE_SLOTS) if i not in self.storage), None)
-        if k is None:
+            ks = [i for i, p in enumerate(self.boxes[box]) if p is not None]
+            free = [i for i in range(STORAGE_SLOTS) if i not in self.storage]
+        if not ks:
             return {"success": False, "error": "BOX_EMPTY", "box_remaining": 0}
-        if slot is None:
+        if not free:
             return {"success": False, "error": "STORAGE_FULL"}
         for phase in ("aligning", "grasping", "lifting"):
             feedback(phase)
             self.sleep(1.0, is_canceled)
         key = f"LOAD:{box}"
+        loaded = []
         with self.lock:
             if key in self.fail_once:  # 시험용 / 다시 실행: 기록된 실패를 같은 시점에 낸다
                 self.fail_once.remove(key)
-                return {"success": False, "error": "GRASP_FAILED"}
-            puck = self.boxes[box][k]
-            self.boxes[box][k] = None
-            self.storage[slot] = puck
+                return {"success": False, "error": "GRASP_FAILED", "pucks": [],
+                        "box_remaining": len(ks)}
+            for k, slot in zip(ks, free):  # 적재함이 모자라면 들어가는 만큼만
+                puck = self.boxes[box][k]
+                self.boxes[box][k] = None
+                self.storage[slot] = puck
+                loaded.append({"slot": slot, "puck": {**puck, "conf": round(self.rng.uniform(0.85, 0.99), 2)}})
             remaining = sum(p is not None for p in self.boxes[box])
         feedback("stowing")
-        self.sleep(0.5, is_canceled)
-        return {"success": True, "slot": slot, "puck": {**puck, "conf": round(self.rng.uniform(0.85, 0.99), 2)},
-                "box_remaining": remaining}
+        self.sleep(0.5 * len(loaded), is_canceled)
+        return {"success": True, "pucks": loaded, "box_remaining": remaining}
 
     def _unload(self, args, is_canceled, feedback):
         loc = self.here

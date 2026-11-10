@@ -66,19 +66,34 @@
   .dec > .head:hover { background: #f6f8fb; }
   .dec > .body { padding: 0 10px 8px; border-top: 1px solid #f0f2f4; }
   .think { background: #f3f0fb; border-left: 3px solid #8b6fd6; border-radius: 4px; padding: 6px 8px; margin: 6px 0; white-space: pre-wrap; }
+  .plan ol { margin: 4px 0 2px; padding-left: 22px; }
+  .plan li.next { font-weight: 700; }
+  .chg { background: #fff6e6; border-left: 3px solid #e8892b; border-radius: 4px; padding: 5px 8px; margin: 5px 0; }
+  .chgtag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #fff0d6; color: #a25a00; font-weight: 600; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1d2330; color: #fff;
+           padding: 8px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 10; }
+  #toast.show { opacity: .95; }
+  #toast.bad { background: var(--bad); }
+  button.danger { color: var(--bad); border-color: #f0c4c4; }
+  input.name { border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; width: 190px; }
   .say { background: #eef6ff; border-left: 3px solid var(--path); border-radius: 4px; padding: 6px 8px; margin: 6px 0; white-space: pre-wrap; }
   details summary { cursor: pointer; color: var(--muted); margin-top: 6px; }
   #status { position: absolute; left: 12px; top: 10px; background: rgba(255,255,255,.9);
             border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+  #blockedToggle { position: absolute; left: 12px; bottom: 10px; background: rgba(255,255,255,.9);
+            border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
 </style>
 </head>
 <body>
-<div id="mapwrap"><canvas id="map"></canvas><div id="status">연결 중…</div></div>
+<div id="mapwrap"><canvas id="map"></canvas><div id="status">연결 중…</div>
+  <label id="blockedToggle"><input type="checkbox" id="showBlocked" checked> 로봇이 못 가는 곳 표시</label></div>
+<div id="toast"></div>
 <div id="panel">
   <div class="tabs"><button id="tabBtnRobot" class="on">로봇 · 조작</button><button id="tabBtnLLM">LLM 판단 <span id="decCount"></span></button></div>
   <div id="tabLLM" hidden>
     <div class="muted" style="margin-bottom:6px">판마다 ~/xsting_logs/run_*/ 에 자동 저장됨. 지난 판은 로봇 · 조작 탭의 목록에서 고르면 여기에 바로 보임</div>
     <div class="card" id="decSummary"></div>
+    <h2>AI 계획</h2><div class="card plan" id="planCardLLM"></div>
     <div class="row">누가 <select id="whoFilter"><option value="">전체</option><option value="ai">AI</option>
       <option value="rule">규칙(테스트)</option><option value="user">사용자</option></select>
       <label><input type="checkbox" id="onlyThink"> 생각 요약이 있는 판단만</label></div>
@@ -97,8 +112,10 @@
   <div class="card">
     <div class="row"><select id="runSel" style="max-width:270px"><option>목록 불러오는 중…</option></select>
       <button id="runRefresh" title="목록 새로 고침">↻</button></div>
+    <div class="row"><input class="name" id="runName" maxlength="60" placeholder="이 판의 이름 (예: luna 오탐 재현)">
+      <button id="runNameSave">이름 저장</button><button class="danger" id="runDelete">삭제</button></div>
     <div class="row"><button class="primary" id="runPlay">다시 실행</button>
-      <span class="muted">판을 고르면 LLM 판단 탭에 그 판의 판단이 바로 보임 (읽기만 함)</span></div>
+      <span class="muted">판을 고르면 그 판의 판단이 LLM 판단 탭에 채워짐 (읽기만 함)</span></div>
     <div class="muted" id="replayStatus">같은 문제로 경기장을 맞추고 기록된 명령을 순서대로 다시 보냅니다 (API 비용 없음). 중계 노드는 꺼 두세요.</div>
   </div>
   <h2>명령 보내기 (ROS action)</h2>
@@ -113,6 +130,7 @@
   </div>
   <h2>진행 중인 명령</h2><div class="card" id="command"></div>
   <h2>중계 노드 · LLM 판단</h2><div class="card" id="commander"></div>
+  <h2>AI 계획</h2><div class="card plan" id="planCard"></div>
   <h2>신호등 관측</h2><div class="card"><div class="chips" id="signal"></div></div>
   <h2>적재함 (4×3)</h2><div class="card"><div class="grid" id="storage" style="grid-template-columns: repeat(4, 1fr)"></div></div>
   <h2>하차 박스</h2><div class="locs" id="locs"></div>
@@ -123,7 +141,7 @@
 const COLOR = { R: getVar('--red'), G: getVar('--green'), Y: getVar('--yellow') };
 function getVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 const canvas = document.getElementById('map'), ctx = canvas.getContext('2d');
-let M = null, mapImg = null, S = null, view = null;
+let M = null, mapImg = null, blockedImg = null, S = null, view = null;
 
 async function init() {
   M = await (await fetch('/map')).json();
@@ -139,6 +157,18 @@ async function init() {
     }
   }
   ic.putImageData(img, 0, 0);
+  // 로봇 중심(점)이 갈 수 없는 곳 (벽·박스에서 arena.yaml의 costmap.padding 안)
+  blockedImg = document.createElement('canvas');
+  blockedImg.width = M.plan_w; blockedImg.height = M.plan_h;
+  const bc = blockedImg.getContext('2d'), bimg = bc.createImageData(M.plan_w, M.plan_h);
+  const blk = atob(M.blocked_b64);
+  for (let j = 0; j < M.plan_h; j++) for (let i = 0; i < M.plan_w; i++) {
+    if (blk.charCodeAt(j * M.plan_w + i)) {
+      const k = ((M.plan_h - 1 - j) * M.plan_w + i) * 4;
+      bimg.data[k] = 220; bimg.data[k + 1] = 90; bimg.data[k + 2] = 80; bimg.data[k + 3] = 60;
+    }
+  }
+  bc.putImageData(bimg, 0, 0);
   poll();
 }
 
@@ -198,11 +228,26 @@ function draw() {
   const st = M.targets.HOME;
   rect(st[0], st[1], M.start_zone_mm, getVar('--start'));
   label('HOME', st[0], st[1] - M.start_zone_mm / 2, -4);
-  const [pcx, pcy, psz] = M.pedestal;
-  rect(pcx, pcy, psz, '#f1ead9', '#d8c9a3');
+  for (const o of M.obstacles) {  // arena.yaml의 obstacles (중앙 받침대 등)
+    const [cx, cy] = o.center, [sx, sy] = o.size;
+    ctx.fillStyle = '#f1ead9'; ctx.fillRect(v.px(cx - sx / 2), v.py(cy + sy / 2), sx * v.s, sy * v.s);
+    ctx.strokeStyle = '#d8c9a3'; ctx.lineWidth = v.dpr; ctx.strokeRect(v.px(cx - sx / 2), v.py(cy + sy / 2), sx * v.s, sy * v.s);
+  }
 
   ctx.imageSmoothingEnabled = false;
+  if (document.getElementById('showBlocked').checked) {
+    const pw = M.plan_w * M.plan_cell_mm, ph = M.plan_h * M.plan_cell_mm;
+    ctx.drawImage(blockedImg, v.px(M.origin_mm[0]), v.py(M.origin_mm[1] + ph), pw * v.s, ph * v.s);
+  }
   ctx.drawImage(mapImg, v.ox, v.oy, v.W * v.s, v.H * v.s);
+  // 가벽 (팀이 정한 진입 금지선): 진짜 벽과 구별되게 주황 점선으로 그린다
+  ctx.save(); ctx.strokeStyle = '#e8892b'; ctx.lineWidth = Math.max(M.wall_mm * v.s, 2 * v.dpr);
+  ctx.setLineDash([6 * v.dpr, 4 * v.dpr]); ctx.lineCap = 'butt';
+  for (const vw of M.virtual_walls) {
+    ctx.beginPath(); ctx.moveTo(v.px(vw.from[0]), v.py(vw.from[1])); ctx.lineTo(v.px(vw.to[0]), v.py(vw.to[1])); ctx.stroke();
+    label(vw.id, (vw.from[0] + vw.to[0]) / 2, (vw.from[1] + vw.to[1]) / 2, -4);
+  }
+  ctx.restore();
 
   // 시작 박스와 퍽
   for (let k = 1; k <= 6; k++) {
@@ -233,7 +278,7 @@ function draw() {
   ctx.fillStyle = '#111'; ctx.fillRect(v.px(bx) - 3 * v.dpr, v.py(by) - 8 * v.dpr, 6 * v.dpr, 16 * v.dpr);
   label(S.barcode ? S.barcode : '바코드', bx + 250, by, 4);
 
-  // 자동 접근점 (로봇이 멈추는 자리)
+  // arena.yaml에 정해 둔 도착 자리 (나머지 장소는 GOTO마다 대상 둘레 무작위)
   ctx.strokeStyle = '#b8c2d0'; ctx.lineWidth = v.dpr;
   for (const [, a] of Object.entries(M.approaches)) {
     const x = v.px(a[0]), y = v.py(a[1]), d = 4 * v.dpr;
@@ -246,18 +291,21 @@ function draw() {
     ctx.stroke(); ctx.setLineDash([]);
   }
   // 로봇
-  const { x, y, yaw } = S.pose, half = M.robot_size_mm / 2 * v.s;
+  const { x, y, yaw } = S.pose, fp = M.footprint_mm;
+  const hl = Math.max(...fp.map(p => Math.abs(p[0]))) * v.s, hw = Math.max(...fp.map(p => Math.abs(p[1]))) * v.s;
   ctx.save(); ctx.translate(v.px(x), v.py(y)); ctx.rotate(-yaw * Math.PI / 180);
   ctx.fillStyle = S.command ? '#2f7de1' : '#4b5567'; ctx.globalAlpha = .9;
-  ctx.fillRect(-half, -half, 2 * half, 2 * half);
+  ctx.beginPath(); fp.forEach(([px, py], k) => k ? ctx.lineTo(px * v.s, -py * v.s) : ctx.moveTo(px * v.s, -py * v.s));
+  ctx.closePath(); ctx.fill();  // arena.yaml의 footprint 그대로 (화면은 y가 아래로 커서 -y)
   ctx.globalAlpha = 1; ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.moveTo(half * .9, 0); ctx.lineTo(half * .2, -half * .45); ctx.lineTo(half * .2, half * .45); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(hl * .9, 0); ctx.lineTo(hl * .2, -hw * .45); ctx.lineTo(hl * .2, hw * .45); ctx.fill();
   ctx.restore();
 }
 
 // ---------- 오른쪽 패널 ----------
 const srcLabel = s => ({ web: '화면', replay: '다시 실행', relay: '중계 노드' }[s] || s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const escAttr = s => esc(s).replace(/"/g, '&quot;');
 const argText = a => {
   if (!a || !Object.keys(a).length) return '';
   if (a.items) return a.items.map(i => `${i.puck_id}→c${i.cell}`).join(' ');
@@ -343,13 +391,45 @@ function usageOf(d) {
   const u = d.usage || {}, i = u.input_tokens_details || {}, o = u.output_tokens_details || {};
   return { input: u.input_tokens, cached: i.cached_tokens, output: u.output_tokens, reasoning: o.reasoning_tokens };
 }
-// 누가 정한 행동인지: ai(ChatGPT) | rule(예전 mode:=rule 시험) | user(웹 화면에서 직접 보낸 명령)
+// 누가 정한 행동인지: ai(ChatGPT) | rule(decider:=script 고정 행동) | user(웹 화면에서 직접 보낸 명령)
 const WHO = { ai: 'AI', rule: '규칙(테스트)', user: '사용자' };
 const whoOf = d => d.decider || (d.usage || d.raw_output || d.latency_s != null ? 'ai' : 'rule');
 // 태그 이름: AI는 모델 이름의 끝부분을 붙인다 (gpt-6-luna → AI-luna, gpt-6.1-sol → AI-sol)
 const modelTag = m => m ? 'AI-' + String(m).split('-').pop() : 'AI';
 const tagOf = d => whoOf(d) === 'ai' ? modelTag(d.model) : WHO[whoOf(d)];
+// ---------- 계획 ----------
+// 판단마다 함께 적힌 plan으로 현재 계획과 변경 이력을 그린다 (실시간·지난 판 보기 모두 같은 기록을 쓴다)
+const routeHTML = (route, nextFirst) => route && route.length
+  ? `<ol>${route.map((r, i) => `<li class="${nextFirst && i === 0 ? 'next' : ''}">${esc(r)}</li>`).join('')}</ol>`
+  : '<div class="muted">남은 순서 없음</div>';
+function renderPlan() {
+  const recs = decisions.filter(d => d.plan && whoOf(d) !== 'user');
+  let html;
+  if (!recs.length) html = '<span class="muted">아직 계획 없음 (판단마다 함께 적힌 계획이 여기에 보임)</span>';
+  else {
+    const cur = recs[recs.length - 1], p = cur.plan;
+    const changes = recs.filter((d, i) => i === 0 || d.plan.change);
+    const lastChange = changes[changes.length - 1];
+    html = `<div class="kv">
+        <span class="muted">처음 세움</span><span>#${recs[0].turn}${changes.length > 1 ? ` · 마지막 변경 <b>#${lastChange.turn}</b> (${changes.length - 1}회 바뀜)` : ' · 바뀐 적 없음'}</span>
+        <span class="muted">할당</span><span>${esc(p.assignment || '-')}</span>
+        <span class="muted">근거</span><span>${esc(p.reason || '-')}</span></div>
+      <div class="muted" style="margin-top:6px">#${cur.turn} ${esc(cur.name || '')} 다음 남은 순서 (굵은 것이 다음 행동)</div>${routeHTML(p.route, true)}
+      ${changes.length > 1 ? `<div class="muted" style="margin-top:6px">계획 변경 기록</div>` + changes.slice(1).reverse().map(d => {
+        const before = recs[recs.indexOf(d) - 1];
+        return `<div class="chg"><b>#${d.turn}</b> <span class="chgtag">계획 변경</span> ${esc(d.plan.change)}
+          <details><summary>바뀌기 전 (#${before.turn}) / 바뀐 뒤 순서</summary>
+            <div class="muted">전</div>${routeHTML(before.plan.route)}<div class="muted">후</div>${routeHTML(d.plan.route)}</details></div>`;
+      }).join('') : ''}`;
+  }
+  for (const id of ['planCard', 'planCardLLM']) {
+    const el = document.getElementById(id), open = [...el.querySelectorAll('details')].map(x => x.open);
+    el.innerHTML = html;
+    el.querySelectorAll('details').forEach((x, i) => { if (open[i]) x.open = true; });  // 펼친 것은 유지
+  }
+}
 function renderDecisions() {
+  renderPlan();
   document.getElementById('decCount').textContent = decisions.length ? `(${decisions.length})` : '';
   if (!decisions.length) {  // 경기장 초기화 등으로 비었으면 화면도 비운다
     document.getElementById('decSummary').innerHTML = '';
@@ -382,20 +462,24 @@ function renderDecisions() {
       + (o && o.recorded ? ` <span class="bad" title="다시 실행 결과가 원래 기록과 다름">⚠ 기록: ${o.recorded.success ? '✓' : '✗ ' + esc(o.recorded.error || '')}</span>` : '');
     const llmPart = w !== 'ai' ? `<div class="muted" style="margin-top:6px">${w === 'user'
         ? '웹 화면 "명령 보내기"로 사람이 직접 보낸 명령입니다. LLM 판단이 아닙니다.'
-        : '규칙 기반 계획기(예전 mode:=rule)가 정한 행동입니다. LLM을 부르지 않았습니다.'}</div>
+        : '고정 행동 목록(decider:=script, config/fixed_actions.yaml)에서 보낸 행동입니다. LLM을 부르지 않았습니다.'}</div>
       <div class="muted">보낸 명령</div><pre>${esc(`${d.name}(${JSON.stringify(d.args || {})})`)}</pre>` : `
       <div class="muted" style="margin-top:6px">생각 요약</div>
       ${d.reasoning && d.reasoning.length ? d.reasoning.map(r => `<div class="think">${esc(r)}</div>`).join('') : '<div class="muted">요약 없음 (계정·모델이 요약을 지원하지 않거나 생각이 짧았음)</div>'}
       ${d.text && d.text.length ? `<div class="muted">응답 문장</div><div class="say">${esc(d.text.join('\n'))}</div>` : ''}
       <div class="muted">고른 도구</div><pre>${esc(d.name ? `${d.name}(${d.arguments ?? JSON.stringify(d.args || {})})` : '없음')}</pre>
       <div class="muted">토큰</div><div class="mono">입력 ${k(u.input)} (캐시 ${k(u.cached)}) · 출력 ${k(u.output)} (생각 ${k(u.reasoning)}) · ${d.latency_s}초</div>`;
-    const body = !open ? '' : `<div class="body">${llmPart}
+    const planPart = !d.plan ? '' : `<div class="muted" style="margin-top:6px">계획 ${d.plan.change ? '<span class="chgtag">계획 변경</span>' : ''}</div>
+      ${d.plan.change ? `<div class="chg">${esc(d.plan.change)}</div>` : ''}
+      <div class="kv"><span class="muted">할당</span><span>${esc(d.plan.assignment || '-')}</span>
+        <span class="muted">근거</span><span>${esc(d.plan.reason || '-')}</span></div>${routeHTML(d.plan.route)}`;
+    const body = !open ? '' : `<div class="body">${llmPart}${planPart}
       ${o ? `<div class="muted" style="margin-top:6px">로봇 결과 → 다음 페이즈 ${esc(o.phase_after)}</div><pre>${esc(JSON.stringify(o.result, null, 1))}</pre>` : ''}
       ${d.input_state ? `<details data-key="${id}:state" ${keepOpen.has(id + ':state') ? 'open' : ''}><summary>보낸 상태 (MissionState, phase=${esc(d.input_state.phase)}, here=${esc(d.input_state.robot.here)})${d.input_state_rebuilt ? ' · 기록된 로봇 결과로 다시 계산함' : ''}</summary><pre>${esc(JSON.stringify(d.input_state, null, 1))}</pre></details>` : '<div class="muted">보낸 상태 기록 없음</div>'}
       ${w === 'ai' ? `<details data-key="${id}:raw" ${keepOpen.has(id + ':raw') ? 'open' : ''}><summary>응답 원문 (response.output)</summary><pre>${esc(JSON.stringify(d.raw_output || [], null, 1))}</pre></details>` : ''}
     </div>`;
     return `<div class="dec"><div class="head" data-id="${id}" data-newest="${d === newest}">
-      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}
+      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}${d.plan && d.plan.change ?  ' <span class="chgtag" title="' + escAttr(d.plan.change) + '">계획 변경</span>' : ''}
       <span class="muted" style="margin-left:auto">${w === 'ai' ? `${d.latency_s ?? '-'}초 · ${k(u.input)}/${k(u.output)}` : ''}</span></div>${body}</div>`;
   }).join('');
 }
@@ -415,21 +499,54 @@ async function loadRuns() {
   const runs = await (await fetch('/runs')).json(), sel = document.getElementById('runSel');
   runsInfo = Object.fromEntries(runs.map(r => [r.run_id, r]));
   const keep = sel.value;
-  sel.innerHTML = '<option value="">지난 판 고르기…</option>' + runs.map(r => `<option value="${esc(r.run_id)}">${esc(r.run_id)} · ${esc(r.phase || '?')}`
+  sel.innerHTML = '<option value="">지난 판 고르기…</option>' + runs.map(r => `<option value="${esc(r.run_id)}">${r.name ? '★ ' + esc(r.name) + ' · ' : ''}${esc(r.run_id)} · ${esc(r.phase || '?')}`
     + `${r.halt ? ' (' + esc(String(r.halt).slice(0, 20)) + ')' : ''}`
     + ` · ${Object.entries(r.deciders || {}).map(([w, n]) => ({ ai: modelTag(r.model), rule: '규칙', user: '사용자' }[w] || w) + ' ' + n).join(' + ') || '기록 없음'}`
     + `${r.legacy ? ' · 보기만' : ''}${!r.turns ? ' · 비어 있음' : ''}`
     + `${r.has_problem ? '' : ' · 문제 복원'}</option>`).join('');
   if (!runs.length) sel.innerHTML = '<option value="">저장된 판 없음</option>';
-  else if (keep) sel.value = keep;
+  else if (keep && runsInfo[keep]) sel.value = keep;
+  syncRunButtons();
 }
+function syncRunButtons() {
+  const chosen = runsInfo[document.getElementById('runSel').value];
+  document.getElementById('runName').value = chosen ? chosen.name || '' : '';
+  for (const id of ['runName', 'runNameSave', 'runDelete']) document.getElementById(id).disabled = !chosen;
+}
+let toastTimer = null;
+function toast(msg, bad = false) {  // 화면 아래에 잠깐 떴다 사라지는 알림
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.className = ''; }, 2500);
+}
+document.getElementById('runNameSave').addEventListener('click', async () => {
+  const id = document.getElementById('runSel').value;
+  if (!id) return;
+  const r = await post('/run_name', { run_id: id, name: document.getElementById('runName').value });
+  if (!r.ok) return toast('이름을 저장하지 못함: ' + r.error, true);
+  toast(r.name ? `이름을 "${r.name}"(으)로 저장했습니다` : '이름을 지웠습니다');
+  loadRuns();
+});
+document.getElementById('runName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('runNameSave').click(); });
+document.getElementById('runDelete').addEventListener('click', async () => {
+  const id = document.getElementById('runSel').value, chosen = runsInfo[id];
+  if (!id) return;
+  const label = chosen && chosen.name ? `"${chosen.name}" (${id})` : id;
+  if (!confirm(`${label} 판의 기록을 삭제할까요?\n~/xsting_logs/run_${id} 폴더가 지워지고 되돌릴 수 없습니다.`)) return;
+  const r = await post('/run_delete', { run_id: id });
+  if (!r.ok) return toast('삭제하지 못함: ' + r.error, true);
+  toast(`${label} 판을 삭제했습니다`);
+  document.getElementById('runSel').value = '';
+  decKey = '';
+  loadRuns();
+});
 document.getElementById('runRefresh').addEventListener('click', loadRuns);
 document.getElementById('runSel').addEventListener('change', async e => {
+  syncRunButtons();
   if (!e.target.value) return;
   const r = await post('/view_run', { run_id: e.target.value });  // 읽기만 함, 저장하지 않음
   if (!r.ok) return document.getElementById('replayStatus').textContent = '불러오지 못함: ' + r.error;
-  decKey = '';
-  document.getElementById('tabBtnLLM').click();
+  decKey = '';  // 판단 기록만 새로 불러온다. 탭은 그대로 둔다 (LLM 판단 탭에서 볼 수 있음)
 });
 document.getElementById('runPlay').addEventListener('click', async () => {
   const id = document.getElementById('runSel').value;

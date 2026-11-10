@@ -11,6 +11,8 @@
   GET  /runs        다시 실행할 수 있는 지난 판 목록 (~/xsting_logs/run_*)
   POST /replay      {"run_id"} 지난 판을 같은 문제로 맞추고 기록된 명령을 순서대로 다시 보낸다
   POST /view_run    {"run_id"} 다시 실행하지 않고 지난 판의 판단 기록을 LLM 판단 탭에 펼친다
+  POST /run_name    {"run_id", "name"} 지난 판에 이름 붙이기 (빈 이름이면 지움)
+  POST /run_delete  {"run_id"} 지난 판 기록 지우기 (진행 중인 판은 안 됨)
 """
 import json
 import threading
@@ -43,7 +45,7 @@ def check_args(name, args):
 
 class ViewServer:
     def __init__(self, world, web_dir, port, logger, send_command, is_busy, control, reset, list_runs,
-                 start_replay, view_run):
+                 start_replay, view_run, name_run, delete_run):
         index = Path(web_dir) / "index.html"
 
         class Handler(BaseHTTPRequestHandler):
@@ -99,6 +101,21 @@ class ViewServer:
                         view_run(str(body.get("run_id", "")))
                     except (FileNotFoundError, ValueError, KeyError) as e:
                         return self._json({"ok": False, "error": f"기록을 읽을 수 없음: {e}"}, 400)
+                    self._json({"ok": True})
+                elif self.path == "/run_name":
+                    try:
+                        name = name_run(str(body.get("run_id", "")), str(body.get("name", "")))
+                    except FileNotFoundError as e:
+                        return self._json({"ok": False, "error": f"기록이 없음: {e}"}, 400)
+                    self._json({"ok": True, "name": name})
+                elif self.path == "/run_delete":
+                    try:
+                        delete_run(str(body.get("run_id", "")))
+                    except FileNotFoundError as e:
+                        return self._json({"ok": False, "error": f"기록이 없음: {e}"}, 400)
+                    except ValueError as e:
+                        return self._json({"ok": False, "error": str(e)}, 409)
+                    logger.info(f"web: deleted run {body.get('run_id')}")
                     self._json({"ok": True})
                 elif self.path == "/reset":
                     if is_busy():

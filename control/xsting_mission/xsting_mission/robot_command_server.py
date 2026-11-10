@@ -39,9 +39,8 @@ class RobotCommandServer(Node):
         super().__init__("robot_command_server")
         share = get_package_share_directory("xsting_mission")
         self.declare_parameter("backend", "fake")
-        self.declare_parameter("places_file", os.path.join(share, "config", "places.yaml"))
         self.declare_parameter("scenario_file", os.path.join(share, "config", "fake_scenario.yaml"))
-        self.declare_parameter("map_file", os.path.join(share, "config", "arena_map.yaml"))
+        self.declare_parameter("arena_file", os.path.join(share, "config", "arena.yaml"))  # 장소·벽·장애물·로봇 크기
         self.declare_parameter("fake_time_scale", 3.0)  # 가짜 동작 배속 (1.0 = 실제 속도)
         self.declare_parameter("fake_speed_mps", 0.3)  # 가짜 로봇 주행 속도
         self.declare_parameter("view_port", 8765)  # 웹 화면 포트, 0이면 끔
@@ -50,9 +49,9 @@ class RobotCommandServer(Node):
 
         self.backend = self.get_parameter("backend").value
         self.nav_timeout_s = self.get_parameter("nav_timeout_s").value
-        with open(self.get_parameter("places_file").value, encoding="utf-8") as f:
-            places = yaml.safe_load(f)
-        self.frame_id, self.places = places["frame_id"], places["places"]
+        with open(self.get_parameter("arena_file").value, encoding="utf-8") as f:
+            arena = yaml.safe_load(f)
+        self.frame_id, self.places = arena["frame_id"], arena["places"]
 
         self.cb = ReentrantCallbackGroup()
         self._lock = threading.Lock()
@@ -63,7 +62,7 @@ class RobotCommandServer(Node):
         if self.backend == "fake":
             with open(self.get_parameter("scenario_file").value, encoding="utf-8") as f:
                 scenario = yaml.safe_load(f)
-            self.world = FakeWorld(scenario, self.places, self.get_parameter("map_file").value,
+            self.world = FakeWorld(scenario, arena,
                                    time_scale=self.get_parameter("fake_time_scale").value,
                                    speed_mps=self.get_parameter("fake_speed_mps").value)
             # 노트북 판단기의 MissionState와 판단 내용을 화면에 함께 보여 준다
@@ -92,7 +91,9 @@ class RobotCommandServer(Node):
                                        send_command=self.send_from_web, is_busy=self.is_busy,
                                        control=self.web_control, reset=self.reset_world,
                                        list_runs=lambda: replay.list_runs(self.replay_log_dir),
-                                       start_replay=self.start_replay, view_run=self.view_run)
+                                       start_replay=self.start_replay, view_run=self.view_run,
+                                       name_run=lambda rid, name: replay.set_run_name(self.replay_log_dir, rid, name),
+                                       delete_run=self.delete_run)
         elif self.backend == "ros":
             from nav2_msgs.action import NavigateToPose
             self.NavigateToPose = NavigateToPose
@@ -279,6 +280,22 @@ class RobotCommandServer(Node):
             self.world.decisions = [{**r, "run_id": f"log:{run_id}"} for r in records]
 
 
+    def delete_run(self, run_id):
+        """지난 판 기록을 지운다. 지금 진행 중인 판(중계 노드가 쓰는 중)과 다시 실행 중인 판은 지우지 않는다."""
+        world = self.world
+        with world.lock:
+            live = world.decisions[0]["run_id"] if world.decisions else None
+            running = world.commander is not None and not world.commander.get("halt") \
+                and world.commander["state"]["phase"] != "DONE"
+            replaying = world.replay is not None and not world.replay.get("done")
+        if (live == run_id and running) or (replaying and world.replay["run_id"] == run_id):
+            raise ValueError("지금 진행 중인 판이라 지울 수 없음")
+        replay.delete_run(self.replay_log_dir, run_id)
+        with world.lock:  # 지운 판을 보고 있었으면 화면에서도 비운다
+            if world.decisions and world.decisions[0]["run_id"] == f"log:{run_id}":
+                world.decisions = []
+        self.get_logger().info(f"deleted run {run_id}")
+
     def start_replay(self, run_id):
         problem, records = replay.load_run(self.replay_log_dir, run_id)
         if problem.get("legacy"):
@@ -374,7 +391,7 @@ class RobotCommandServer(Node):
         place = args["t"]
         goal = self._nav_goal(place)
         if goal is None:
-            return {"success": False, "error": "APPROACH_NOT_SET", "message": f"places.yaml {place}"}
+            return {"success": False, "error": "APPROACH_NOT_SET", "message": f"arena.yaml places.{place}.approach"}
         if not self.nav.wait_for_server(timeout_sec=5.0):
             return {"success": False, "error": "NAV_UNAVAILABLE"}
 
@@ -400,7 +417,7 @@ class RobotCommandServer(Node):
         status = result_future.result().status
         if status != GoalStatus.STATUS_SUCCEEDED:
             return {"success": False, "error": "NAV_FAILED", "status": status, "robot": {"here": "UNKNOWN"}}
-        # TODO: 목표 대비 실제 위치 오차(pose_error_mm)를 TF(map → base_link)로 계산해 넣기
+        # TODO: 도착한 자리를 TF(map → base_link)로 읽어 robot.pose({x, y (mm), yaw (deg)})로 넣기 (LLM이 다음 경로 판단에 쓴다)
         out = {"success": True, "robot": {"here": place}}
         if place == "HOME":
             self.feedback(gh, "holding_3s")
@@ -411,8 +428,8 @@ class RobotCommandServer(Node):
 
     # TODO(시뮬레이터 / 실물): 아래는 아직 NOT_IMPLEMENTED
     #   _ros_READ_MISSION_INPUT  앞 D435 컬러 영상 → Code128 디코딩 + 점멸 12회·3초 소등 감지 (신호는 반복됨)
-    #   _ros_LOAD                퍽 AprilTag(id·색) + 모양 판정 → 팔 집기 → 적재함 빈 slot에 넣기
-    #                            결과: {"slot", "puck": {"id","color","shape","conf"}, "box_remaining"}
+    #   _ros_LOAD                박스의 퍽마다 AprilTag(id·색) + 모양 판정 → 팔 집기 → 적재함 빈 slot에 넣기 (한 번에 모두)
+    #                            결과: {"pucks": [{"slot", "puck": {"id","color","shape","conf"}}, ...], "box_remaining"}
     #   _ros_UNLOAD              items 순서대로 적재함에서 꺼내 하차 박스 태그 기준 cell에 놓기 → 2초 안정 확인
     #                            실패하면 그 항목에서 멈추고 {"items": [...], "stopped_at"} 반환
     #   _ros_VERIFY_LOCATION     9칸 새 관측 → {"items": [...ok], "extra": [...], "cells": [...]}

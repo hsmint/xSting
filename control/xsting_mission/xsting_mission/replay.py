@@ -14,6 +14,7 @@
 import copy
 import json
 import os
+import shutil
 from pathlib import Path
 
 from .rules import NUM_PUCKS, START_BOXES
@@ -29,7 +30,8 @@ def list_runs(log_dir):
     for d in sorted(Path(log_dir).glob("run_*"), reverse=True):
         if not ((d / "decisions.json").exists() or (d / "mission.jsonl").exists()):
             continue
-        info = {"run_id": d.name[4:], "dir": str(d), "has_problem": (d / "problem.json").exists(),
+        name = (d / "name.txt").read_text(encoding="utf-8").strip() if (d / "name.txt").exists() else ""
+        info = {"run_id": d.name[4:], "name": name, "dir": str(d), "has_problem": (d / "problem.json").exists(),
                 "full": (d / "decisions.json").exists(), "phase": None, "halt": None, "turns": None, "model": None,
                 "deciders": {}, "legacy": False}
         try:
@@ -160,10 +162,32 @@ def _rebuild_states(records):
     return records
 
 
-def load_run(log_dir, run_id):
+def _run_dir(log_dir, run_id):
+    """run_id로 판 폴더를 찾는다. 경로를 벗어나는 id는 거절한다."""
     run_dir = Path(log_dir) / f"run_{run_id}"
-    if not run_dir.is_dir() or os.path.sep in run_id or ".." in run_id:
+    if not run_id or os.path.sep in run_id or ".." in run_id or not run_dir.is_dir():
         raise FileNotFoundError(run_id)
+    return run_dir
+
+
+def set_run_name(log_dir, run_id, name):
+    """판 이름을 name.txt에 저장한다. 빈 이름이면 지운다."""
+    path = _run_dir(log_dir, run_id) / "name.txt"
+    name = " ".join(str(name).split())[:60]
+    if name:
+        path.write_text(name, encoding="utf-8")
+    elif path.exists():
+        path.unlink()
+    return name
+
+
+def delete_run(log_dir, run_id):
+    """판 폴더를 통째로 지운다 (되돌릴 수 없음)."""
+    shutil.rmtree(_run_dir(log_dir, run_id))
+
+
+def load_run(log_dir, run_id):
+    run_dir = _run_dir(log_dir, run_id)
     records = _read_records(run_dir, run_id)
     legacy = _is_legacy(records)
     if legacy:  # 예전 상태 형식이라 지금 계산으로 복원하면 틀린 값이 나온다. 보기만 한다
