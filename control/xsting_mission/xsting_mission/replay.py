@@ -3,7 +3,7 @@
   문제   problem.json이 있으면 그대로, 없으면 final_state.json에서 복원한다
          (바코드·신호, 시작 박스별로 LOAD한 순서와 퍽 색·모양). 끝까지 못 실은 퍽은 알 수 없어서 임시값으로 채운다.
   판단   decisions.json이 있으면 그대로(보낸 상태·생각 요약·결과 포함), 없으면 mission.jsonl에서 복원한다.
-  실패   그때 났던 LOAD 실패(GRASP_FAILED)는 같은 시점에 다시 나도록 fail_once에 넣는다.
+  실패   그때 났던 실패(웹·시나리오에서 주입한 실패, 예전 기록의 LOAD 집기 실패)는 같은 시점에 다시 나도록 faults에 넣는다.
   상태   보낸 상태(input_state)가 없는 예전 판은 기록된 로봇 결과를 중계 노드와 같은 계산(apply_result)으로
          처음부터 다시 적용해 판단마다 보낸 상태를 복원한다.
   누가   판단마다 decider: "ai"(ChatGPT) | "rule"(예전 mode:=rule 시험) | "user"(웹 화면에서 직접 보낸 명령).
@@ -128,18 +128,39 @@ def _problem_from_final_state(run_dir, records):
     }
 
 
-def _failures(records):
-    """기록된 LOAD 실패를 같은 시점에 다시 내기 위한 fail_once 목록 ("LOAD:S3" 형식, 같은 박스 여러 번이면 여러 개)."""
-    keys, here = [], "HOME"
+def _faults(records):
+    """그 판에서 났던 실패를 같은 순서로 다시 내기 위한 faults 목록 (가짜 경기장의 실패 주입 형식).
+
+    - 결과에 injected가 있으면 그대로 쓴다 (웹·시나리오에서 주입한 실패).
+    - 인식 실패 뒤 한 바퀴 탐색(perception_search)이 있었으면, 무작위였든 주입이었든 그때 찾았는지대로
+      "처음 실패 + 찾을 확률 100% 또는 0%"로 다시 건다. 다시 실행 때는 무작위 인식 실패를 끄므로 결과가 같아진다.
+    - 그 전의 기록은 LOAD 집기 실패(GRASP_FAILED)만 그 박스의 실패로 되살린다.
+    """
+    faults, here = [], "HOME"
     for r in records:
         if r.get("input_state"):
             here = r["input_state"]["robot"]["here"]
         o = r.get("outcome") or {}
-        if r.get("name") == "LOAD" and o.get("error") == "GRASP_FAILED":
-            keys.append(f"LOAD:{here}")
-        if r.get("name") == "GOTO" and o.get("success"):
+        result = o.get("result") or {}
+        # 규약 위반으로 BAD_RESULT가 됐으면 주입 정보와 탐색 기록은 원래 결과(raw_result) 안에 있다
+        raw = result.get("raw_result") or {}
+        injected = result.get("injected") or raw.get("injected")
+        search = result.get("perception_search") or raw.get("perception_search")
+        name = r.get("name")
+        if search and injected and injected.get("code") != "PERCEPTION_FAILED":
+            # 같은 행동에서 인식 탐색과 다른 실패(예: 집기 실패)가 함께 났다: 한 실패로 합쳐 같은 행동에 걸리게 한다
+            faults.append({**injected, "perception_option": 100 if search.get("found") else 0, "times": 1})
+        elif search:
+            faults.append({"action": name, "code": "PERCEPTION_FAILED",
+                           "target": None if name == "READ_MISSION_INPUT" else here,
+                           "option": 100 if search.get("found") else 0, "times": 1})
+        elif injected:
+            faults.append({**injected, "times": 1})
+        elif name == "LOAD" and o.get("error") == "GRASP_FAILED":
+            faults.append({"action": "LOAD", "code": "GRASP_FAILED", "target": here, "option": 0, "times": 1})
+        if name == "GOTO" and o.get("success"):
             here = r["args"]["t"]
-    return keys
+    return faults
 
 
 def _rebuild_states(records):
@@ -197,5 +218,7 @@ def load_run(log_dir, run_id):
     else:
         problem = _problem_from_final_state(run_dir, records)
     records = _rebuild_states(records)
-    problem["fail_once"] = _failures(records)
+    problem["faults"] = _faults(records)
+    # 인식 실패는 위 faults로 그대로 재현하므로, 다시 실행 중에는 무작위 인식 실패를 끈다
+    problem["perception"] = {"fail_rate": 0, "search_success_rate": 0}
     return problem, records
