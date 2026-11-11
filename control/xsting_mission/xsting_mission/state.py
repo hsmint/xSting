@@ -139,20 +139,21 @@ def apply_result(state, name, args, result, t=None):
 
     elif name == "LOAD":
         box = world["boxes"].get(robot["here"])
-        if ok:
-            # 한 번에 그 박스의 퍽을 모두 싣는다. 예전 기록은 {"slot", "puck"} 하나짜리 형식이다
-            loaded = result["pucks"] if "pucks" in result else [{"slot": result["slot"], "puck": result["puck"]}]
-            for item in loaded:
-                puck, slot = item["puck"], item["slot"]
-                robot["storage"][slot] = {"slot": slot, "state": "occupied" if puck.get("id") is not None else "unknown",
-                                          "puck_id": puck.get("id"), "color": puck.get("color"),
-                                          "shape": puck.get("shape")}
-                if puck.get("id") is not None:
-                    world["pucks"][puck["id"]].update(color=puck.get("color"), shape=puck.get("shape"),
-                                                      conf=puck.get("conf"), origin=robot["here"],
-                                                      where="storage", slot=slot)
-                    if box is not None:
-                        box["loaded"].append(puck["id"])
+        # 실은 퍽은 성공·실패와 관계없이 반영한다 (집기 실패여도 1개는 실었을 수 있다).
+        # 예전 기록은 성공일 때만 {"slot", "puck"} 하나짜리 형식이다
+        loaded = result.get("pucks") or ([{"slot": result["slot"], "puck": result["puck"]}]
+                                          if ok and "puck" in result else [])
+        for item in loaded:
+            puck, slot = item["puck"], item["slot"]
+            robot["storage"][slot] = {"slot": slot, "state": "occupied" if puck.get("id") is not None else "unknown",
+                                      "puck_id": puck.get("id"), "color": puck.get("color"),
+                                      "shape": puck.get("shape")}
+            if puck.get("id") is not None:
+                world["pucks"][puck["id"]].update(color=puck.get("color"), shape=puck.get("shape"),
+                                                  conf=puck.get("conf"), origin=robot["here"],
+                                                  where="storage", slot=slot)
+                if box is not None:
+                    box["loaded"].append(puck["id"])
         if box is not None and result.get("box_remaining") == 0:
             box["status"] = "CLEARED"
 
