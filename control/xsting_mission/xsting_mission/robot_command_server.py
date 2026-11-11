@@ -436,6 +436,7 @@ class RobotCommandServer(Node):
 
     # TODO(시뮬레이터 / 실물): 아래는 아직 NOT_IMPLEMENTED
     #   _ros_READ_MISSION_INPUT  앞 D435 컬러 영상 → Code128 디코딩 + 점멸 12회·3초 소등 감지 (신호는 반복됨)
+    #                            못 찾으면 한 바퀴 돌며 찾기, 12개를 다 못 읽으면 다음 주기 다시 읽기 (fake_world와 같게)
     #   _ros_LOAD                박스의 퍽마다 AprilTag(id·색) + 모양 판정 → 팔 집기 → 적재함 빈 slot에 넣기 (한 번에 모두)
     #                            결과: {"pucks": [{"slot", "puck": {"id","color","shape","conf"}}, ...], "box_remaining"}
     #   _ros_UNLOAD              items 순서대로 적재함에서 꺼내 하차 박스 태그 기준 cell에 놓기 → 2초 안정 확인

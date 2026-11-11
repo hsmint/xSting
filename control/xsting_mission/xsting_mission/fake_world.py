@@ -19,8 +19,9 @@ STORAGE_SLOTS = 12
 
 # 웹·시나리오에서 일부러 낼 수 있는 실패 (docs/error_codes.md의 ③④ 단계 중 가짜 로봇이 흉내 낼 수 있는 것)
 # 코드: 옵션 설명 (옵션이 없으면 None)
+# SIGNAL_INCOMPLETE는 주입 전용 이름이다: 그 횟수만큼 신호를 덜 읽고, 한도(SIGNAL_READ_LIMIT) 이상이면 PERCEPTION_FAILED로 끝난다
 FAULT_CODES = {
-    "READ_MISSION_INPUT": {"PERCEPTION_FAILED": "탐색 후 찾을 확률 %"},
+    "READ_MISSION_INPUT": {"PERCEPTION_FAILED": "탐색 후 찾을 확률 %", "SIGNAL_INCOMPLETE": "덜 읽을 횟수"},
     "GOTO": {"OBSTACLE_BLOCKED": "멈출 지점 %", "NO_PROGRESS": "멈출 지점 %", "NAV_FAILED": "멈출 지점 %",
              "LOCALIZATION_LOST": "멈출 지점 %", "NO_PATH": None},
     "LOAD": {"GRASP_FAILED": "실을 개수", "PERCEPTION_FAILED": "탐색 후 찾을 확률 %"},
@@ -28,7 +29,10 @@ FAULT_CODES = {
     "VERIFY_LOCATION": {"PERCEPTION_FAILED": "탐색 후 찾을 확률 %"},
 }
 COMMON_FAULTS = {"ROBOT_FAULT": None, "INTERNAL_ERROR": None, "BAD_RESULT": None}  # 어느 행동이든
-FAULT_DEFAULT_OPTION = {"멈출 지점 %": 50, "실을 개수": 0, "실패할 항목 번호": 2, "탐색 후 찾을 확률 %": 0}
+FAULT_DEFAULT_OPTION = {"멈출 지점 %": 50, "실을 개수": 0, "실패할 항목 번호": 2, "탐색 후 찾을 확률 %": 0,
+                        "덜 읽을 횟수": 1}
+SIGNAL_READ_LIMIT = 3  # 신호 12개를 다 못 읽으면 로봇이 다음 주기를 다시 읽는다 (처음 읽기 포함 최대 횟수)
+SIGNAL_MISSED_RANGE = (1, 3)  # 덜 읽을 때 놓치는 점멸 개수
 # 무작위 인식 실패 (READ·LOAD·VERIFY). 처음 인식이 fail_rate %로 실패하면 제자리에서 한 바퀴 돌며 다시 찾고,
 # search_success_rate %로 찾는다. 시나리오의 perception과 웹에서 바꾼다
 PERCEPTION_DEFAULT = {"fail_rate": 0, "search_success_rate": 70}
@@ -563,26 +567,51 @@ class FakeWorld(ArenaMap):
         self.sleep(1.0, is_canceled)
         found, search = self._perceive("바코드·신호등", is_canceled, feedback)
         if not found:
-            return {"success": False, "error": "PERCEPTION_FAILED", "perception_search": search,
-                    "message": "한 바퀴 돌며 찾았지만 바코드와 신호등이 보이지 않음"}
+            return {"success": False, "error": "PERCEPTION_FAILED", "cause": "LIGHT_NOT_FOUND",
+                    "perception_search": search, "message": "한 바퀴 돌며 찾았지만 바코드와 신호등이 보이지 않음"}
         with self.lock:
             self.barcode_read = True
+
+        # 12개를 다 못 읽으면 신호가 반복되므로 다음 주기를 다시 읽는다
+        fault = self._fault
+        short_reads = fault["option"] if fault and fault["code"] == "SIGNAL_INCOMPLETE" else 0
+        for read in range(1, SIGNAL_READ_LIMIT + 1):
+            seen = self._watch_signal(read, read <= short_reads, is_canceled, feedback)
+            if "?" not in seen:
+                break
+
+        complete = "?" not in seen
+        out = {"success": complete, "barcode": self.barcode, "signal": seen, "end_seen": True}
+        if read > 1:
+            out["signal_reread"] = {"reads": read, "complete": complete}
+        if search:
+            out["perception_search"] = search
+        if not complete:
+            out.update(error="PERCEPTION_FAILED", cause="SIGNAL_INCOMPLETE",
+                       message=f"신호를 {read}번 읽었지만 12개를 다 보지 못함")
+        return out
+
+    def _watch_signal(self, read, short, is_canceled, feedback):
+        """신호 한 주기(점멸 12번, 3초 소등)를 본다. 본 색 목록을 돌려주고, short면 몇 칸을 "?"로 놓친다."""
+        missed = set()
+        if short:
+            missed = set(self.perception_rng.sample(range(12), self.perception_rng.randint(*SIGNAL_MISSED_RANGE)))
+        with self.lock:
             self.seen_signal = []
-        for k, color in enumerate(self.signal, 1):
+        for index, color in enumerate(self.signal):
+            seen_color = "?" if index in missed else color
             with self.lock:
                 self.light = color
-                self.seen_signal.append(color)
-            feedback(f"blink {k}/12 {color}")
+                self.seen_signal.append(seen_color)
+            feedback(f"read {read}/{SIGNAL_READ_LIMIT} blink {index + 1}/12 {seen_color}")
             self.sleep(1.0, is_canceled)
             with self.lock:
                 self.light = None
             self.sleep(1.0, is_canceled)
         feedback("end_dark_3s")
         self.sleep(3.0, is_canceled)
-        out = {"success": True, "barcode": self.barcode, "signal": list(self.signal), "end_seen": True}
-        if search:
-            out["perception_search"] = search
-        return out
+        with self.lock:
+            return list(self.seen_signal)
 
     def _goto(self, args, is_canceled, feedback):
         out = self.drive_to(args["t"], is_canceled, feedback)

@@ -162,6 +162,8 @@
 - 위치 조건: HOME
 - 인자: 없음
 - 결과: `world.barcode`와 `world.signal`이 채워진다. `valid=false`면 다시 부른다 (신호는 반복된다).
+- 로봇은 신호등을 못 찾으면 한 바퀴 돌며 찾고, 점멸 12개를 다 못 읽으면 다음 주기를 최대 3번까지 다시 읽는다.
+  그래도 안 되면 `PERCEPTION_FAILED`로 오고, `last_action.result.cause`가 `LIGHT_NOT_FOUND`(신호등을 못 찾음) 또는 `SIGNAL_INCOMPLETE`(12개를 다 못 읽음)다. 어느 쪽이든 다시 부른다.
 
 ### GOTO
 - 설명: 대상 둘레의 갈 수 있는 자리로 이동해 대상을 바라보고 정지한다. 경로는 로봇이 정한다.

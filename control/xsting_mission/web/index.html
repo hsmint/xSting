@@ -164,7 +164,7 @@
   </div>
 </div>
 <script>
-const COLOR = { R: getVar('--red'), G: getVar('--green'), Y: getVar('--yellow') };
+const COLOR = { R: getVar('--red'), G: getVar('--green'), Y: getVar('--yellow'), '?': getVar('--line') };
 function getVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 const canvas = document.getElementById('map'), ctx = canvas.getContext('2d');
 let M = null, mapImg = null, blockedImg = null, S = null, view = null;

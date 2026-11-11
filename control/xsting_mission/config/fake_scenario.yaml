@@ -10,7 +10,8 @@ fail_once: []
 # 시험용 실패 (웹 "실패 주입" 카드와 같은 형식, 코드별 뜻은 docs/error_codes.md). 초기화할 때마다 다시 걸린다
 #   action: READ_MISSION_INPUT | GOTO | LOAD | UNLOAD | VERIFY_LOCATION
 #   code:   GOTO는 OBSTACLE_BLOCKED, NO_PROGRESS, NAV_FAILED, LOCALIZATION_LOST, NO_PATH
-#           LOAD는 GRASP_FAILED, PERCEPTION_FAILED / UNLOAD는 PLACE_FAILED / READ·VERIFY는 PERCEPTION_FAILED
+#           LOAD는 GRASP_FAILED, PERCEPTION_FAILED / UNLOAD는 PLACE_FAILED / VERIFY는 PERCEPTION_FAILED
+#           READ는 PERCEPTION_FAILED(신호등 못 찾음), SIGNAL_INCOMPLETE(신호를 option번 덜 읽음, 3번 이상이면 실패)
 #           어느 행동이든 ROBOT_FAULT, INTERNAL_ERROR, BAD_RESULT
 #   target: 그 장소에서만 (GOTO는 목적지, LOAD·UNLOAD·VERIFY는 지금 장소). 없으면 아무 곳
 #   option: GOTO 멈출 지점 % (기본 50), LOAD 실을 개수 (기본 0), UNLOAD 실패할 항목 번호 (기본 2)

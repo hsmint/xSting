@@ -19,6 +19,7 @@
   READ_MISSION_INPUT  인자 {}
       {"success": true, "barcode": "P2-01", "signal": ["R", "G", ...12개], "end_seen": true}
       signal 항목은 "R"|"Y"|"G", 못 읽은 칸은 "?" (개수·색 검사는 중계 노드가 한다)
+      12개를 다 못 읽으면 로봇이 다음 주기를 다시 읽고, 그래도 안 되면 PERCEPTION_FAILED (cause: SIGNAL_INCOMPLETE)
   GOTO  인자 {"t": 장소 ID}
       {"success": true, "robot": {"here": t, "pose": {...}}}       robot.here는 t여야 한다
       t=HOME이면 추가로 "in_zone": bool, "stopped_s": 숫자 (출발 구역 안에서 정지한 시간)
