@@ -3,7 +3,7 @@
 xsting_mission에서 로봇 행동이 실패하거나 예상과 다를 때 누가, 어떻게 처리하는지 정한다.
 가짜 경기장, 실물 로봇, 다른 팀이 만드는 로봇 쪽 구현이 모두 이 원칙을 따른다.
 에러 코드별 예상 원인, 기대하는 행동, 필요한 이유는 [error_codes.md](error_codes.md)에 적었다.
-결과 형식(에러 코드, 필드)은 로봇 명령 규약(지금은 `xsting_mission/contract.py`, JSON 스키마로 옮길 예정)에 적는다.
+결과 형식(에러 코드, 필드)은 로봇 명령 규약(지금은 `xsting_mission/core/contract.py`, JSON 스키마로 옮길 예정)에 적는다.
 
 확정: 2026-11-11
 
