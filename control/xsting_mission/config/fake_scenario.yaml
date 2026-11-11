@@ -6,7 +6,21 @@
 barcode: random
 signal: random
 seed: 0
-fail_once: ["LOAD:S3"]  # 시험용: S3에서 첫 LOAD를 한 번 실패시킨다
+fail_once: []
+# 시험용 실패 (웹 "실패 주입" 카드와 같은 형식, 코드별 뜻은 docs/error_codes.md). 초기화할 때마다 다시 걸린다
+#   action: READ_MISSION_INPUT | GOTO | LOAD | UNLOAD | VERIFY_LOCATION
+#   code:   GOTO는 OBSTACLE_BLOCKED, NO_PROGRESS, NAV_FAILED, LOCALIZATION_LOST, NO_PATH
+#           LOAD는 GRASP_FAILED, PERCEPTION_FAILED / UNLOAD는 PLACE_FAILED / READ·VERIFY는 PERCEPTION_FAILED
+#           어느 행동이든 ROBOT_FAULT, INTERNAL_ERROR, BAD_RESULT
+#   target: 그 장소에서만 (GOTO는 목적지, LOAD·UNLOAD·VERIFY는 지금 장소). 없으면 아무 곳
+#   option: GOTO 멈출 지점 % (기본 50), LOAD 실을 개수 (기본 0), UNLOAD 실패할 항목 번호 (기본 2)
+#   times:  몇 번 실패할지 (기본 1)
+faults: []
+# 무작위 인식 실패 (READ·LOAD·VERIFY, 웹에서도 바꿀 수 있음). 처음 인식이 fail_rate %로 실패하면
+# 로봇이 제자리에서 한 바퀴 돌며 다시 찾고, search_success_rate %로 찾는다. 못 찾으면 PERCEPTION_FAILED
+perception: {fail_rate: 0, search_success_rate: 70}
+#   - {action: GOTO, code: OBSTACLE_BLOCKED, target: L3, option: 40}
+#   - {action: UNLOAD, code: PLACE_FAILED, target: L2, option: 2}
 boxes: random
 # 고정 배치 예 (공개 연습 문제 Q1, 빨강 6·초록 6):
 # boxes:

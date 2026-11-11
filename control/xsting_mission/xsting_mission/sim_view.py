@@ -13,6 +13,9 @@
   POST /view_run    {"run_id"} 다시 실행하지 않고 지난 판의 판단 기록을 LLM 판단 탭에 펼친다
   POST /run_name    {"run_id", "name"} 지난 판에 이름 붙이기 (빈 이름이면 지움)
   POST /run_delete  {"run_id"} 지난 판 기록 지우기 (진행 중인 판은 안 됨)
+  POST /fault       {"action", "code", "target", "option", "times"} 가짜 로봇에 실패 걸기 (그 행동을 할 때 실패한다)
+  POST /fault_remove {"id"} 걸어 둔 실패 지우기
+  POST /perception  {"fail_rate", "search_success_rate"} 무작위 인식 실패 확률(%) 바꾸기
 """
 import json
 import threading
@@ -101,6 +104,23 @@ class ViewServer:
                     except ValueError as e:
                         return self._json({"ok": False, "error": str(e)}, 409)
                     logger.info(f"web: deleted run {body.get('run_id')}")
+                    self._json({"ok": True})
+                elif self.path == "/fault":
+                    try:
+                        fault = world.add_fault(body)
+                    except (ValueError, TypeError) as e:
+                        return self._json({"ok": False, "error": str(e)}, 400)
+                    logger.info(f"web: fault {fault}")
+                    self._json({"ok": True, "fault": fault})
+                elif self.path == "/perception":
+                    try:
+                        p = world.set_perception(body["fail_rate"], body["search_success_rate"])
+                    except (KeyError, TypeError, ValueError):
+                        return self._json({"ok": False, "error": "fail_rate, search_success_rate는 0~100 숫자"}, 400)
+                    logger.info(f"web: perception {p}")
+                    self._json({"ok": True, "perception": p})
+                elif self.path == "/fault_remove":
+                    world.remove_fault(body.get("id"))
                     self._json({"ok": True})
                 elif self.path == "/reset":
                     if is_busy():

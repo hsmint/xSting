@@ -126,6 +126,24 @@
       <span class="muted">판을 고르면 그 판의 판단이 LLM 판단 탭에 채워짐 (읽기만 함)</span></div>
     <div class="muted" id="replayStatus">같은 문제로 경기장을 맞추고 기록된 명령을 순서대로 다시 보냅니다 (API 비용 없음). 중계 노드는 꺼 두세요.</div>
   </div>
+  <h2>실패 주입 (시험용)</h2>
+  <div class="card">
+    <div class="row"><select id="fAction" aria-label="행동"></select><select id="fCode" aria-label="에러"></select>
+      <select id="fTarget" aria-label="대상"></select></div>
+    <div class="row"><label id="fOptWrap"><span id="fOptLabel"></span> <input id="fOption" type="number" style="width:60px"></label>
+      <label>횟수 <select id="fTimes"><option>1</option><option>2</option><option>3</option><option>5</option></select></label>
+      <button class="primary" id="fAdd">주입</button></div>
+    <div id="fHelp" class="say" style="margin:6px 0"></div>
+    <div class="muted">로봇이 그 행동을 할 때(대상을 고르면 그 장소에서만) 걸어 둔 횟수만큼 실패합니다.
+      웹에서 건 실패는 경기장 초기화하면 사라집니다. 에러별 뜻은 docs/error_codes.md</div>
+    <div id="faultList" style="margin-top:6px"></div>
+    <div class="row" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">
+      <span class="muted">무작위 인식 실패</span>
+      <label>처음 실패 <input id="pFail" type="number" min="0" max="100" style="width:52px">%</label>
+      <label>한 바퀴 탐색 후 찾음 <input id="pSearch" type="number" min="0" max="100" style="width:52px">%</label>
+      <button id="pApply">적용</button></div>
+    <div class="muted" id="pHelp"></div>
+  </div>
   <h2>명령 보내기 (ROS action)</h2>
   <div class="card">
     <div class="row">
@@ -177,7 +195,99 @@ async function init() {
     }
   }
   bc.putImageData(bimg, 0, 0);
+  initFaults();
   poll();
+}
+
+// ---------- 실패 주입 ----------
+const FAULT_TARGETS = { GOTO: null, LOAD: /^S/, UNLOAD: /^L/, VERIFY_LOCATION: /^L/, READ_MISSION_INPUT: false };
+function initFaults() {
+  const act = document.getElementById('fAction'), code = document.getElementById('fCode'), tgt = document.getElementById('fTarget');
+  act.innerHTML = Object.keys(M.fault_codes).map(a => `<option>${a}</option>`).join('');
+  const syncOption = () => {
+    const label = M.fault_codes[act.value][code.value];
+    document.getElementById('fOptWrap').hidden = !label;
+    document.getElementById('fOptLabel').textContent = label ? OPT_TEXT[label] || label : '';
+    document.getElementById('fOption').value = label ? M.fault_default_option[label] : '';
+    renderFaultHelp();
+  };
+  const syncAction = () => {
+    code.innerHTML = Object.keys(M.fault_codes[act.value]).map(c => `<option>${c}</option>`).join('');
+    const rule = FAULT_TARGETS[act.value];
+    const places = rule === false ? [] : Object.keys(M.targets).filter(p => !rule || rule.test(p));
+    tgt.innerHTML = '<option value="">아무 곳</option>' + places.map(p => `<option>${p}</option>`).join('');
+    tgt.disabled = rule === false;
+    syncOption();
+  };
+  act.addEventListener('change', syncAction);
+  tgt.addEventListener('change', renderFaultHelp);
+  document.getElementById('fOption').addEventListener('input', renderFaultHelp);
+  document.getElementById('fTimes').addEventListener('change', renderFaultHelp);
+  for (const id of ['pFail', 'pSearch']) document.getElementById(id).addEventListener('input', renderPerceptionHelp);
+  code.addEventListener('change', syncOption);
+  syncAction();
+  document.getElementById('fAdd').addEventListener('click', async () => {
+    const r = await post('/fault', { action: act.value, code: code.value, target: tgt.value || null,
+      option: document.getElementById('fOption').value, times: Number(document.getElementById('fTimes').value) });
+    toast(r.ok ? `${act.value}${tgt.value ? ' ' + tgt.value : ''}에 ${code.value} 실패를 걸었습니다` : '걸지 못함: ' + r.error, !r.ok);
+  });
+  document.getElementById('pApply').addEventListener('click', async () => {
+    const r = await post('/perception', { fail_rate: Number(document.getElementById('pFail').value),
+      search_success_rate: Number(document.getElementById('pSearch').value) });
+    toast(r.ok ? `인식 실패 ${r.perception.fail_rate}%, 탐색 후 찾음 ${r.perception.search_success_rate}%로 바꿨습니다` : '바꾸지 못함: ' + r.error, !r.ok);
+  });
+  document.getElementById('faultList').addEventListener('click', async e => {
+    const id = e.target.dataset.fault;
+    if (id) { await post('/fault_remove', { id: Number(id) }); toast('실패를 지웠습니다'); }
+  });
+}
+// 옵션 이름과, 고른 에러가 실제로 어떻게 동작하는지 쉬운 말 설명
+const OPT_TEXT = { '멈출 지점 %': '막히는 위치 (경로의 %)', '실을 개수': '실을 퍽 수', '실패할 항목 번호': '실패할 퍽 순서',
+  '탐색 후 찾을 확률 %': '한 바퀴 돌고 다시 찾을 확률 %' };
+function renderFaultHelp() {
+  const a = document.getElementById('fAction').value, c = document.getElementById('fCode').value;
+  const t = document.getElementById('fTarget').value, n = Number(document.getElementById('fOption').value);
+  const times = document.getElementById('fTimes').value;
+  const where = a === 'GOTO' ? (t ? `${t}로 가는` : '어디로든 가는') : (t ? `${t}에서 하는` : '어디서든 하는');
+  const pct = Math.min(Math.max(n || 0, 1), 90);
+  const text = {
+    OBSTACLE_BLOCKED: `${where} 길의 ${pct}% 지점에서 로봇 앞에 장애물(25cm)이 나타나 멈춥니다. 장애물은 경기장 시간 5초 뒤 사라지고, 그동안 다른 경로는 장애물을 돌아갑니다. (1~90%: 출발 직후 ~ 목적지 조금 전)`,
+    NO_PROGRESS: `${where} 길의 ${pct}% 지점에서 원인 모르게 앞으로 못 가 멈춥니다. 장애물은 없습니다.`,
+    NAV_FAILED: `${where} 길의 ${pct}% 지점에서 주행이 중단돼 멈춥니다.`,
+    LOCALIZATION_LOST: `${where} 길의 ${pct}% 지점에서 위치를 잃고 멈춥니다. 결과의 위치(pose)가 비어 있습니다.`,
+    NO_PATH: `${where} 길을 찾지 못해 출발하지 않습니다.`,
+    GRASP_FAILED: `${where} LOAD에서 박스의 퍽 2개 중 ${Math.max(0, Math.min(n || 0, 1))}개만 싣고 집기에 실패합니다.`,
+    PLACE_FAILED: `${where} UNLOAD에서 ${Math.max(1, n || 1)}번째 퍽을 놓다가 실패합니다. 앞 퍽들은 놓인 채로 남고, 그 퍽은 적재함에 남습니다.`,
+    PERCEPTION_FAILED: `${where} 인식이 처음에 반드시 실패합니다. 로봇이 제자리에서 한 바퀴 돌며 다시 찾고, ${Math.min(Math.max(n || 0, 0), 100)}% 확률로 찾습니다 (0이면 끝내 못 찾아 PERCEPTION_FAILED, 100이면 반드시 찾아 성공).`,
+    ROBOT_FAULT: `${where} 행동이 시작되자마자 하드웨어 이상(모터 과전류)으로 실패합니다.`,
+    INTERNAL_ERROR: `${where} 행동이 시작되자마자 로봇 코드 예외로 실패합니다.`,
+    BAD_RESULT: `${where} 행동은 실제로 하고, 결과를 규약과 다르게 돌려줍니다. 로봇 서버가 BAD_RESULT로 바꿔 알립니다.`,
+  }[c] || '';
+  document.getElementById('fHelp').textContent = `${text} · ${times}번`;
+}
+function renderPerceptionHelp() {
+  const f = Math.min(Math.max(Number(document.getElementById('pFail').value) || 0, 0), 100);
+  const sr = Math.min(Math.max(Number(document.getElementById('pSearch').value) || 0, 0), 100);
+  document.getElementById('pHelp').textContent = f === 0
+    ? '꺼짐. READ·LOAD·VERIFY에서 로봇이 처음 볼 때 못 볼 확률(처음 실패)을 0보다 크게 하면 켜집니다.'
+    : `READ·LOAD·VERIFY마다 처음 볼 때 ${f}% 확률로 못 봅니다. 못 보면 제자리에서 한 바퀴 돌며 다시 찾고 ${sr}% 확률로 찾습니다. `
+      + `인식 100번이면 약 ${Math.round(100 - f)}번은 바로 보고, ${Math.round(f * sr / 100)}번은 돌고 찾고, ${Math.round(f * (100 - sr) / 100)}번은 PERCEPTION_FAILED입니다. 위의 실패 주입과 달리 판 전체에 계속 적용됩니다.`;
+}
+let faultKey = '';
+function renderFaults() {
+  for (const [id, k] of [['pFail', 'fail_rate'], ['pSearch', 'search_success_rate']]) {  // 입력 중이 아니면 서버 값으로
+    const el = document.getElementById(id);
+    if (S.perception && document.activeElement !== el) el.value = S.perception[k];
+  }
+  renderPerceptionHelp();
+  const key = JSON.stringify(S.faults || []);
+  if (key === faultKey) return;
+  faultKey = key;
+  document.getElementById('faultList').innerHTML = (S.faults || []).length
+    ? S.faults.map(f => `<div style="display:flex;gap:6px;align-items:center;margin:3px 0"><span class="chgtag">대기</span>
+        <span class="mono" style="flex:1;min-width:0;font-size:12px">${esc(f.action)}${f.target ? ' ' + esc(f.target) : ''} → ${esc(f.code)}${f.option_label ? ` (${esc(f.option_label)} ${f.option})` : ''} · ${f.times}번</span>
+        <button data-fault="${f.id}" title="지우기" aria-label="지우기">×</button></div>`).join('')
+    : '<span class="muted">걸어 둔 실패 없음</span>';
 }
 
 async function poll() {
@@ -292,6 +402,14 @@ function draw() {
     const x = v.px(a[0]), y = v.py(a[1]), d = 4 * v.dpr;
     ctx.beginPath(); ctx.moveTo(x - d, y - d); ctx.lineTo(x + d, y + d); ctx.moveTo(x + d, y - d); ctx.lineTo(x - d, y + d); ctx.stroke();
   }
+  // 임시 장애물 (OBSTACLE_BLOCKED로 생김, 잠시 뒤 사라짐)
+  for (const o of S.temp_obstacles || []) {
+    const [w, hh] = o.size_mm;
+    ctx.fillStyle = 'rgba(214,69,69,.35)'; ctx.strokeStyle = '#d64545'; ctx.lineWidth = v.dpr;
+    ctx.fillRect(v.px(o.x - w / 2), v.py(o.y + hh / 2), w * v.s, hh * v.s);
+    ctx.strokeRect(v.px(o.x - w / 2), v.py(o.y + hh / 2), w * v.s, hh * v.s);
+    label(`장애물 ${o.left_s.toFixed(1)}초`, o.x, o.y + hh / 2 + 120, 4);
+  }
   // 경로
   if (S.path.length) {
     ctx.strokeStyle = getVar('--path'); ctx.lineWidth = 2 * v.dpr; ctx.setLineDash([6 * v.dpr, 4 * v.dpr]);
@@ -368,6 +486,7 @@ function renderPanel() {
   pb.textContent = S.paused ? '▶ 재개' : '⏸ 일시정지';
   pb.classList.toggle('on', S.paused);
   renderHistory();
+  renderFaults();
   renderWebResult();
   renderReplay();
   loadDecisions();
@@ -609,7 +728,7 @@ function renderHistory() {
     const row = `<tr class="h" data-id="${id}"><td class="muted mono">${new Date(h.started * 1000).toLocaleTimeString()}</td>
       <td class="${h.success ? 'ok' : 'bad'}">${h.success ? '✓' : '✗'}</td>
       <td><b>${esc(h.name)}</b> <span class="mono muted">${esc(argText(h.args))}</span>
-        <span class="src ${h.source}">${srcLabel(h.source)}</span>
+        <span class="src ${h.source}">${srcLabel(h.source)}</span>${h.result && h.result.injected ? ' <span class="chgtag" title="웹·시나리오에서 걸어 둔 실패">주입됨</span>' : ''}
         <span class="muted">${h.duration_s}초</span>${h.error ? ` <span class="bad">${esc(h.error)}</span>` : ''}</td></tr>`;
     const detail = opened.has(id) ? `<tr><td></td><td colspan="2">
       <div class="muted">받은 인자 (args)</div><pre>${esc(JSON.stringify(h.args, null, 1))}</pre>
