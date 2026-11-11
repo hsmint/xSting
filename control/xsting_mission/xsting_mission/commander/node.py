@@ -26,6 +26,29 @@ from .tools import TOOL_NAMES
 ACTION_TIMEOUT_S = {"READ_MISSION_INPUT": 600.0, "GOTO": 180.0,
                     "UNLOAD": 300.0}
 DEFAULT_TIMEOUT_S = 120.0
+# 샘플링 값의 허용 범위 (OpenAI 기준)
+SAMPLING_RANGES = {"temperature": (0.0, 2.0), "top_p": (0.0, 1.0)}
+# effort none을 지원하지 않는 모델 (OpenAI 최신 모델 안내 기준)
+NO_NONE_EFFORT_MODELS = ("gpt-6-astra", "gpt-6.1-sol")
+
+
+def _sampling_options(model, effort, temperature, top_p):
+    """보낼 샘플링 값 {이름: 값}. 음수는 빼고, 쓸 수 없는 조합이면 시작할 때 멈춘다."""
+    if effort == "none" and model in NO_NONE_EFFORT_MODELS:
+        raise ValueError(f"{model}은 effort none을 지원하지 않음")
+    options = {name: value
+               for name, value in (("temperature", temperature),
+                                   ("top_p", top_p))
+               if value >= 0}
+    for name, value in options.items():
+        low, high = SAMPLING_RANGES[name]
+        if not low <= value <= high:
+            raise ValueError(f"{name}는 {low}~{high}: {value}")
+    if options and effort != "none":
+        raise ValueError(
+            f"temperature·top_p는 effort가 none일 때만 쓸 수 있음 "
+            f"(지금 effort={effort})")
+    return options
 
 
 class LlmCommander(Node):
@@ -44,6 +67,9 @@ class LlmCommander(Node):
             "effort", os.environ.get("XSTING_LLM_EFFORT", "low"))
         # 생각 요약: auto | detailed | concise | none (원문 생각은 공개되지 않음)
         self.declare_parameter("reasoning_summary", "auto")
+        # 샘플링 (음수면 보내지 않음). OpenAI는 effort가 none일 때만 받는다
+        self.declare_parameter("temperature", -1.0)
+        self.declare_parameter("top_p", -1.0)
         self.declare_parameter(
             "prompt_file", os.path.join(share, "prompts", "mission.md"))
         # COMPARE_ROUTES 경로 길이 계산용 지도
@@ -72,7 +98,12 @@ class LlmCommander(Node):
         if self.decider not in ("llm", "script"):
             raise ValueError(f"decider는 llm 또는 script: {self.decider}")
         summary = self.get_parameter("reasoning_summary").value
-        reasoning_summary = None if summary == "none" else summary
+        # effort가 none이면 생각이 없으니 생각 요약도 받지 않는다
+        reasoning_summary = (None if "none" in (summary, self.effort)
+                             else summary)
+        sampling = _sampling_options(
+            self.model, self.effort, self.get_parameter("temperature").value,
+            self.get_parameter("top_p").value)
 
         # 기록 폴더 run_<시각>. 기록 줄의 turn은 쓰는 순간의 값
         self.mission_log = MissionLog(
@@ -117,10 +148,10 @@ class LlmCommander(Node):
         if self.decider == "script":
             self.script = ScriptDecider(
                 self.get_parameter("script_file").value)
-            self.model, self.effort = "script", None
+            self.model, self.effort, sampling = "script", None, {}
         else:
             self.llm = LlmDecider(
-                self.model, self.effort, reasoning_summary,
+                self.model, self.effort, reasoning_summary, sampling,
                 self.get_parameter("prompt_file").value,
                 self.get_parameter("arena_file").value,
                 self.get_logger(), self.log, self.publish_decision)
@@ -130,10 +161,12 @@ class LlmCommander(Node):
         self.save("meta.json", {
             "decider": self.decider, "model": self.model,
             "effort": self.effort, "guard": self.guard,
-            "reasoning_summary": reasoning_summary})
+            "reasoning_summary": reasoning_summary,
+            "temperature": sampling.get("temperature"),
+            "top_p": sampling.get("top_p")})
         self.get_logger().info(
             f"llm_commander decider={self.decider}, model={self.model}, "
-            f"effort={self.effort}, "
+            f"effort={self.effort}, sampling={sampling or 'default'}, "
             f"guard={'on' if self.guard else 'off'}, "
             f"logs in {self.mission_log.run_dir}")
 

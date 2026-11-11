@@ -62,13 +62,14 @@ def _is_flagged(error):
 class LlmDecider:
     """상태 → (행동, 인자, 계획, 기록). 노드의 상태는 바꾸지 않는다."""
 
-    def __init__(self, model, effort, reasoning_summary, prompt_path,
-                 arena_path, logger, log, publish_decision):
+    def __init__(self, model, effort, reasoning_summary, sampling,
+                 prompt_path, arena_path, logger, log, publish_decision):
         import openai  # LLM 판단에서만 쓰므로 여기서 불러온다
         self.openai = openai
         self.model = model
         self.effort = effort
         self.reasoning_summary = reasoning_summary
+        self.sampling = sampling  # {"temperature", "top_p"} 중 보낼 것만
         self.logger = logger
         self.log = log  # MissionLog.log
         self.publish_decision = publish_decision  # 노드의 판단 카드 발행
@@ -89,6 +90,10 @@ class LlmDecider:
             reasoning["summary"] = self.reasoning_summary
         text = ("현재 MissionState입니다. 규칙과 상태를 보고 다음 행동 하나를 "
                 "도구로 호출하세요.\n" + to_message(sent_state))
+        options = dict(self.sampling)
+        if self.effort != "none":
+            # store=False에서 계산 결과로 이어 판단하려면 앞 생각(암호화)을 돌려줘야 한다
+            options["include"] = ["reasoning.encrypted_content"]
         return self.client.responses.create(
             model=self.model,
             instructions=self.instructions,
@@ -100,8 +105,7 @@ class LlmDecider:
             max_output_tokens=16000,
             prompt_cache_key="xsting_mission",
             store=False,  # 매번 상태만 보내므로 대화를 서버에 남기지 않는다
-            # store=False에서 계산 결과로 이어 판단하려면 앞 생각(암호화)을 돌려줘야 한다
-            include=["reasoning.encrypted_content"],
+            **options,
         )
 
     def _request_with_retries(self, sent_state, extra, tools, started,
