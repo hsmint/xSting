@@ -29,9 +29,9 @@ from unique_identifier_msgs.msg import UUID
 from xsting_interfaces.action import RobotCommand
 
 from . import replay
+from .contract import COMMANDS, check_args, check_result
 from .fake_world import Canceled, FakeWorld
 
-COMMANDS = ("READ_MISSION_INPUT", "GOTO", "LOAD", "UNLOAD", "VERIFY_LOCATION")
 
 
 class RobotCommandServer(Node):
@@ -134,10 +134,18 @@ class RobotCommandServer(Node):
             args = json.loads(goal_handle.request.args_json or "{}")
             self.get_logger().info(f"command: {name} {args}")
             handler = self.handlers.get(name)
+            arg_errors = check_args(name, args)  # contract.py: 인자가 약속과 다르면 실행하지 않는다
             if handler is None:
                 out = {"success": False, "error": "UNKNOWN_COMMAND"}
+            elif arg_errors:
+                out = {"success": False, "error": "BAD_ARGS", "message": "; ".join(arg_errors)}
             else:
                 out = handler(args, goal_handle)
+                # 구현(가짜·실물·다른 팀 노드)이 약속과 다른 결과를 내면 실패로 바꿔 알린다 (노트북이 잘못된 값을 쓰지 않게)
+                result_errors = check_result(name, args, out)
+                if result_errors:
+                    self.get_logger().error(f"{name} result breaks contract.py: {result_errors}")
+                    out = {"success": False, "error": "BAD_RESULT", "contract_errors": result_errors, "raw_result": out}
         except Canceled:
             out = {"success": False, "error": "CANCELED"}
         except Exception as e:  # 예외가 나도 노트북에는 실패 결과를 돌려준다

@@ -19,28 +19,13 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from .rules import NUM_CELLS, NUM_PUCKS, PLACES
-from .tools import TOOL_NAMES
+from . import contract
 
 
 def check_args(name, args):
-    """화면에서 온 명령을 도구 정의와 같은 형식인지 검사한다. 문제가 없으면 None."""
-    if name not in TOOL_NAMES:
-        return f"알 수 없는 행동: {name}"
-    if not isinstance(args, dict):
-        return "args는 객체여야 함"
-    if name == "GOTO":
-        return None if args.keys() == {"t"} and args["t"] in PLACES else f"GOTO 인자는 t ∈ {PLACES}"
-    if name in ("UNLOAD", "VERIFY_LOCATION"):
-        items = args.get("items")
-        if args.keys() != {"items"} or not isinstance(items, list) or not items:
-            return f"{name} 인자는 items 리스트 (1개 이상)"
-        for it in items:
-            if (not isinstance(it, dict) or it.keys() != {"puck_id", "cell"}
-                    or it["puck_id"] not in range(NUM_PUCKS) or it["cell"] not in range(NUM_CELLS)):
-                return f"items 항목은 {{puck_id: 0~{NUM_PUCKS - 1}, cell: 0~{NUM_CELLS - 1}}}"
-        return None
-    return None if not args else f"{name}은(는) 인자가 없음"
+    """화면에서 온 명령을 계약(contract.py)과 같은 형식인지 검사한다. 문제가 없으면 None."""
+    errors = contract.check_args(name, args)
+    return "; ".join(errors) if errors else None
 
 
 class ViewServer:

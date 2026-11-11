@@ -31,6 +31,7 @@ from xsting_interfaces.action import RobotCommand
 from . import planner
 from .state import ToolError, apply_result, check_location, check_unload, new_state, stamp_now, to_message
 from .arena_map import ArenaMap
+from .contract import check_result
 from .tools import CALC_TOOL, MAX_ROUTES, ROBOT_TOOLS, TOOL_NAMES, TOOLS
 
 # 행동별 결과 대기 시간(초). 신호는 반복되므로 놓치면 다음 주기까지 기다릴 수 있다
@@ -682,6 +683,12 @@ class LlmCommander(Node):
             else:
                 self.start_prefetch(name, args)  # 로봇이 움직이는 동안 다음 판단을 미리 받아 둔다
                 result = self.call_robot(name, args)
+                # 로봇 서버가 다른 구현이어도 약속과 다른 결과로 상태를 망치지 않게 한 번 더 본다 (contract.py)
+                result_errors = check_result(name, args, result)
+                if result_errors:
+                    self.get_logger().error(f"{name} result breaks contract.py: {result_errors}")
+                    result = {"success": False, "error": "BAD_RESULT", "contract_errors": result_errors,
+                              "raw_result": result}
 
         apply_result(state, name, args, result)
         self.publish_decision({"outcome": {"success": bool(result.get("success")), "error": result.get("error"),
