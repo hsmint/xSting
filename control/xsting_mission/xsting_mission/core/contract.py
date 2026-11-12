@@ -30,8 +30,9 @@ ROS 없이 import된다.
       알리고, 처음 포함 3번 다 걸리면 PERCEPTION_FAILED
       (cause: ?가 남으면 SIGNAL_INCOMPLETE, 아니면 SIGNAL_INVALID, signal_errors: [...])
       중계 노드도 성공 결과를 같은 규칙으로 다시 검사한다 (안전장치)
-  GOTO  인자 {"t": 장소 ID}
+  GOTO  인자 {"t": 장소 ID}   (접근 자리는 로봇이 정한다)
       {"success": true, "robot": {"here": t, "pose": {...}}}  robot.here는 t
+      robot.pose는 필수: 도착한 자리. COMPARE_ROUTES가 다음 경로의 출발점으로 쓴다
       t=HOME이면 추가로 "in_zone": bool,
       "stopped_s": 숫자 (출발 구역 안에서 정지한 시간)
       선택: "dist_to_target_mm"
@@ -189,6 +190,8 @@ def _check_goto(args, result, errors):
     if here != args.get("t"):
         errors.append(f"성공이면 robot.here가 목적지 {args.get('t')}여야 함 "
                       f"(받은 값 {here!r})")
+    if (result.get("robot") or {}).get("pose") is None:
+        errors.append("성공이면 robot.pose(도착한 자리 {x, y, yaw})가 필요")
     if args.get("t") == "HOME":
         if not isinstance(result.get("in_zone"), bool):
             errors.append("HOME이면 in_zone은 bool (필수)")

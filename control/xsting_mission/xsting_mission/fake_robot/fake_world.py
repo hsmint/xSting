@@ -47,7 +47,6 @@ class FakeWorld(ArenaMap):
     # ---------- 초기화 ----------
     def __init__(self, scenario, arena, time_scale=1.0, speed_mps=0.3):
         """arena: config/arena.yaml을 읽은 dict."""
-        places = arena["places"]
         self.lock = threading.Lock()
         self.time_scale = time_scale
         self.speed_mmps = speed_mps * 1000
@@ -66,11 +65,8 @@ class FakeWorld(ArenaMap):
         self.temp_obstacles = []  # [{x, y, size_mm, expires}]
         self._sim_t, self._sim_last = 0.0, time.monotonic()
         self._clock_lock = threading.Lock()
-        self.home = tuple(places["HOME"]["approach"])
-        # approach가 없는 장소는 GOTO마다 대상 둘레에서 무작위로 정한다
-        self.approaches = {name: tuple(place["approach"])
-                           for name, place in places.items()
-                           if place.get("approach")}
+        # 출발·복귀 자세. 다른 장소는 GOTO마다 대상 둘레에서 무작위로 선다
+        self.home = tuple(arena["start_pose"])
         self._reach = self._reachable()
         self.reset()
 
@@ -248,8 +244,7 @@ class FakeWorld(ArenaMap):
             "occupied_b64": base64.b64encode(
                 self.map_occ.astype(np.uint8).tobytes()).decode(),
             "targets": {name: list(xy) for name, xy in self.targets.items()},
-            "approaches": {name: list(pose)
-                           for name, pose in self.approaches.items()},
+            "start_pose": list(self.home),
             # 로봇 중심이 갈 수 없는 칸 (화면에 옅게 칠한다)
             "blocked_b64": base64.b64encode(
                 self.blocked.astype(np.uint8).tobytes()).decode(),
@@ -400,9 +395,9 @@ class FakeWorld(ArenaMap):
         return seen
 
     def _arrival(self, name):
-        """GOTO 도착 자리: approach가 있으면 그 자리, 없으면 대상 둘레 무작위."""
-        if name in self.approaches:
-            return self.approaches[name]
+        """GOTO 도착 자리: HOME은 출발 자세, 나머지는 대상 둘레 무작위 (실물 로봇이 스스로 고르는 것을 흉내)."""
+        if name == "HOME":
+            return self.home
         target_x, target_y = self.targets[name]
         for _ in range(500):
             distance = self.rng.uniform(*APPROACH_MM)

@@ -1,4 +1,4 @@
-"""경기장 USD 벽을 Nav2 지도로: <scene.usda> <출력 폴더> [해상도_m=0.01]."""
+"""경기장 USD 벽을 ROS 점유 격자 지도(pgm + yaml)로: <scene.usda> <출력 폴더> [해상도_m=0.01]."""
 import json
 import sys
 from pathlib import Path

@@ -6,7 +6,7 @@ import numpy as np
 
 MAP_RES_MM = 10  # 벽 지도 해상도
 MAP_MARGIN_MM = 100  # 바깥 벽 밖으로 지도를 이만큼 더 그린다
-PLAN_CELL_MM = 50  # 코스트맵·경로 격자 (Nav2 costmap resolution 0.05 m와 같다)
+PLAN_CELL_MM = 50  # 코스트맵·경로 격자 (50 mm)
 APPROACH_MM = (330, 520)  # GOTO 도착 자리: 대상 중심에서 로봇 중심까지 무작위 거리 범위
 
 

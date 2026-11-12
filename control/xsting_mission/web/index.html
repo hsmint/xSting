@@ -396,10 +396,10 @@ function draw() {
   ctx.fillStyle = '#111'; ctx.fillRect(v.px(bx) - 3 * v.dpr, v.py(by) - 8 * v.dpr, 6 * v.dpr, 16 * v.dpr);
   label(S.barcode ? S.barcode : '바코드', bx + 250, by, 4);
 
-  // arena.yaml에 정해 둔 도착 자리 (나머지 장소는 GOTO마다 대상 둘레 무작위)
+  // arena.yaml의 출발·복귀 자세 (나머지 장소는 GOTO마다 대상 둘레 무작위)
   ctx.strokeStyle = '#b8c2d0'; ctx.lineWidth = v.dpr;
-  for (const [, a] of Object.entries(M.approaches)) {
-    const x = v.px(a[0]), y = v.py(a[1]), d = 4 * v.dpr;
+  {
+    const a = M.start_pose, x = v.px(a[0]), y = v.py(a[1]), d = 4 * v.dpr;
     ctx.beginPath(); ctx.moveTo(x - d, y - d); ctx.lineTo(x + d, y + d); ctx.moveTo(x + d, y - d); ctx.lineTo(x - d, y + d); ctx.stroke();
   }
   // 임시 장애물 (OBSTACLE_BLOCKED로 생김, 잠시 뒤 사라짐)
