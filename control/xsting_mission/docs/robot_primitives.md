@@ -54,19 +54,24 @@
 
 - 모든 결과에는 `bool success`, `uint16 error_code`, `string message`가 있다.
 - `error_code`는 5절의 `ErrorCode` 상수를 쓴다. ros_backend가 같은 이름의 문자열 코드로 바꿔 노트북에 보낸다.
-- 표에 없는 숫자는 `ROBOT_FAULT`로 바꾸고, 원래 숫자를 `message`에 남긴다.
+- 표에 없는 숫자는 규약이 어긋난 것이라 `INTERNAL_ERROR`로 바꾸고, 원래 숫자를 `message`에 남긴다.
+
+### 지금 장소
+
+- LOAD·UNLOAD·VERIFY는 인자에 장소가 없다. ros_backend가 마지막 GOTO 결과로 지금 장소(`here`)를 기억한다 (출발은 HOME).
+- GOTO가 출발한 뒤 실패하면 `UNKNOWN`이 되고, 그때 LOAD·UNLOAD·VERIFY·READ는 `WRONG_LOCATION`으로 거절한다.
 
 ### 취소·시간
 
 - 노트북이 행동을 취소하면 ros_backend는 진행 중인 하위 액션에 취소를 보낸다. 로봇 팀 액션은 취소를 받으면 안전한 상태로 멈추고 `CANCELED`로 끝낸다.
 - 기본 동작마다 `timeout`을 goal에 넣는다. 로봇 팀은 그 안에 끝내거나 실패로 돌려준다.
+- 모든 액션의 feedback에는 `string phase`(진행 상황 문장)가 있다. ros_backend가 노트북 로그로 흘린다.
 
 ## 3. 쓰는 인터페이스
 
 | 이름 | 타입 | 상태 | 쓰는 행동 |
 |---|---|---|---|
 | `/task/run` | `xsting_interfaces/action/RunTask` | 있음 (origin/vision, 필드 추가 제안) | GOTO, LOAD, UNLOAD |
-| `/storage/reserve_slot` | `xsting_interfaces/srv/ReserveSlot` | 있음 (origin/vision) | LOAD |
 | `/storage/get_storage` | `xsting_interfaces/srv/GetStorage` | **새로 제안** | LOAD, UNLOAD |
 | `/perception/read_barcode` | `xsting_interfaces/srv/ReadBarcode` | **새로 제안** | READ_MISSION_INPUT |
 | `/perception/watch_signal` | `xsting_interfaces/action/WatchSignal` | **새로 제안** | READ_MISSION_INPUT |
@@ -108,10 +113,9 @@
 ### LOAD `{}`
 
 1. `DetectPucks(place_id=here)` → 박스 위 퍽 목록 (`object_id`, `tag_id`, 색, 모양, 신뢰도)
-2. 퍽마다:
-   1. `ReserveSlot()` → 빈 `slot_id`
-   2. `RunTask(operation=PICK_STORE, object_id, slot_id)`
-   3. 실패하면 거기서 멈춘다.
+2. `GetStorage()` → `EMPTY`인 슬롯을 차례로 쓴다.
+3. 퍽마다 `RunTask(operation=PICK_STORE, object_id, slot_id)`. 실패하면 거기서 멈춘다.
+   슬롯 예약·확정(`ReserveSlot`·`CommitTransfer`)은 작업 관리자가 `PICK_STORE` 안에서 한다.
 3. 퍽 id는 `tag_id`다. 태그를 못 읽었으면 `null`로 보낸다. 노트북 상태에는 `unknown`으로 남는다.
 4. `box_remaining`은 1에서 본 개수에서 실은 개수를 뺀 값이다.
 
@@ -194,14 +198,13 @@ uint16 LOCALIZATION_LOST=204
 # 인식 3xx
 uint16 TARGET_NOT_FOUND=300
 uint16 PERCEPTION_FAILED=301
-# 팔·적재함 4xx
+# 팔·적재함 4xx (팔이 닿지 않으면 GRASP_FAILED·PLACE_FAILED로 보낸다)
 uint16 GRASP_FAILED=400
 uint16 PLACE_FAILED=401
 uint16 BOX_EMPTY=402
 uint16 STORAGE_FULL=403
 uint16 PUCK_NOT_IN_STORAGE=404
 uint16 CELL_OCCUPIED=405
-uint16 UNREACHABLE=406
 uint16 code
 ```
 
@@ -228,8 +231,7 @@ string message
 string[] colors                              # 12개, "R" | "Y" | "G" | "?" (못 읽은 칸)
 bool end_seen                                # 12번째 뒤 3초 소등을 봤나
 ---
-uint8 index                                  # 지금 본 점멸 번호 (1~12)
-string color
+string phase                                 # 예: "blink 3/12 R"
 ```
 
 ### `DetectPucks.srv`
@@ -277,6 +279,7 @@ geometry_msgs/Point offset                   # cell 중심에서 퍽 중심까�
 ```
 ---
 bool success
+uint16 error_code
 string message
 xsting_interfaces/StorageSlot[] slots        # 12칸
 ```
@@ -299,15 +302,13 @@ int32 tag_id                                 # 실린 퍽 번호, 모르면 -1
 | `TARGET_NOT_FOUND`, `PERCEPTION_FAILED` | `PERCEPTION_FAILED` | `cause`로 구분 (`LIGHT_NOT_FOUND` 등) |
 | `GRASP_FAILED`, `BOX_EMPTY`, `STORAGE_FULL` | 같은 이름 | LOAD |
 | `PLACE_FAILED`, `PUCK_NOT_IN_STORAGE`, `CELL_OCCUPIED` | 같은 이름 | UNLOAD |
-| `UNREACHABLE` | LOAD면 `GRASP_FAILED`, UNLOAD면 `PLACE_FAILED` | `cause: UNREACHABLE`. 팔이 닿지 않음 |
-| `ROBOT_FAULT`, `INTERNAL_ERROR`, `CANCELED` | 같은 이름 | |
-| `TIMEOUT` (하위 동작) | 그 행동의 실패 코드 | `cause: TIMEOUT` |
+| `ROBOT_FAULT`, `INTERNAL_ERROR`, `CANCELED`, `TIMEOUT` | 같은 이름 | |
 | `BAD_REQUEST`, 표에 없는 숫자 | `INTERNAL_ERROR` | 우리 쪽 요청이 틀린 것이므로 코드 문제다. 원래 숫자를 `message`에 남긴다 |
 
 ## 7. 미정 사항 (회의 안건)
 
 1. `RunTask`를 이 형식으로 쓸지, 작업 관리자를 우리가 맡을지 (ros_backend와 작업 관리자는 하는 일이 겹친다)
-2. 슬롯 예약 순서: ros_backend가 `ReserveSlot`을 부르나, 작업 관리자가 `PICK_STORE` 안에서 하나
+2. 슬롯 예약: 작업 관리자가 `PICK_STORE` 안에서 `ReserveSlot`·`CommitTransfer`를 하는 것으로 가정했다 (ros_backend는 `GetStorage`로 빈 슬롯만 고른다)
 3. 퍽 AprilTag 번호 = 퍽 ID인지 (미션지 placement.csv 확인), 퍽 색을 태그로 아는지 카메라로 판정하는지
 4. 신호등·박스를 못 찾을 때 한 바퀴 도는 탐색을 누가 하나 (인식 서비스 안 / ros_backend가 회전 요청)
 5. `lN_grid` frame을 인식 쪽이 발행할 수 있는지, 태그 면에서 격자 중심까지의 실측 값

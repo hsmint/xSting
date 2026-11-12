@@ -25,8 +25,9 @@ from .script_decider import ScriptDecider
 from .tools import TOOL_NAMES
 
 # 행동별 결과 대기 시간(초). 신호는 반복되므로 놓치면 다음 주기까지 기다릴 수 있다
+# 로봇 쪽 하위 동작 한도의 합보다 길어야 한다 (robot/ros_backend.py 위쪽 상수)
 ACTION_TIMEOUT_S = {"READ_MISSION_INPUT": 600.0, "GOTO": 180.0,
-                    "UNLOAD": 300.0}
+                    "LOAD": 180.0, "UNLOAD": 420.0}
 DEFAULT_TIMEOUT_S = 120.0
 # 샘플링 값의 허용 범위 (OpenAI 기준)
 SAMPLING_RANGES = {"temperature": (0.0, 2.0), "top_p": (0.0, 1.0)}
