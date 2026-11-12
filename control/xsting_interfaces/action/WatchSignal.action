@@ -1,0 +1,10 @@
+# 인식(로봇 팀): 신호등 한 주기(점멸 12번 + 3초 소등)를 본다. 초안: docs/robot_primitives.md (xsting_mission)
+builtin_interfaces/Duration timeout          # 한 주기 + 여유 (약 40초)
+---
+bool success
+uint16 error_code                            # ErrorCode
+string message
+string[] colors                              # 12개, "R" | "Y" | "G" | "?" (못 읽은 칸)
+bool end_seen                                # 12번째 뒤 3초 소등을 봤나
+---
+string phase                                 # 예: "blink 3/12 R"

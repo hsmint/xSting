@@ -1,0 +1,6 @@
+# 보관 관리(로봇 팀): 적재함 12칸 상태. 초안: docs/robot_primitives.md (xsting_mission)
+---
+bool success
+uint16 error_code                            # ErrorCode
+string message
+xsting_interfaces/StorageSlot[] slots        # 12칸
