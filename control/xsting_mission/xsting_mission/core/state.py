@@ -7,6 +7,8 @@ from .planner import PlanError, group_order
 
 ROBOT_FIELDS = ("status", "error", "here", "pose", "localization",
                 "arm_stowed", "gripper")
+# 같은 행동(같은 인자)이 이만큼 연속 실패하면 더 보내지 않는다 (docs/error_codes.md)
+REPEAT_LIMIT = 3
 
 # 행동별로 robot.here가 있어야 하는 곳. GOTO는 어디서든 가능하다
 LOCATION_CONDITION = {
@@ -35,7 +37,8 @@ def _empty_cell(cell):
 def new_state():
     """빈 미션 상태. 키 순서는 LLM에 가는 순서라 바꾸지 않는다."""
     return {
-        "meta": {"seq": 0, "stamp": None},
+        # time_left_s: 미션 남은 시간(초, 0 이하면 HOME 복귀만). 시간 제한을 끄면 null
+        "meta": {"seq": 0, "stamp": None, "time_left_s": None},
         "phase": "READ_MISSION_INPUT",
         "robot": {
             "status": "OK",  # OK | BUSY | WARN | FAULT
@@ -89,6 +92,63 @@ def check_location(state, name):
     if allowed and here not in allowed:
         raise ToolError(f"LOCATION_CONDITION: {name}은(는) "
                         f"{'/'.join(allowed)}에서만 가능, 지금 here={here}")
+
+
+def check_time(name, args, time_left_s):
+    """미션 시간이 지나면 GOTO HOME만 보낸다. time_left_s가 None이면 제한 없음."""
+    if time_left_s is None or time_left_s > 0:
+        return
+    if not (name == "GOTO" and args.get("t") == rules.HOME):
+        raise ToolError(f"TIME_UP: 미션 시간이 {-time_left_s:.1f}초 지났다. "
+                        "GOTO(t=HOME)만 보낼 수 있다")
+
+
+def check_repeat(state, name, args, time_left_s=None, limit=REPEAT_LIMIT):
+    """같은 행동(같은 인자)이 limit번 연속 실패했으면 더 보내지 않는다. limit 0이면 끔."""
+    last = state["last_action"]
+    if not (limit and last and not last["success"] and last["name"] == name
+            and last["args"] == args and last["retries"] >= limit):
+        return
+    # 시간이 지나면 HOME 복귀만 남으므로 그것은 계속 시도한다
+    if (time_left_s is not None and time_left_s <= 0
+            and name == "GOTO" and args.get("t") == rules.HOME):
+        return
+    raise ToolError(
+        f"REPEAT_LIMIT: {name} {json.dumps(args, ensure_ascii=False)}이(가) "
+        f"{last['retries']}번 연속 실패했다 (마지막 {last['error']}). "
+        "같은 행동은 보내지 않는다. 다른 일을 먼저 하거나 순서를 바꾼다")
+
+
+def _location_done(state, location):
+    """그 하차 박스에 놓을 퍽을 모두 놓고 검증까지 끝났는지."""
+    try:
+        color = group_order(state)[location]
+    except PlanError:
+        return False
+    need = state["world"]["signal"]["counts"][color]
+    box = state["world"]["locations"][location]
+    placed = sum(cell["state"] == "occupied" for cell in box["cells"])
+    return placed >= need and box["verified"] is not None
+
+
+def check_revisit(state, name, args):
+    """일이 끝난 곳에 다시 가거나, 퍽을 다 실은 박스에서 다시 LOAD하면 거절한다."""
+    world = state["world"]
+    if name == "GOTO":
+        target = args.get("t")
+        box = world["boxes"].get(target)
+        if box is not None and box["status"] == "CLEARED":
+            raise ToolError(f"REVISIT: {target}는 이미 퍽을 모두 실은 시작 박스다 "
+                            "(CLEARED). 다시 갈 필요가 없다")
+        if target in world["locations"] and _location_done(state, target):
+            raise ToolError(f"REVISIT: {target}는 이미 퍽을 모두 놓고 검증까지 "
+                            "끝난 하차 박스다. 다시 갈 필요가 없다")
+    elif name == "LOAD":
+        here = state["robot"]["here"]
+        box = world["boxes"].get(here)
+        if box is not None and box["status"] == "CLEARED":
+            raise ToolError(f"REVISIT: {here}는 이미 퍽을 모두 실은 시작 박스다 "
+                            "(CLEARED). 다시 LOAD할 퍽이 없다")
 
 
 def check_unload(state, args):

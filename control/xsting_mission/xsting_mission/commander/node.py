@@ -6,6 +6,7 @@ import time
 
 import rclpy
 from ament_index_python.packages import get_package_share_directory
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile
@@ -15,6 +16,7 @@ from xsting_interfaces.action import RobotCommand
 
 from ..core.contract import check_result
 from ..core.state import (ToolError, apply_result, check_location,
+                          check_repeat, check_revisit, check_time,
                           check_unload, new_state, stamp_now)
 from .llm_decider import LlmDecider, LlmUnavailable
 from .mission_log import MissionLog
@@ -78,6 +80,12 @@ class LlmCommander(Node):
         self.declare_parameter(
             "log_dir", os.path.expanduser("~/xsting_logs"))
         self.declare_parameter("max_turns", 200)
+        # 미션 시간 한도(초, 배터리 사용 시간). 지나면 HOME 복귀만 보낸다. 0이면 끔
+        self.declare_parameter(
+            "mission_time_s", 1800.0,
+            ParameterDescriptor(dynamic_typing=True))  # 600처럼 정수로 줘도 된다
+        # 같은 행동(같은 인자)의 연속 실패 상한. 넘으면 더 보내지 않는다. 0이면 끔
+        self.declare_parameter("repeat_limit", 3)
         # GOTO·UNLOAD·VERIFY_LOCATION 중에 성공을 가정한 다음 판단을 미리 받아 둔다
         self.declare_parameter("prefetch", True)
         # 웹 지난 판 목록에 보이는 이 판의 이름 (웹에서 바꿀 수 있음)
@@ -93,6 +101,9 @@ class LlmCommander(Node):
         self.model = self.get_parameter("model").value
         self.effort = self.get_parameter("effort").value
         self.max_turns = self.get_parameter("max_turns").value
+        self.mission_time_s = float(
+            self.get_parameter("mission_time_s").value or 0)
+        self.repeat_limit = self.get_parameter("repeat_limit").value
         self.guard = self.get_parameter("guard").value
         self.decider = self.get_parameter("decider").value
         if self.decider not in ("llm", "script"):
@@ -128,6 +139,10 @@ class LlmCommander(Node):
             String, "/mission/decision",
             QoSProfile(depth=100,
                        durability=DurabilityPolicy.TRANSIENT_LOCAL))
+        # 미션 시계: 첫 판단부터 재고, 웹 일시정지 시간은 뺀다
+        self.mission_started = None
+        self.paused_total_s = 0.0
+        self.pause_started = None
         # 웹 화면의 일시정지·재개·미션 정지
         self.paused = False
         self.stop_requested = False
@@ -161,6 +176,8 @@ class LlmCommander(Node):
         self.save("meta.json", {
             "decider": self.decider, "model": self.model,
             "effort": self.effort, "guard": self.guard,
+            "mission_time_s": self.mission_time_s,
+            "repeat_limit": self.repeat_limit,
             "reasoning_summary": reasoning_summary,
             "temperature": sampling.get("temperature"),
             "top_p": sampling.get("top_p")})
@@ -194,10 +211,15 @@ class LlmCommander(Node):
     def on_control(self, message):
         if message.data == "pause":
             self.paused = True
-        elif message.data == "resume":
+            if self.pause_started is None:
+                self.pause_started = time.monotonic()
+        elif message.data in ("resume", "stop"):
             self.paused = False
-        elif message.data == "stop":
-            self.stop_requested, self.paused = True, False
+            if self.pause_started is not None:
+                self.paused_total_s += time.monotonic() - self.pause_started
+                self.pause_started = None
+            if message.data == "stop":
+                self.stop_requested = True
         self.get_logger().info(f"control: {message.data}")
 
     def on_user_command(self, message):
@@ -228,6 +250,15 @@ class LlmCommander(Node):
             rclpy.spin_once(self, timeout_sec=0.1)
         return not self.stop_requested
 
+    def time_left(self):
+        """미션 남은 시간(초). 제한을 껐거나 아직 시작 전이면 None."""
+        if not self.mission_time_s or self.mission_started is None:
+            return None
+        now = time.monotonic()
+        paused = self.paused_total_s + (
+            now - self.pause_started if self.pause_started is not None else 0)
+        return self.mission_time_s - (now - self.mission_started - paused)
+
     # ---------- 로봇 통신 ----------
     def call_robot(self, name, args):
         if not self.robot.wait_for_server(timeout_sec=5.0):
@@ -257,7 +288,12 @@ class LlmCommander(Node):
 
     # ---------- 판단 ----------
     def decide(self):
-        self.state["meta"] = {"seq": self.turn, "stamp": stamp_now()}
+        if self.mission_started is None:
+            self.mission_started = time.monotonic()
+        left = self.time_left()
+        self.state["meta"] = {
+            "seq": self.turn, "stamp": stamp_now(),
+            "time_left_s": None if left is None else round(left)}
         if self.script is not None:
             return self.decide_script()
         # 이동하는 동안 미리 받아 둔 판단 (가정이 맞았을 때만)
@@ -312,9 +348,15 @@ class LlmCommander(Node):
             result = {"success": False, "error": "UNKNOWN_TOOL"}
         else:
             try:
+                # 시간·반복 한도, 재방문, 나눠 놓기는 guard와 관계없이 막는다
+                # (시간은 mission_time_s:=0, 반복은 repeat_limit:=0으로 끈다)
+                left = self.time_left()
+                check_time(name, args, left)
+                check_repeat(state, name, args, left, self.repeat_limit)
+                check_revisit(state, name, args)
                 if self.guard:
                     check_location(state, name)
-                if name == "UNLOAD":  # 나눠 놓기는 가드와 관계없이 항상 막는다
+                if name == "UNLOAD":
                     check_unload(state, args)
             except ToolError as error:
                 result = {"success": False, "error": "REJECTED",
@@ -405,6 +447,12 @@ class LlmCommander(Node):
             self.run_tool(name, args)
             if self.stop_requested:
                 self.halt = "STOPPED_BY_USER"
+                break
+            # 시간이 지나 HOME에 돌아왔으면 남은 일이 있어도 끝낸다
+            left = self.time_left()
+            if (left is not None and left <= 0
+                    and self.state["robot"]["home_stopped"]):
+                self.halt = "TIME_UP"
                 break
 
 

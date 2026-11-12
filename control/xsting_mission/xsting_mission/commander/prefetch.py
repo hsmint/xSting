@@ -53,7 +53,8 @@ class Prefetcher:
             return
         predicted = copy.deepcopy(state)
         apply_result(predicted, name, args, assumed)
-        predicted["meta"] = {"seq": turn + 1, "stamp": stamp_now()}
+        predicted["meta"] = {**state["meta"], "seq": turn + 1,
+                             "stamp": stamp_now()}
         if name == "GOTO":
             assume = f"{name} {args['t']}"
         else:

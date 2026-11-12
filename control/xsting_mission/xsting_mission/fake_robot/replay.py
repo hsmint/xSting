@@ -214,7 +214,8 @@ def _rebuild_states(records):
     for record in records:
         if not record.get("input_state"):
             snapshot = copy.deepcopy(state)
-            snapshot["meta"] = {"seq": record["turn"], "stamp": None}
+            snapshot["meta"] = {**snapshot["meta"], "seq": record["turn"],
+                                "stamp": None}
             record["input_state"] = snapshot
             record["input_state_rebuilt"] = True
         if record.get("args") is None and record.get("arguments"):
