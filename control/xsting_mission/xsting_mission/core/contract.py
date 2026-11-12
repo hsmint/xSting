@@ -24,9 +24,12 @@ ROS 없이 import된다.
   READ_MISSION_INPUT  인자 {}
       {"success": true, "barcode": "P2-01", "signal": ["R", "G", ...12개],
        "end_seen": true}
-      signal 항목은 "R"|"Y"|"G", 못 읽은 칸은 "?" (개수·색 검사는 중계 노드가 한다)
-      12개를 다 못 읽으면 로봇이 다음 주기를 다시 읽고, 그래도 안 되면
-      PERCEPTION_FAILED (cause: SIGNAL_INCOMPLETE)
+      signal 항목은 "R"|"Y"|"G", 못 읽은 칸은 "?"
+      읽은 신호가 rules.signal_errors에 걸리면(?, 12개 아님, 끝 소등 못 봄,
+      색마다 1~6개 아님) 로봇이 다음 주기를 다시 읽는다. 중간 오류는 feedback으로만
+      알리고, 처음 포함 3번 다 걸리면 PERCEPTION_FAILED
+      (cause: ?가 남으면 SIGNAL_INCOMPLETE, 아니면 SIGNAL_INVALID, signal_errors: [...])
+      중계 노드도 성공 결과를 같은 규칙으로 다시 검사한다 (안전장치)
   GOTO  인자 {"t": 장소 ID}
       {"success": true, "robot": {"here": t, "pose": {...}}}  robot.here는 t
       t=HOME이면 추가로 "in_zone": bool,

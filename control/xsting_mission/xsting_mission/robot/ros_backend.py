@@ -104,7 +104,8 @@ class RosBackend:
 
     # ---------- 아직 구현 전 ----------
     # TODO: _ros_READ_MISSION_INPUT  D435 영상 → Code128 + 신호 점멸 감지
-    #       (못 찾으면 한 바퀴 돌며 찾기, 12개를 다 못 읽으면 다음 주기 다시 읽기)
+    #       (못 찾으면 한 바퀴 돌며 찾기, rules.signal_errors에 걸리면 다음 주기
+    #        다시 읽기, 처음 포함 3번 실패면 PERCEPTION_FAILED. contract.py 참고)
     # TODO: _ros_LOAD  AprilTag·모양 판정 → 팔로 집어 적재함 빈 slot에
     # TODO: _ros_UNLOAD  items 순서대로 하차 cell에 놓고 2초 안정 확인
     # TODO: _ros_VERIFY_LOCATION  9칸 새 관측 → items·extra·cells

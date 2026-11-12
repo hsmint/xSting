@@ -9,7 +9,7 @@ import time
 import numpy as np
 
 from ..core.contract import Canceled
-from ..core.rules import LOCATIONS, STORAGE_SLOTS
+from ..core.rules import LOCATIONS, STORAGE_SLOTS, signal_errors
 from ..map.arena_map import APPROACH_MM, PLAN_CELL_MM, ArenaMap
 
 BARCODES = ("P2-01", "P2-02", "P2-03", "P2-04")
@@ -695,26 +695,35 @@ class FakeWorld(ArenaMap):
         with self.lock:
             self.barcode_read = True
 
-        # 12개를 다 못 읽으면 신호가 반복되므로 다음 주기를 다시 읽는다
+        # 읽은 신호가 규칙(rules.signal_errors)에 안 맞으면 신호가 반복되므로
+        # 다음 주기를 다시 읽는다. 중간 오류는 feedback으로만 알린다(중계 노드 로그)
         fault = self._fault
         short_reads = (fault["option"]
                        if fault and fault["code"] == "SIGNAL_INCOMPLETE" else 0)
+        end_seen = True  # 가짜 로봇은 끝 소등을 항상 본다
         for read in range(1, SIGNAL_READ_LIMIT + 1):
             seen = self._watch_signal(read, read <= short_reads, is_canceled,
                                       feedback)
-            if "?" not in seen:
+            errors = signal_errors(seen, end_seen)
+            if not errors:
                 break
+            feedback(f"read {read}/{SIGNAL_READ_LIMIT} invalid: "
+                     f"{', '.join(errors)}")
 
-        complete = "?" not in seen
-        result = {"success": complete, "barcode": self.barcode,
-                  "signal": seen, "end_seen": True}
+        valid = not errors
+        result = {"success": valid, "barcode": self.barcode,
+                  "signal": seen, "end_seen": end_seen}
         if read > 1:
-            result["signal_reread"] = {"reads": read, "complete": complete}
+            result["signal_reread"] = {"reads": read, "complete": valid}
         if search:
             result["perception_search"] = search
-        if not complete:
-            result.update(error="PERCEPTION_FAILED", cause="SIGNAL_INCOMPLETE",
-                          message=f"신호를 {read}번 읽었지만 12개를 다 보지 못함")
+        if not valid:
+            # 못 읽은 칸이 남았으면 INCOMPLETE, 다 읽었지만 규칙에 안 맞으면 INVALID
+            cause = "SIGNAL_INCOMPLETE" if "?" in seen else "SIGNAL_INVALID"
+            result.update(error="PERCEPTION_FAILED", cause=cause,
+                          signal_errors=errors,
+                          message=f"신호를 {read}번 읽었지만 규칙에 맞게 "
+                                  f"읽지 못함: {', '.join(errors)}")
         return result
 
     def _watch_signal(self, read, short, is_canceled, feedback):
