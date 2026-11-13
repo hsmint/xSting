@@ -8,16 +8,16 @@ find_package(builtin_interfaces REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ErrorCode.msg"
-  "msg/PuckObservation.msg"
   "msg/CellObservation.msg"
-  "msg/StorageSlot.msg"
+  "msg/LoadedPuck.msg"
+  "msg/PlaceItem.msg"
+  "msg/PlacedItem.msg"
   "action/RobotCommand.action"
   "action/RunTask.action"
-  "action/WatchSignal.action"
-  "srv/ReadBarcode.srv"
-  "srv/DetectPucks.srv"
-  "srv/ObserveCells.srv"
-  "srv/GetStorage.srv"
+  "action/ReadMissionInput.action"
+  "action/LoadBox.action"
+  "action/UnloadPucks.action"
+  "action/ObserveLocation.action"
   DEPENDENCIES geometry_msgs builtin_interfaces
 )
 

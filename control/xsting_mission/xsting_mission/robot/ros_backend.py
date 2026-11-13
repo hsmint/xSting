@@ -1,6 +1,6 @@
-"""backend:=ros 실제 로봇(또는 시뮬레이터) 동작: 로봇 팀의 액션·서비스를 불러 행동 하나를 조립한다.
+"""backend:=ros 실제 로봇 동작: 행동 하나를 로봇 팀 액션 하나로 보내고, 결과를 규약 형식으로 바꾸고, 에러면 다시 시도한다.
 
-로봇 팀 인터페이스와 흐름은 docs/robot_primitives.md (초안, 로봇 팀과 확정 전).
+인식부터 동작까지는 로봇 팀 액션이 한다. 형식은 docs/robot_primitives.md (초안, 로봇 팀과 확정 전).
 """
 import math
 import time
@@ -11,31 +11,27 @@ from rclpy.action import ActionClient
 from rclpy.time import Time
 from tf2_ros import Buffer, TransformListener
 
-from xsting_interfaces.action import RunTask, WatchSignal
-from xsting_interfaces.msg import ErrorCode
-from xsting_interfaces.srv import (DetectPucks, GetStorage, ObserveCells,
-                                  ReadBarcode)
+from xsting_interfaces.action import (LoadBox, ObserveLocation,
+                                      ReadMissionInput, RunTask, UnloadPucks)
+from xsting_interfaces.msg import ErrorCode, PlaceItem
 
 from ..core.contract import COMMANDS, Canceled
 from ..core.rules import LOCATIONS, NUM_CELLS, START_BOXES, signal_errors
 
-# 하위 서버를 찾거나 목표를 받아 줄 때까지 기다리는 시간(초)
+# 하위 서버가 목표를 받아 줄 때까지 기다리는 시간(초)
 SERVER_WAIT_S = 2.0
-# 하위 동작 한도(초). 합이 노트북 대기(node.py ACTION_TIMEOUT_S)보다 짧아야 한다
-GOTO_TIMEOUT_S = 170.0     # 노트북 GOTO 180
-BARCODE_TIMEOUT_S = 5.0
-SIGNAL_TIMEOUT_S = 40.0    # 한 주기 약 27초 + 여유. READ 전체 ≈ 5 + 3 × 40 < 노트북 600
-DETECT_TIMEOUT_S = 5.0
-STORAGE_TIMEOUT_S = 2.0
-PICK_TIMEOUT_S = 60.0      # 퍽 2개 ≈ 120 + 조회 < 노트북 LOAD 180
-PLACE_TIMEOUT_S = 60.0     # 퍽 6개 ≈ 360 + 조회 < 노트북 UNLOAD 420
-OBSERVE_TIMEOUT_S = 5.0
+# 한 번 시도의 한도(초)와, 다시 시도까지 합한 전체 한도(초).
+# 전체 한도는 노트북 대기(node.py ACTION_TIMEOUT_S)보다 짧게 해 먼저 끝내고 결과를 보낸다
+ATTEMPT_S = {"GOTO": 170.0, "READ_MISSION_INPUT": 60.0, "LOAD": 150.0,
+             "UNLOAD": 400.0, "VERIFY_LOCATION": 30.0}
+BUDGET_S = {"GOTO": 170.0, "READ_MISSION_INPUT": 590.0, "LOAD": 170.0,
+            "UNLOAD": 410.0, "VERIFY_LOCATION": 110.0}
+# 같은 행동을 다시 시도하는 최대 횟수 (처음 포함)
+MAX_TRIES = 3
+# 남은 시간이 이보다 짧으면 다시 시도하지 않는다
+MIN_ATTEMPT_S = 10.0
 # HOME 도착 뒤 정지 시간 (출발 구역 3초 정지 + 여유)
 HOME_HOLD_S = 3.2
-# 신호 한 주기를 다시 읽는 최대 횟수 (처음 포함, 가짜 경기장과 같다)
-SIGNAL_READ_LIMIT = 3
-# 하차 박스 cell 간격(mm). cell 0 1 2 / 3 4 5 / 6 7 8, 지도 +Y가 위쪽
-CELL_PITCH_MM = 60
 
 # 로봇 팀 ErrorCode 숫자 → 노트북 에러 코드. 이름이 같으면 그대로 쓴다
 _SAME_NAMES = ("ROBOT_FAULT", "INTERNAL_ERROR", "CANCELED", "TIMEOUT",
@@ -63,8 +59,9 @@ def _pose_stamped(frame_id, x_mm, y_mm, yaw_deg):
     return pose
 
 
-def _seconds(value):
-    return Duration(sec=int(value))
+def _goal_timeout(timeout_s):
+    """로봇 쪽 한도는 우리 대기보다 2초 짧게 (로봇이 먼저 실패 이유를 돌려주도록)."""
+    return Duration(sec=max(1, int(timeout_s - 2)))
 
 
 def _mm(point):
@@ -73,7 +70,7 @@ def _mm(point):
 
 
 def _outcome(response, label):
-    """하위 결과·응답 → (응답, 에러 코드 또는 None, 설명). error_code·message가 없는 타입도 받는다."""
+    """하위 결과 → (결과, 에러 코드 또는 None, 설명)."""
     if response.success:
         return response, None, ""
     code = getattr(response, "error_code", None)
@@ -86,23 +83,22 @@ class RosBackend:
         self.node = node
         self.arena = arena
         self.frame_id = arena["frame_id"]
-        # 지금 장소. LOAD·UNLOAD는 인자에 장소가 없어 마지막 GOTO 결과로 안다 (출발은 HOME)
+        # 지금 장소. LOAD·UNLOAD·VERIFY는 인자에 장소가 없어 마지막 GOTO 결과로 안다 (출발은 HOME)
         self.here = "HOME"
-        # 로봇 팀 클라이언트 (같은 콜백 그룹이어야 콜백 안에서 기다려도 멈추지 않는다)
+        # 로봇 팀 액션 (같은 콜백 그룹이어야 콜백 안에서 기다려도 멈추지 않는다)
         group = node.callback_group
-        self.task = ActionClient(node, RunTask, "/task/run",
-                                 callback_group=group)
-        self.watch_signal = ActionClient(
-            node, WatchSignal, "/perception/watch_signal",
+        self.navigate = ActionClient(node, RunTask, "/task/run",
+                                     callback_group=group)
+        self.read_input = ActionClient(
+            node, ReadMissionInput, "/task/read_mission_input",
             callback_group=group)
-        self.read_barcode = node.create_client(
-            ReadBarcode, "/perception/read_barcode", callback_group=group)
-        self.detect_pucks = node.create_client(
-            DetectPucks, "/perception/detect_pucks", callback_group=group)
-        self.observe_cells = node.create_client(
-            ObserveCells, "/perception/observe_cells", callback_group=group)
-        self.get_storage = node.create_client(
-            GetStorage, "/storage/get_storage", callback_group=group)
+        self.load_box = ActionClient(node, LoadBox, "/task/load_box",
+                                     callback_group=group)
+        self.unload_pucks = ActionClient(node, UnloadPucks, "/task/unload_pucks",
+                                         callback_group=group)
+        self.observe = ActionClient(node, ObserveLocation,
+                                    "/task/observe_location",
+                                    callback_group=group)
         # 지금 위치 (map → base_link)
         self.tf = Buffer()
         self.tf_listener = TransformListener(self.tf, node)
@@ -151,17 +147,25 @@ class RosBackend:
         # 결과를 노트북 에러 코드로 (설명에 하위 동작 이름과 원래 번호를 남긴다)
         return _outcome(result.result().result, label)
 
-    def _call_service(self, client, request, timeout_s, goal_handle, label):
-        """서비스 하나를 부르고 기다린다 → (응답, 에러 코드 또는 None, 설명)."""
-        # 서버 확인 (서비스는 접수 단계가 없어, 확인 안 하면 timeout_s 내내 기다린다)
-        if not client.wait_for_service(timeout_sec=SERVER_WAIT_S):
-            return None, "INTERNAL_ERROR", f"{label}: 서버 없음"
-        # 응답 기다리기 (서비스는 취소가 없다. 짧은 조회에만 쓰므로 기다리기만 멈춘다)
-        future = client.call_async(request)
-        if not self._wait_future(future, timeout_s, goal_handle):
-            return None, "TIMEOUT", f"{label}: {timeout_s:.0f}초 안에 응답 없음"
-        # 결과를 노트북 에러 코드로 (error_code가 없는 응답은 INTERNAL_ERROR)
-        return _outcome(future.result(), label)
+    def _with_retry(self, name, once, should_retry, goal_handle):
+        """once(한도, 이름표)를 should_retry가 참인 동안 최대 MAX_TRIES번 부른다.
+
+        중간 실패는 feedback으로만 남기고(노트북 로그), 마지막 결과를 돌려준다.
+        """
+        deadline = time.monotonic() + BUDGET_S[name]
+        for attempt in range(1, MAX_TRIES + 1):
+            timeout_s = min(ATTEMPT_S[name], deadline - time.monotonic())
+            label = f"{name.lower()} {attempt}/{MAX_TRIES}"
+            result = once(timeout_s, goal_handle, label)
+            left = deadline - time.monotonic()
+            if (not should_retry(result) or attempt == MAX_TRIES
+                    or left < MIN_ATTEMPT_S):
+                break
+            self.node.feedback(goal_handle, f"{label} 실패 "
+                                            f"({result.get('error')}), 다시 시도")
+        if attempt > 1:
+            result["attempts"] = attempt
+        return result
 
     # ---------- 위치 ----------
     def _pose(self):
@@ -200,41 +204,6 @@ class RosBackend:
                 "message": f"{name}은(는) {'/'.join(allowed)}에서만, "
                            f"지금 {self.here}", **(extra or {})}
 
-    def _cell_pose(self, location, cell):
-        """하차 박스 cell 중심 (lN_grid 기준). 차체 위치 오차가 섞이지 않게 태그 기준으로 준다."""
-        x = (cell % 3 - 1) * CELL_PITCH_MM
-        y = (1 - cell // 3) * CELL_PITCH_MM
-        return _pose_stamped(f"{location.lower()}_grid", x, y, 0.0)
-
-    # ---------- 인식 ----------
-    def _read_barcode(self, goal_handle):
-        """바코드 한 번 읽기 → (코드 문자열 또는 None, 에러 코드 또는 None, 설명)."""
-        request = ReadBarcode.Request(timeout=_seconds(BARCODE_TIMEOUT_S))
-        # 인식 쪽 한도보다 1초 더 기다린다 (그쪽이 먼저 실패를 돌려주도록)
-        response, error, message = self._call_service(
-            self.read_barcode, request, BARCODE_TIMEOUT_S + 1.0, goal_handle,
-            "read barcode")
-        if error:
-            return None, error, message
-        return response.code, None, ""
-
-    def _watch_signal(self, read, goal_handle):
-        """신호 한 주기 보기 → (색 목록, 끝 소등 봤나, 에러 코드 또는 None, 설명)."""
-        goal = WatchSignal.Goal(timeout=_seconds(SIGNAL_TIMEOUT_S))
-        result, error, message = self._call_action(
-            self.watch_signal, goal, SIGNAL_TIMEOUT_S + 2.0, goal_handle,
-            f"read {read}/{SIGNAL_READ_LIMIT}")
-        if error:
-            return None, None, error, message
-        return list(result.colors), result.end_seen, None, ""
-
-    def _storage(self, goal_handle):
-        """적재함 12칸 → (칸 목록, 에러 코드 또는 None, 설명)."""
-        response, error, message = self._call_service(
-            self.get_storage, GetStorage.Request(), STORAGE_TIMEOUT_S,
-            goal_handle, "get storage")
-        return (response.slots if response else None), error, message
-
     # ---------- 행동 ----------
     def _ros_GOTO(self, args, goal_handle):
         place = args["t"]
@@ -243,12 +212,14 @@ class RosBackend:
             x, y, yaw = self.arena["start_pose"]
         else:
             (x, y), yaw = self.arena["places"][place]["target"], 0.0
+        timeout_s = ATTEMPT_S["GOTO"]
         goal = RunTask.Goal(
             operation="NAVIGATE", place_id=place,
             destination=_pose_stamped(self.frame_id, x, y, yaw),
-            timeout=_seconds(GOTO_TIMEOUT_S))
+            timeout=_goal_timeout(timeout_s))
+        # 주행 실패(장애물 등)는 다시 갈지 미룰지 판단이 정하므로 다시 시도하지 않는다
         result, error, message = self._call_action(
-            self.task, goal, GOTO_TIMEOUT_S, goal_handle, f"goto {place}")
+            self.navigate, goal, timeout_s, goal_handle, f"goto {place}")
         if error:
             # 접수도 안 됐으면 그대로 있고, 출발했으면 어디서 멈췄는지 모른다
             robot = {"pose": self._pose()}
@@ -270,73 +241,62 @@ class RosBackend:
         wrong = self._wrong_place(("HOME",), "READ_MISSION_INPUT")
         if wrong:
             return wrong
-        # 바코드 (못 찾을 때 한 바퀴 돌며 찾기는 아직: docs/robot_primitives.md 7절 4번)
-        code, error, message = self._read_barcode(goal_handle)
-        if error:
-            return {"success": False, "error": error, "message": message}
-        # 신호: 규칙(rules.signal_errors)에 안 맞으면 다음 주기를 다시 읽는다 (중간 오류는 로그만)
-        for read in range(1, SIGNAL_READ_LIMIT + 1):
-            colors, end_seen, error, message = self._watch_signal(read, goal_handle)
+
+        def once(timeout_s, handle, label):
+            goal = ReadMissionInput.Goal(timeout=_goal_timeout(timeout_s))
+            result, error, message = self._call_action(
+                self.read_input, goal, timeout_s, handle, label)
             if error:
                 return {"success": False, "error": error, "message": message}
-            errors = signal_errors(colors, end_seen)
-            if not errors:
-                break
-            self.node.feedback(goal_handle, f"read {read}/{SIGNAL_READ_LIMIT} "
-                                            f"invalid: {', '.join(errors)}")
-        result = {"success": not errors, "barcode": code, "signal": colors,
-                  "end_seen": end_seen}
-        if read > 1:
-            result["signal_reread"] = {"reads": read, "complete": not errors}
-        if errors:
-            # 못 읽은 칸이 남았으면 INCOMPLETE, 다 읽었지만 규칙에 안 맞으면 INVALID
-            result.update(
-                error="PERCEPTION_FAILED", signal_errors=errors,
-                cause="SIGNAL_INCOMPLETE" if "?" in colors else "SIGNAL_INVALID",
-                message=f"신호를 {read}번 읽었지만 규칙에 안 맞음: {', '.join(errors)}")
+            # 읽은 신호가 규칙(12개, 끝 소등, 색마다 1~6개)에 맞는지 본다
+            colors = list(result.colors)
+            errors = signal_errors(colors, result.end_seen)
+            read = {"success": not errors, "barcode": result.barcode,
+                    "signal": colors, "end_seen": result.end_seen}
+            if errors:
+                read.update(
+                    error="PERCEPTION_FAILED", signal_errors=errors,
+                    cause="SIGNAL_INCOMPLETE" if "?" in colors else "SIGNAL_INVALID",
+                    message=f"{label}: 신호가 규칙에 안 맞음: {', '.join(errors)}")
+            return read
+
+        # 못 찾음·못 읽음·규칙 위반은 신호가 반복되니 다시 읽는다
+        result = self._with_retry(
+            "READ_MISSION_INPUT", once,
+            lambda read: read.get("error") == "PERCEPTION_FAILED", goal_handle)
+        if result.get("attempts"):
+            result["signal_reread"] = {"reads": result["attempts"],
+                                       "complete": result["success"]}
         return result
 
     def _ros_LOAD(self, args, goal_handle):
         wrong = self._wrong_place(START_BOXES, "LOAD")
         if wrong:
             return wrong
-        # 박스 위 퍽 보기
-        response, error, message = self._call_service(
-            self.detect_pucks, DetectPucks.Request(place_id=self.here),
-            DETECT_TIMEOUT_S, goal_handle, f"detect {self.here}")
-        if error:
-            return {"success": False, "error": error, "message": message}
-        pucks = list(response.pucks)
-        if not pucks:
-            return {"success": False, "error": "BOX_EMPTY", "box_remaining": 0,
-                    "pucks": [], "message": f"{self.here}에 퍽이 보이지 않음"}
-        # 빈 슬롯 (예약·확정은 작업 관리자가 PICK_STORE 안에서 한다)
-        slots, error, message = self._storage(goal_handle)
-        if error:
-            return {"success": False, "error": error, "message": message}
-        empty = [slot.slot_id for slot in slots if slot.state == "EMPTY"]
-        # 퍽마다 집어 싣는다. 실패하면 거기까지 실은 것만 보고한다
-        loaded = []
-        for index, puck in enumerate(pucks):
-            if index >= len(empty):
-                error, message = "STORAGE_FULL", "적재함에 빈 슬롯이 없음"
-                break
-            goal = RunTask.Goal(operation="PICK_STORE", object_id=puck.object_id,
-                                slot_id=empty[index], timeout=_seconds(PICK_TIMEOUT_S))
-            _, error, message = self._call_action(
-                self.task, goal, PICK_TIMEOUT_S, goal_handle,
-                f"pick {index + 1}/{len(pucks)}")
-            if error:
-                break
-            loaded.append({"slot": int(empty[index]), "puck": {
-                "id": puck.tag_id if puck.tag_id >= 0 else None,  # 퍽 AprilTag = 퍽 id
+
+        def once(timeout_s, handle, label):
+            goal = LoadBox.Goal(place_id=self.here,
+                                timeout=_goal_timeout(timeout_s))
+            result, error, message = self._call_action(
+                self.load_box, goal, timeout_s, handle, label)
+            # 실패해도 실은 퍽은 보고한다 (퍽 id = AprilTag 번호, 못 읽으면 null)
+            pucks = [{"slot": puck.slot, "puck": {
+                "id": puck.tag_id if puck.tag_id >= 0 else None,
                 "color": puck.color or None, "shape": puck.shape or None,
-                "conf": round(puck.confidence, 2)}})
-        result = {"success": not error, "box_remaining": len(pucks) - len(loaded),
-                  "pucks": loaded}
-        if error:
-            result.update(error=error, message=message)
-        return result
+                "conf": round(puck.confidence, 2)}}
+                for puck in (result.pucks if result else [])]
+            load = {"success": not error, "pucks": pucks}
+            if result is not None and result.box_remaining >= 0:
+                load["box_remaining"] = result.box_remaining
+            if error:
+                load.update(error=error, message=message)
+            return load
+
+        # 아무것도 못 싣고 인식만 실패했을 때만 다시 시도한다 (실은 게 있으면 판단에 맡긴다)
+        return self._with_retry(
+            "LOAD", once,
+            lambda load: load.get("error") == "PERCEPTION_FAILED"
+            and not load["pucks"], goal_handle)
 
     def _ros_UNLOAD(self, args, goal_handle):
         location = self.here
@@ -344,48 +304,52 @@ class RosBackend:
                                   {"items": [], "stopped_at": 0})
         if wrong:
             return wrong
-        # 퍽 id → 들어 있는 슬롯
-        slots, error, message = self._storage(goal_handle)
-        if error:
+        timeout_s = ATTEMPT_S["UNLOAD"]
+        goal = UnloadPucks.Goal(
+            location_id=location, timeout=_goal_timeout(timeout_s),
+            items=[PlaceItem(puck_id=item["puck_id"], cell=item["cell"])
+                   for item in args["items"]])
+        # 놓기는 되돌릴 수 없어서 다시 시도하지 않는다 (남은 퍽을 다시 놓을지는 판단이 정한다)
+        result, error, message = self._call_action(
+            self.unload_pucks, goal, timeout_s, goal_handle, f"unload {location}")
+        if result is None:  # 서버 없음·시간 초과: 어디까지 놓았는지 모른다
             return {"success": False, "error": error, "message": message,
                     "items": [], "stopped_at": 0}
-        slot_of = {slot.tag_id: slot.slot_id for slot in slots
-                   if slot.state == "OCCUPIED" and slot.tag_id >= 0}
-        # items 순서대로 놓는다. 실패하면 그 항목에서 멈추고 어디까지 했는지 보고한다
-        done = []
-        for index, item in enumerate(args["items"]):
-            slot = slot_of.get(item["puck_id"])
-            if slot is None:
-                result = None
-                error = "PUCK_NOT_IN_STORAGE"
-                message = f"퍽 {item['puck_id']}이(가) 적재함에 없음"
-            else:
-                goal = RunTask.Goal(
-                    operation="STORE_PLACE", slot_id=slot,
-                    destination=self._cell_pose(location, item["cell"]),
-                    timeout=_seconds(PLACE_TIMEOUT_S))
-                result, error, message = self._call_action(
-                    self.task, goal, PLACE_TIMEOUT_S, goal_handle,
-                    f"place {index + 1}/{len(args['items'])}")
-            if error:
-                done.append({**item, "ok": False, "error": error})
-                return {"success": False, "error": error, "message": message,
-                        "items": done, "stopped_at": index}
-            done.append({**item, "ok": True, "offset_mm": _mm(result.place_offset)})
-        return {"success": True, "stopped_at": None, "items": done}
+        items = [{"puck_id": placed.puck_id, "cell": placed.cell, "ok": placed.ok,
+                  **({"offset_mm": _mm(placed.offset)} if placed.ok
+                     else {"error": error_name(placed.error_code)})}
+                 for placed in result.items]
+        unload = {"success": not error, "items": items,
+                  "stopped_at": None if result.stopped_at < 0 else result.stopped_at}
+        if error:
+            unload.update(error=error, message=message)
+        return unload
 
     def _ros_VERIFY_LOCATION(self, args, goal_handle):
         location = self.here
         wrong = self._wrong_place(LOCATIONS, "VERIFY_LOCATION")
         if wrong:
             return wrong
-        response, error, message = self._call_service(
-            self.observe_cells, ObserveCells.Request(location_id=location),
-            OBSERVE_TIMEOUT_S, goal_handle, f"observe {location}")
-        if error:
-            return {"success": False, "error": error, "message": message}
-        # 9칸 관측 (빠진 칸은 unknown)
-        seen = {observed.cell: observed for observed in response.cells}
+
+        def once(timeout_s, handle, label):
+            goal = ObserveLocation.Goal(location_id=location,
+                                        timeout=_goal_timeout(timeout_s))
+            result, error, message = self._call_action(
+                self.observe, goal, timeout_s, handle, label)
+            if error:
+                return {"success": False, "error": error, "message": message}
+            return self._compare(args["items"], result.cells)
+
+        # 관측 실패는 다시 본다 (배치가 틀린 것은 실패가 아니라 성공 + all_ok=false)
+        return self._with_retry(
+            "VERIFY_LOCATION", once,
+            lambda verify: verify.get("error") == "PERCEPTION_FAILED",
+            goal_handle)
+
+    @staticmethod
+    def _compare(asked_items, observed_cells):
+        """9칸 관측을 보낸 items와 비교: 그 cell에 그 퍽이 있나, 목록에 없는 cell에 퍽이 있나."""
+        seen = {observed.cell: observed for observed in observed_cells}
         cells = []
         for cell in range(NUM_CELLS):
             observed = seen.get(cell)
@@ -396,12 +360,11 @@ class RosBackend:
                 "puck_id": observed.tag_id
                 if observed and observed.tag_id >= 0 else None,
                 "offset_mm": _mm(observed.offset) if occupied else None})
-        # 보낸 items와 비교: 그 cell에 그 퍽이 있나, 목록에 없는 cell에 퍽이 있나
-        asked = {item["cell"] for item in args["items"]}
+        asked = {item["cell"] for item in asked_items}
         items = [{**item, "ok": cells[item["cell"]]["puck_id"] == item["puck_id"],
                   "seen_puck_id": cells[item["cell"]]["puck_id"],
                   "offset_mm": cells[item["cell"]]["offset_mm"]}
-                 for item in args["items"]]
+                 for item in asked_items]
         extra = [cell["cell"] for cell in cells
                  if cell["state"] == "occupied" and cell["cell"] not in asked]
         return {"success": True, "all_ok": all(item["ok"] for item in items)

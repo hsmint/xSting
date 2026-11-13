@@ -1,8 +1,0 @@
-# 인식(로봇 팀): 지금 카메라로 바코드 하나를 읽는다. 초안: docs/robot_primitives.md (xsting_mission)
-builtin_interfaces/Duration timeout
----
-bool success
-uint16 error_code                            # ErrorCode 상수 (확정 전)
-string message
-string code                                  # "P2-01" ~ "P2-04"
-float32 confidence

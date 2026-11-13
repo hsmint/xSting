@@ -1,18 +1,17 @@
-# 작업 관리자(로봇 팀)가 하는 퍽 하나·장소 하나 단위 동작. 초안: docs/robot_primitives.md (xsting_mission)
-# origin/vision의 RunTask에 place_id, place_offset을 더했다 (로봇 팀과 확정 전)
+# 작업 관리자(로봇 팀) 동작. ros_backend는 GOTO에서 NAVIGATE만 쓴다. 초안: docs/robot_primitives.md (xsting_mission)
+# origin/vision의 RunTask에 place_id를 더했다 (로봇 팀과 확정 전)
 # operation: NAVIGATE / PICK_STORE / PICK_PLACE / STORE_PLACE
 string task_id
 string operation
 string place_id                              # NAVIGATE 목적지 장소 (HOME, S1~S6, L1~L3)
-string object_id                             # PICK_STORE
-string slot_id                               # PICK_STORE, STORE_PLACE
-geometry_msgs/PoseStamped destination        # NAVIGATE: 대상 중심, STORE_PLACE: lN_grid 기준 cell 위치
+string object_id
+string slot_id
+geometry_msgs/PoseStamped destination        # NAVIGATE: 대상 중심 (접근 자리는 주행 쪽이 정한다)
 builtin_interfaces/Duration timeout
 ---
 bool success
-uint16 error_code                            # ErrorCode 상수 (확정 전)
+uint16 error_code                            # ErrorCode
 string message
-geometry_msgs/Point place_offset             # STORE_PLACE 놓은 위치 오차 (destination frame, m)
 ---
 string phase
 float32 progress
