@@ -1,0 +1,17 @@
+/**:
+  ros__parameters:
+    # 동시 관측할 상·하단 컬러 영상 토픽 및 기준 TF 프레임
+    top_image_topic: "top_camera/color/image_raw"
+    bottom_image_topic: "bottom_camera/color/image_raw"
+    base_frame: "base"
+    top_link_frame: "top_camera"
+
+    # 체커보드 내부 코너 개수(가로x세로) 및 한 칸 변의 길이(m)
+    board_cols: 9
+    board_rows: 6
+    square_size: 0.025
+
+    # 수집할 유효 샘플 수, 샘플링 최소 간격(s) 및 허용 시간차(s)
+    num_samples: 50
+    sample_interval: 0.20
+    max_sync_diff: 0.02
