@@ -1,0 +1,290 @@
+{
+  "source_sha256": "c80420a12496b485d54d8ae9b545d1d6366863962e651e7371058440c9633117",
+  "basket_watertight": true,
+  "basket_triangles": 74970,
+  "floor_boxes": [
+    {
+      "floor": 1,
+      "min_m": [
+        -0.13277349853515624,
+        -0.13277349853515624,
+        2.1914711222052576e-05
+      ],
+      "max_m": [
+        0.13277349853515624,
+        0.13277349853515624,
+        0.009021918296813964
+      ]
+    },
+    {
+      "floor": 2,
+      "min_m": [
+        -0.13277349853515624,
+        -0.13277349853515624,
+        0.03672191619873047
+      ],
+      "max_m": [
+        0.13277349853515624,
+        0.13277349853515624,
+        0.04572191619873047
+      ]
+    },
+    {
+      "floor": 3,
+      "min_m": [
+        -0.13277349853515624,
+        -0.13277349853515624,
+        0.09922191619873047
+      ],
+      "max_m": [
+        0.13277349853515624,
+        0.13277349853515624,
+        0.10822191619873048
+      ]
+    },
+    {
+      "floor": 4,
+      "min_m": [
+        -0.13277349853515624,
+        -0.13277349853515624,
+        0.15172190856933593
+      ],
+      "max_m": [
+        0.13277349853515624,
+        0.13277349853515624,
+        0.16072190856933594
+      ]
+    }
+  ],
+  "front_realsense": {
+    "approximation": "convex outer envelope of source CAD assembly",
+    "source_parts": 910,
+    "hull_vertices": 321,
+    "min_m": [
+      0.13694338989257812,
+      -0.04491472244262695,
+      0.094997802734375
+    ],
+    "max_m": [
+      0.16199339294433593,
+      0.04479924392700196,
+      0.11999776458740234
+    ],
+    "size_mm": [
+      25.05000305175781,
+      89.71396636962892,
+      24.999961853027344
+    ]
+  },
+  "sdf_resolution": 1024,
+  "nominal_sdf_cell_mm": 0.213213711977005,
+  "contact_offset_mm": 0.2,
+  "square_size_mm": [
+    30,
+    30,
+    60
+  ],
+  "round_diameter_height_mm": [
+    30,
+    60
+  ],
+  "round_collision_segments": 32,
+  "round_radial_approximation_error_mm": 0.07222909991704607,
+  "support_tests": [
+    {
+      "slot": "pallet_inner_1",
+      "shape": "square",
+      "support_bottom_z": 0.1637219085991382,
+      "frame_to_support_mm": 0.9999085991382051,
+      "vertical_insertion_samples": 115,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_1",
+      "shape": "round",
+      "support_bottom_z": 0.1637219085991382,
+      "frame_to_support_mm": 0.9999085991382051,
+      "vertical_insertion_samples": 115,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_2",
+      "shape": "square",
+      "support_bottom_z": 0.1627219085991382,
+      "frame_to_support_mm": -9.140086179582063e-05,
+      "vertical_insertion_samples": 117,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_2",
+      "shape": "round",
+      "support_bottom_z": 0.1627219085991382,
+      "frame_to_support_mm": -9.140086179582063e-05,
+      "vertical_insertion_samples": 117,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_3",
+      "shape": "square",
+      "support_bottom_z": 0.1627219085991382,
+      "frame_to_support_mm": -9.140086179582063e-05,
+      "vertical_insertion_samples": 117,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_3",
+      "shape": "round",
+      "support_bottom_z": 0.1627219085991382,
+      "frame_to_support_mm": -9.140086179582063e-05,
+      "vertical_insertion_samples": 117,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_4",
+      "shape": "square",
+      "support_bottom_z": 0.1637219085991382,
+      "frame_to_support_mm": 0.9999085991382051,
+      "vertical_insertion_samples": 115,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_inner_4",
+      "shape": "round",
+      "support_bottom_z": 0.1637219085991382,
+      "frame_to_support_mm": 0.9999085991382051,
+      "vertical_insertion_samples": 115,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_1",
+      "shape": "square",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_1",
+      "shape": "round",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_2",
+      "shape": "square",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_2",
+      "shape": "round",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_3",
+      "shape": "square",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_3",
+      "shape": "round",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_4",
+      "shape": "square",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_middle_4",
+      "shape": "round",
+      "support_bottom_z": 0.17272190859913822,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 97,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_1",
+      "shape": "square",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_1",
+      "shape": "round",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_2",
+      "shape": "square",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_2",
+      "shape": "round",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_3",
+      "shape": "square",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_3",
+      "shape": "round",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_4",
+      "shape": "square",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    },
+    {
+      "slot": "pallet_outer_4",
+      "shape": "round",
+      "support_bottom_z": 0.18472190859913823,
+      "frame_to_support_mm": -9.140086176806506e-05,
+      "vertical_insertion_samples": 73,
+      "source_mesh_fit": "PASS"
+    }
+  ],
+  "runtime_physics": "See runtime_validation.json; rerun after regenerating assets",
+  "puck_test_density_kg_m3": 1000,
+  "mass_note": "Test assumption, not measured puck mass"
+}

@@ -1,0 +1,10 @@
+{
+  "rigid_bodies": 26,
+  "moving_joints": 25,
+  "independent_actions": 24,
+  "collision_meshes": 26,
+  "mass_kg": 6.489295966923237,
+  "structural_validation": "PASS",
+  "runtime_validation": "NOT RUN: NVIDIA GPU unavailable",
+  "urdf_sha256": "17c8ae9071c2b9d349bf41195335a111a20545dcde88da12223d46c5cff4929b"
+}

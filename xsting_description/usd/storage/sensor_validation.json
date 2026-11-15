@@ -1,0 +1,154 @@
+{
+  "isaac_sim": "6.1",
+  "cameras": [
+    {
+      "name": "arm_rgb",
+      "shape": [
+        360,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "pixel_std": 54.00099959793697
+    },
+    {
+      "name": "front_depth",
+      "shape": [
+        480,
+        640,
+        1
+      ],
+      "dtype": "float32",
+      "target_depth_m": 0.5
+    },
+    {
+      "name": "front_rgb",
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "pixel_std": 63.5534152287824
+    },
+    {
+      "name": "left_rgb",
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "pixel_std": 76.50922460737354
+    },
+    {
+      "name": "left_depth",
+      "shape": [
+        480,
+        640,
+        1
+      ],
+      "dtype": "float32",
+      "target_depth_m": 0.5
+    },
+    {
+      "name": "right_rgb",
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "pixel_std": 76.48692362468488
+    },
+    {
+      "name": "right_depth",
+      "shape": [
+        480,
+        640,
+        1
+      ],
+      "dtype": "float32",
+      "target_depth_m": 0.5
+    }
+  ],
+  "collider_sha256": "1f0119a4b6a79694923ada10757a4bd7ba8b8db728f0fe40030c6d1bcf0a4748",
+  "sensor_config_sha256": "b6ff334e1f499ed6a9af362656bf767e03beef1565f17a75e1ba0a67b9173a4a",
+  "ultrasonic": {
+    "expected_m": 0.5,
+    "measured_m": 0.5,
+    "rays": 25,
+    "hit_rays": 25,
+    "model": "geometric nearest return in cone; no acoustic waveform, multipath or material response",
+    "no_target_range": "inf"
+  },
+  "front_realsense_rays": [
+    {
+      "axis": 0,
+      "side": -1,
+      "collision": "/World/xsting/base/StorageColliders/FrontRealSense",
+      "position_base_m": [
+        0.13695449568331242,
+        -5.773925659013912e-05,
+        0.10749778896570206
+      ],
+      "aabb_delta_mm": 0.011105790734294851
+    },
+    {
+      "axis": 0,
+      "side": 1,
+      "collision": "/World/xsting/base/StorageColliders/FrontRealSense",
+      "position_base_m": [
+        0.1619097087532282,
+        -5.773925659013912e-05,
+        0.10749778896570206
+      ],
+      "aabb_delta_mm": 0.08368419110774128
+    },
+    {
+      "axis": 1,
+      "side": -1,
+      "collision": "/World/xsting/base/StorageColliders/FrontRealSense",
+      "position_base_m": [
+        0.14946838654577732,
+        -0.04413009428753867,
+        0.10749778896570206
+      ],
+      "aabb_delta_mm": 0.784628155088285
+    },
+    {
+      "axis": 1,
+      "side": 1,
+      "collision": "/World/xsting/base/StorageColliders/FrontRealSense",
+      "position_base_m": [
+        0.14946838654577732,
+        0.0435530432187079,
+        0.10749778896570206
+      ],
+      "aabb_delta_mm": 1.2462007082940583
+    },
+    {
+      "axis": 2,
+      "side": -1,
+      "collision": "/World/xsting/base/StorageColliders/FrontRealSense",
+      "position_base_m": [
+        0.14946838654577732,
+        -5.773925659013912e-05,
+        0.09509920328855515
+      ],
+      "aabb_delta_mm": 0.1014005541801477
+    },
+    {
+      "axis": 2,
+      "side": 1,
+      "collision": "/World/xsting/base/StorageColliders/FrontRealSense",
+      "position_base_m": [
+        0.14946838654577732,
+        -5.7739252952160314e-05,
+        0.11879517883062363
+      ],
+      "aabb_delta_mm": 1.2025857567787153
+    }
+  ],
+  "result": "PASS"
+}

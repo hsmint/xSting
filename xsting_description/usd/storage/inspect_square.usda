@@ -1,0 +1,335 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    endTimeCode = 1000000000
+    metersPerUnit = 1
+    startTimeCode = 0
+    timeCodesPerSecond = 60
+    upAxis = "Z"
+)
+
+def Xform "World"
+{
+    def Xform "xsting" (
+        prepend references = @../xsting_storage_manipulation.usda@
+    )
+    {
+    }
+
+    def PhysicsScene "PhysicsScene" (
+        prepend apiSchemas = ["PhysxSceneAPI"]
+    )
+    {
+        vector3f physics:gravityDirection = (0, 0, -1)
+        float physics:gravityMagnitude = 9.81
+        token physxScene:broadphaseType = "GPU"
+        bool physxScene:enableGPUDynamics = 1
+        token physxScene:solverType = "TGS"
+        int physxScene:timeStepsPerSecond = 240
+    }
+
+    def DomeLight "Light"
+    {
+        float inputs:intensity = 1200
+    }
+
+    def Camera "Camera"
+    {
+        float2 clippingRange = (0.001, 100)
+        float focalLength = 28
+        matrix4d xformOp:transform = ( (0.7745321275866416, 0.6325345708624239, 0, 0), (-0.30698552201145535, 0.37590063919770045, 0.8743332309400775, -0), (0.5530459950234384, -0.6771991775797205, 0.4853260772654664, 0), (0.48000000000000004, -0.6, 0.65, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+    }
+
+    def "Pucks"
+    {
+        def Xform "pallet_inner_1" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.4882133, 0, 0, 0.87272435)
+            double3 xformOp:translate = (0.0609, 0.0767, 0.23872190859913822)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_inner_2" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.16901611, 0, 0, 0.9856133)
+            double3 xformOp:translate = (0.0231, 0.03, 0.23772190859913822)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_inner_3" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.16901611, 0, 0, -0.9856133)
+            double3 xformOp:translate = (0.0231, -0.03, 0.23772190859913822)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_inner_4" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.4882133, 0, 0, -0.87272435)
+            double3 xformOp:translate = (0.0609, -0.0767, 0.23872190859913822)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_middle_1" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.28313982, 0, 0, 0.95907867)
+            double3 xformOp:translate = (-0.0112, 0.0771, 0.24772190859913823)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_middle_2" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.09551549, 0, 0, 0.99542797)
+            double3 xformOp:translate = (-0.0314, 0.027, 0.24772190859913823)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_middle_3" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.09551549, 0, 0, -0.99542797)
+            double3 xformOp:translate = (-0.0314, -0.027, 0.24772190859913823)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_middle_4" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.28313982, 0, 0, -0.95907867)
+            double3 xformOp:translate = (-0.0112, -0.0771, 0.24772190859913823)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_outer_1" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.21102291, 0, 0, 0.9774811)
+            double3 xformOp:translate = (-0.066, 0.0788, 0.25972190859913824)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_outer_2" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.070851915, 0, 0, 0.9974868)
+            double3 xformOp:translate = (-0.0811, 0.027, 0.25972190859913824)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_outer_3" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.070851915, 0, 0, -0.9974868)
+            double3 xformOp:translate = (-0.0811, -0.027, 0.25972190859913824)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+
+        def Xform "pallet_outer_4" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxRigidBodyAPI"]
+        )
+        {
+            float physics:mass = 0.054
+            int physxRigidBody:solverPositionIterationCount = 32
+            int physxRigidBody:solverVelocityIterationCount = 8
+            quatf xformOp:orient = (0.21102291, 0, 0, -0.9774811)
+            double3 xformOp:translate = (-0.066, -0.0788, 0.25972190859913824)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+            def Cube "Shape" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                float physxCollision:contactOffset = 0.0002
+                float physxCollision:restOffset = 0
+                color3f[] primvars:displayColor = [(0.05, 0.55, 0.9)]
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.03, 0.06)
+                uniform token[] xformOpOrder = ["xformOp:scale"]
+            }
+        }
+    }
+}
+

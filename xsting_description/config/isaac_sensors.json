@@ -1,0 +1,138 @@
+{
+  "cameras": [
+    {
+      "name": "front_rgb",
+      "frame": "camera_color_frame",
+      "width": 640,
+      "height": 480,
+      "fx": 465.60288917518244,
+      "fy": 465.60288917518244,
+      "cx": 320.0,
+      "cy": 240.0,
+      "rate_hz": 30.0,
+      "annotators": [
+        "rgb"
+      ],
+      "calibration": "nominal horizontal FOV; square pixels; not device calibration",
+      "prim_path": "/xsting/base/camera/camera_infra1_frame/camera_color_frame/Sensor_front_rgb"
+    },
+    {
+      "name": "front_depth",
+      "frame": "camera_depth_frame",
+      "width": 640,
+      "height": 480,
+      "fx": 337.20964008990796,
+      "fy": 337.20964008990796,
+      "cx": 320.0,
+      "cy": 240.0,
+      "rate_hz": 30.0,
+      "annotators": [
+        "distance_to_image_plane"
+      ],
+      "calibration": "nominal horizontal FOV; square pixels; not device calibration",
+      "prim_path": "/xsting/base/camera/camera_infra1_frame/camera_depth_frame/Sensor_front_depth"
+    },
+    {
+      "name": "left_rgb",
+      "frame": "left_camera_color_frame",
+      "width": 640,
+      "height": 480,
+      "fx": 465.60288917518244,
+      "fy": 465.60288917518244,
+      "cx": 320.0,
+      "cy": 240.0,
+      "rate_hz": 30.0,
+      "annotators": [
+        "rgb"
+      ],
+      "calibration": "nominal horizontal FOV; square pixels; not device calibration",
+      "prim_path": "/xsting/base/left_camera/left_camera_depth_frame/left_camera_color_frame/Sensor_left_rgb"
+    },
+    {
+      "name": "left_depth",
+      "frame": "left_camera_depth_frame",
+      "width": 640,
+      "height": 480,
+      "fx": 337.20964008990796,
+      "fy": 337.20964008990796,
+      "cx": 320.0,
+      "cy": 240.0,
+      "rate_hz": 30.0,
+      "annotators": [
+        "distance_to_image_plane"
+      ],
+      "calibration": "nominal horizontal FOV; square pixels; not device calibration",
+      "prim_path": "/xsting/base/left_camera/left_camera_depth_frame/Sensor_left_depth"
+    },
+    {
+      "name": "right_rgb",
+      "frame": "right_camera_color_frame",
+      "width": 640,
+      "height": 480,
+      "fx": 465.60288917518244,
+      "fy": 465.60288917518244,
+      "cx": 320.0,
+      "cy": 240.0,
+      "rate_hz": 30.0,
+      "annotators": [
+        "rgb"
+      ],
+      "calibration": "nominal horizontal FOV; square pixels; not device calibration",
+      "prim_path": "/xsting/base/right_camera/right_camera_depth_frame/right_camera_color_frame/Sensor_right_rgb"
+    },
+    {
+      "name": "right_depth",
+      "frame": "right_camera_depth_frame",
+      "width": 640,
+      "height": 480,
+      "fx": 337.20964008990796,
+      "fy": 337.20964008990796,
+      "cx": 320.0,
+      "cy": 240.0,
+      "rate_hz": 30.0,
+      "annotators": [
+        "distance_to_image_plane"
+      ],
+      "calibration": "nominal horizontal FOV; square pixels; not device calibration",
+      "prim_path": "/xsting/base/right_camera/right_camera_depth_frame/Sensor_right_depth"
+    },
+    {
+      "name": "arm_rgb",
+      "frame": "arducam_frame",
+      "width": 640,
+      "height": 360,
+      "fx": 395.08871073966776,
+      "fy": 392.18660459346535,
+      "cx": 369.8118943436821,
+      "cy": 183.36817271550933,
+      "rate_hz": 30.0,
+      "annotators": [
+        "rgb"
+      ],
+      "calibration": "rectified projection_matrix from arducam_camera.yaml scaled from 1920x1080 to 640x360",
+      "prim_path": "/xsting/gripper/arducam/arducam_frame/Sensor_arm_rgb"
+    }
+  ],
+  "ultrasonic": {
+    "name": "ultrasonic_front",
+    "frame": "ultrasonic",
+    "prim_path": "/xsting/base/ultrasonic/RangeSensor",
+    "min_range_m": 0.02,
+    "max_range_m": 4.0,
+    "fov_degrees": 15,
+    "rate_hz": 15.0,
+    "rays": 25,
+    "model": "geometric nearest return in cone; no acoustic waveform, multipath or material response"
+  },
+  "lidar": {
+    "name": "lidar_2d",
+    "frame": "lidar",
+    "prim_path": "/xsting/base/lidar/LidarSensor",
+    "min_range_m": 0.145,
+    "max_range_m": 12.0,
+    "fov_degrees": 360,
+    "rate_hz": 10.0,
+    "rays": 720,
+    "model": "360 deg planar 2D ToF raycast (COIN-D4 / LDS-03); min_range clears chassis standoffs"
+  }
+}
