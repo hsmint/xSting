@@ -1,0 +1,69 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 200
+    enforce_command_limits: false
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # 다리 보드 (use_leg)
+    leg_controller:
+      type: forward_command_controller/ForwardCommandController
+    imu_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+    sonar_broadcaster:
+      type: range_sensor_broadcaster/RangeSensorBroadcaster
+
+    # 팔 보드 (use_arm)
+    arm_controller:
+      type: forward_command_controller/ForwardCommandController
+
+leg_controller:
+  ros__parameters:
+    interface_name: position
+    joints:
+      - leg1_yaw
+      - leg1_hip
+      - leg1_knee
+      - leg2_yaw
+      - leg2_hip
+      - leg2_knee
+      - leg3_yaw
+      - leg3_hip
+      - leg3_knee
+      - leg4_yaw
+      - leg4_hip
+      - leg4_knee
+      - leg5_yaw
+      - leg5_hip
+      - leg5_knee
+      - leg6_yaw
+      - leg6_hip
+      - leg6_knee
+
+imu_broadcaster:
+  ros__parameters:
+    sensor_name: imu_front
+    frame_id: imu
+
+sonar_broadcaster:
+  ros__parameters:
+    update_rate: 20
+    sensor_name: ultrasonic_front
+    frame_id: ultrasonic
+    radiation_type: 0
+    field_of_view: 0.261799
+    min_range: 0.02
+    max_range: 4.0
+    variance: 0.0
+
+arm_controller:
+  ros__parameters:
+    interface_name: position
+    joints:
+      - arm_yaw
+      - arm_shoulder
+      - arm_elbow
+      - arm_wrist
+      - arm_roll
+      - finger_l
