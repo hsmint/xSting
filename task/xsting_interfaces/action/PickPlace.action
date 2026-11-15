@@ -1,0 +1,51 @@
+# 동작 명령 상수(0: 홈, 1: 상자 적재, 2: 상자 하역, 3: 보정 프로브 이동, 4: 관측 자세 이동)
+uint8 CMD_HOME = 0
+uint8 CMD_LOAD_BOX = 1
+uint8 CMD_UNLOAD_BOX = 2
+uint8 CMD_PROBE = 3
+uint8 CMD_OBSERVE = 4
+
+# 실행할 명령 번호와 최대 처리 개수(0이면 slots 길이만큼 처리)
+uint8 command
+int32 max_count
+string target_class
+
+# 적재·인출 슬롯 번호(1~12) 및 충돌 회피용 현재 점유 슬롯 목록
+int32[] slots
+int32[] occupied_slots
+
+# 주사위 눈(1~6, 0이면 일반 배치) 및 상자 중심 기준 배치 오프셋(dx, dy 쌍)
+int32 dice_eye
+float64[] place_xy
+
+# 수동 타겟 사용 여부 및 base 기준 퍽 목록 입력(시뮬레이션·단독 시험용)
+bool use_manual
+float64[] puck_x
+float64[] puck_y
+float64[] puck_z
+float64[] puck_yaw
+bool[] is_square
+bool[] is_lying
+string[] puck_classes
+
+# 실측 보정용 프로브 목표 패드 좌표(base 기준 x, y, z) 및 파지 Yaw(rad)
+float64[] probe_xyz
+float64 probe_yaw
+---
+# 전체 성공 여부, 상태 메시지, 처리·기립 개수, 사용 슬롯 및 최종 패드 좌표
+bool success
+string message
+int32 handled_count
+int32 righted_count
+int32[] used_slots
+string[] detected_classes
+float64[] final_xyz
+string observe_source
+float64[] observed_box_xy
+float64[] observed_puck_xyz
+float64[] observed_puck_conf
+---
+# 현재 진행 단계 이름과 처리 순번
+string phase
+int32 current_idx
+int32 total_count
