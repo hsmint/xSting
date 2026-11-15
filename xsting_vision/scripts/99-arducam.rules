@@ -1,0 +1,2 @@
+# Arducam 영상 캡처 장치(index0)를 /dev/arducam으로 연결
+SUBSYSTEM=="video4linux", ATTRS{idVendor}=="0c45", ATTRS{idProduct}=="6366", ATTR{index}=="0", SYMLINK+="arducam"
