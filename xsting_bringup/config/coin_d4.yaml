@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    # ROBOTIS LDS-03 (COIN-D4) 1층 중앙 천장형 장착 설정
+    # 상하 반전(Roll 180°)은 URDF(base → lidar) TF에 반영되므로 reverse: false 유지
+    port: "/dev/lidar"
+    frame_id: "lidar"
+    baudrate: 230400
+    version: 4
+    topic_name: "scan"
+    reverse: false
+    warmup_time: 2
