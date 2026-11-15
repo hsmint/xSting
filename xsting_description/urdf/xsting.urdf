@@ -1,0 +1,825 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  xSting TF / Kinematic Tree (Root: base)
+  base
+  ├── leg1_yaw ~ leg6_yaw → leg*_hip → leg*_knee
+  ├── arm_1 → arm_2 → arm_3 → arm_4 → gripper
+  │   ├── finger_l
+  │   ├── finger_r (mimic: finger_l)
+  │   └── arducam → arducam_frame
+  ├── camera → camera_infra1_frame → {depth, infra2, color}_frame
+  ├── left_camera → left_camera_depth_frame → left_camera_color_frame
+  ├── right_camera → right_camera_depth_frame → right_camera_color_frame
+  ├── ultrasonic
+  ├── lidar
+  ├── imu
+  └── pallet_inner_1~4, pallet_middle_1~4, pallet_outer_1~4
+-->
+<robot name="xsting">
+  <link name="base">
+    <inertial>
+      <origin xyz="-0.00623743 -5.80284e-06 0.0923071" rpy="0 0 0" />
+      <mass value="4.22343" />
+      <inertia ixx="0.0321278" ixy="0.000430145" ixz="0.000692119" iyy="0.0343888" iyz="8.8447e-06" izz="0.046418" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/body/base_link.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="base_link_mat"><color rgba="0.25 0.25 0.27 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/body/base_link.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg3_hip">
+    <inertial>
+      <origin xyz="0.0011216 0.0400439 0.000201165" rpy="0 0 0" />
+      <mass value="0.216242" />
+      <inertia ixx="0.00020466" ixy="-8.52082e-08" ixz="1.07919e-07" iyy="4.90129e-05" iyz="-1.82278e-06" izz="0.000207201" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="leg_1_hip_motor_3_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg2_hip">
+    <inertial>
+      <origin xyz="0.0011216 0.0400439 0.000201165" rpy="0 0 0" />
+      <mass value="0.216242" />
+      <inertia ixx="0.00020466" ixy="-8.52082e-08" ixz="1.07919e-07" iyy="4.90129e-05" iyz="-1.82278e-06" izz="0.000207201" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="leg_1_hip_motor_2_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg1_hip">
+    <inertial>
+      <origin xyz="0.0011216 0.0400439 0.000201165" rpy="0 0 0" />
+      <mass value="0.216242" />
+      <inertia ixx="0.00020466" ixy="-8.52082e-08" ixz="1.07919e-07" iyy="4.90129e-05" iyz="-1.82278e-06" izz="0.000207201" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="leg_1_hip_motor_1_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg6_hip">
+    <inertial>
+      <origin xyz="-0.0011216 -0.0400439 0.000201165" rpy="0 0 0" />
+      <mass value="0.216242" />
+      <inertia ixx="0.00020466" ixy="-8.52082e-08" ixz="-1.07919e-07" iyy="4.90129e-05" iyz="1.82278e-06" izz="0.000207201" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="leg_1_hip_motor_6_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg5_hip">
+    <inertial>
+      <origin xyz="-0.0011216 -0.0400439 0.000201165" rpy="0 0 0" />
+      <mass value="0.216242" />
+      <inertia ixx="0.00020466" ixy="-8.52082e-08" ixz="-1.07919e-07" iyy="4.90129e-05" iyz="1.82278e-06" izz="0.000207201" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="leg_1_hip_motor_5_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg4_hip">
+    <inertial>
+      <origin xyz="-0.0011216 -0.0400439 0.000201165" rpy="0 0 0" />
+      <mass value="0.216242" />
+      <inertia ixx="0.00020466" ixy="-8.52082e-08" ixz="-1.07919e-07" iyy="4.90129e-05" iyz="1.82278e-06" izz="0.000207201" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="leg_1_hip_motor_4_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/femur_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="arm_1">
+    <inertial>
+      <origin xyz="0 0.000668578 0.0467695" rpy="0 0 0" />
+      <mass value="0.083847" />
+      <inertia ixx="2.57154e-05" ixy="0" ixz="0" iyy="2.23324e-05" iyz="-8.77254e-08" izz="1.38592e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link1.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_link1_1_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link1.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="arm_2">
+    <inertial>
+      <origin xyz="0.00848707 0.000445324 0.104997" rpy="0 0 0" />
+      <mass value="0.110882" />
+      <inertia ixx="0.000161546" ixy="-2.14664e-07" ixz="-2.05882e-05" iyy="0.000168513" iyz="-1.13587e-06" izz="3.07876e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link2.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_link2_1_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link2.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="arm_3">
+    <inertial>
+      <origin xyz="0.111037 0.000452481 8.84795e-07" rpy="0 0 0" />
+      <mass value="0.109602" />
+      <inertia ixx="1.7731e-05" ixy="-1.32895e-06" ixz="4.12503e-09" iyy="0.000197979" iyz="4.38724e-11" izz="0.000203549" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link3.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_link3_1_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link3.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="arm_4">
+    <inertial>
+      <origin xyz="0.0452884 4.27714e-12 0.0117543" rpy="0 0 0" />
+      <mass value="0.0919584" />
+      <inertia ixx="2.46733e-05" ixy="0" ixz="-1.82419e-07" iyy="3.2092e-05" iyz="0" izz="2.30045e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link4.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_link4_1_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/link4.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="gripper">
+    <inertial>
+      <origin xyz="0.0460346 -2.03686e-05 0.019957" rpy="0 0 0" />
+      <mass value="0.170338" />
+      <inertia ixx="0.00016284" ixy="5.17457e-08" ixz="-3.77123e-07" iyy="0.000139702" iyz="2.75843e-07" izz="9.57775e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/gripper.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_gripper_link_1_mat"><color rgba="0.15 0.15 0.17 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/gripper.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="finger_l">
+    <inertial>
+      <origin xyz="-0.0113819 -0.00818156 -0.0002759" rpy="0 0 0" />
+      <mass value="0.0258942" />
+      <inertia ixx="7.78657e-06" ixy="-1.9304e-06" ixz="-1.20006e-07" iyy="1.80962e-05" iyz="1.48179e-07" izz="1.47703e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/finger_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_finger_l_1_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/finger_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="finger_r">
+    <inertial>
+      <origin xyz="-0.0113819 0.00818156 0.0002759" rpy="0 0 0" />
+      <mass value="0.0258942" />
+      <inertia ixx="7.78657e-06" ixy="1.9304e-06" ixz="1.20006e-07" iyy="1.80962e-05" iyz="1.48179e-07" izz="1.47703e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/finger_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="x53_finger_r_1_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/arm/finger_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg3_yaw">
+    <inertial>
+      <origin xyz="-2.33698e-07 0.0302826 0.00025" rpy="0 0 0" />
+      <mass value="0.0281875" />
+      <inertia ixx="8.52642e-06" ixy="3.35893e-11" ixz="0" iyy="1.0525e-05" iyz="0" izz="8.41804e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_duo_3_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg2_yaw">
+    <inertial>
+      <origin xyz="-2.33698e-07 0.0302826 0.00025" rpy="0 0 0" />
+      <mass value="0.0281875" />
+      <inertia ixx="8.52642e-06" ixy="3.35893e-11" ixz="0" iyy="1.0525e-05" iyz="0" izz="8.41804e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_duo_2_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg1_yaw">
+    <inertial>
+      <origin xyz="-2.33698e-07 0.0302826 0.00025" rpy="0 0 0" />
+      <mass value="0.0281875" />
+      <inertia ixx="8.52642e-06" ixy="3.35893e-11" ixz="0" iyy="1.0525e-05" iyz="0" izz="8.41804e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_duo_1_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg6_yaw">
+    <inertial>
+      <origin xyz="2.33698e-07 -0.0302826 0.00025" rpy="0 0 0" />
+      <mass value="0.0281875" />
+      <inertia ixx="8.52642e-06" ixy="3.35893e-11" ixz="0" iyy="1.0525e-05" iyz="0" izz="8.41804e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_duo_6_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg5_yaw">
+    <inertial>
+      <origin xyz="2.33698e-07 -0.0302826 0.00025" rpy="0 0 0" />
+      <mass value="0.0281875" />
+      <inertia ixx="8.52642e-06" ixy="3.35893e-11" ixz="0" iyy="1.0525e-05" iyz="0" izz="8.41804e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_duo_5_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg4_yaw">
+    <inertial>
+      <origin xyz="2.33698e-07 -0.0302826 0.00025" rpy="0 0 0" />
+      <mass value="0.0281875" />
+      <inertia ixx="8.52642e-06" ixy="3.35893e-11" ixz="0" iyy="1.0525e-05" iyz="0" izz="8.41804e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_duo_4_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/coxa_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg3_knee">
+    <inertial>
+      <origin xyz="8.94299e-12 0.0521533 -0.000510524" rpy="0 0 0" />
+      <mass value="0.0301455" />
+      <inertia ixx="2.76111e-05" ixy="0" ixz="0" iyy="4.90023e-06" iyz="1.03464e-06" izz="3.09879e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_leg_3_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg2_knee">
+    <inertial>
+      <origin xyz="8.9429e-12 0.0521533 -0.000510524" rpy="0 0 0" />
+      <mass value="0.0301455" />
+      <inertia ixx="2.76111e-05" ixy="0" ixz="0" iyy="4.90023e-06" iyz="1.03464e-06" izz="3.09879e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_leg_2_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg1_knee">
+    <inertial>
+      <origin xyz="8.95391e-12 0.0521533 -0.000510524" rpy="0 0 0" />
+      <mass value="0.0301455" />
+      <inertia ixx="2.76111e-05" ixy="0" ixz="0" iyy="4.90023e-06" iyz="1.03464e-06" izz="3.09879e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_left.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_leg_1_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_left.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg6_knee">
+    <inertial>
+      <origin xyz="-8.95393e-12 -0.0521533 -0.000510524" rpy="0 0 0" />
+      <mass value="0.0301455" />
+      <inertia ixx="2.76111e-05" ixy="0" ixz="0" iyy="4.90023e-06" iyz="-1.03464e-06" izz="3.09879e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_leg_6_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg5_knee">
+    <inertial>
+      <origin xyz="-8.94783e-12 -0.0521533 -0.000510524" rpy="0 0 0" />
+      <mass value="0.0301455" />
+      <inertia ixx="2.76111e-05" ixy="0" ixz="0" iyy="4.90023e-06" iyz="-1.03464e-06" izz="3.09879e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_leg_5_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="leg4_knee">
+    <inertial>
+      <origin xyz="-8.9429e-12 -0.0521533 -0.000510524" rpy="0 0 0" />
+      <mass value="0.0301455" />
+      <inertia ixx="2.76111e-05" ixy="0" ixz="0" iyy="4.90023e-06" iyz="-1.03464e-06" izz="3.09879e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_right.stl" scale="0.001 0.001 0.001" /></geometry>
+      <material name="XM430_bracket_leg_4_mat"><color rgba="0.82 0.82 0.85 1" /></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><mesh filename="package://xsting_description/meshes/legs/tibia_right.stl" scale="0.001 0.001 0.001" /></geometry>
+    </collision>
+  </link>
+  <link name="camera" />
+  <link name="camera_infra1_frame" />
+  <link name="camera_depth_frame" />
+  <link name="camera_infra2_frame" />
+  <link name="camera_color_frame" />
+  <link name="left_camera" />
+  <link name="left_camera_depth_frame" />
+  <link name="left_camera_color_frame" />
+  <link name="right_camera" />
+  <link name="right_camera_depth_frame" />
+  <link name="right_camera_color_frame" />
+  <link name="arducam" />
+  <link name="arducam_frame" />
+  <link name="ultrasonic" />
+  <link name="lidar" />
+  <link name="imu" />
+  <link name="pallet_inner_1" />
+  <link name="pallet_inner_2" />
+  <link name="pallet_inner_3" />
+  <link name="pallet_inner_4" />
+  <link name="pallet_middle_1" />
+  <link name="pallet_middle_2" />
+  <link name="pallet_middle_3" />
+  <link name="pallet_middle_4" />
+  <link name="pallet_outer_1" />
+  <link name="pallet_outer_2" />
+  <link name="pallet_outer_3" />
+  <link name="pallet_outer_4" />
+  <joint name="arducam_joint" type="fixed">
+    <parent link="gripper" />
+    <child link="arducam" />
+    <origin xyz="0.0830322 -1.78364e-11 0.04695" rpy="0 0.523598775598 -2.14696e-10" />
+  </joint>
+  <joint name="arducam_frame_joint" type="fixed">
+    <parent link="arducam" />
+    <child link="arducam_frame" />
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
+  </joint>
+  <joint name="camera_joint" type="fixed">
+    <parent link="base" />
+    <child link="camera" />
+    <origin xyz="0.157793 0.0175 0.107498" rpy="0 0 0" />
+  </joint>
+  <joint name="camera_infra1_joint" type="fixed">
+    <parent link="camera" />
+    <child link="camera_infra1_frame" />
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
+  </joint>
+  <joint name="camera_depth_joint" type="fixed">
+    <parent link="camera_infra1_frame" />
+    <child link="camera_depth_frame" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="camera_infra2_joint" type="fixed">
+    <parent link="camera_infra1_frame" />
+    <child link="camera_infra2_frame" />
+    <origin xyz="0.05 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="camera_color_joint" type="fixed">
+    <parent link="camera_infra1_frame" />
+    <child link="camera_color_frame" />
+    <origin xyz="-0.015 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="left_camera_joint" type="fixed">
+    <parent link="base" />
+    <child link="left_camera" />
+    <origin xyz="-0.0175 0.1198 0.123722" rpy="0 0 1.57079632679" />
+  </joint>
+  <joint name="left_camera_depth_joint" type="fixed">
+    <parent link="left_camera" />
+    <child link="left_camera_depth_frame" />
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
+  </joint>
+  <joint name="left_camera_color_joint" type="fixed">
+    <parent link="left_camera_depth_frame" />
+    <child link="left_camera_color_frame" />
+    <origin xyz="-0.015 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="right_camera_joint" type="fixed">
+    <parent link="base" />
+    <child link="right_camera" />
+    <origin xyz="0.0175 -0.1198 0.123722" rpy="0 0 -1.57079632679" />
+  </joint>
+  <joint name="right_camera_depth_joint" type="fixed">
+    <parent link="right_camera" />
+    <child link="right_camera_depth_frame" />
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
+  </joint>
+  <joint name="right_camera_color_joint" type="fixed">
+    <parent link="right_camera_depth_frame" />
+    <child link="right_camera_color_frame" />
+    <origin xyz="-0.015 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="ultrasonic_joint" type="fixed">
+    <parent link="base" />
+    <child link="ultrasonic" />
+    <origin xyz="0.12718 0 0.0245219" rpy="0 0 0" />
+  </joint>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base" />
+    <child link="lidar" />
+    <origin xyz="0 0 0.0245" rpy="3.14159265359 0 0" />
+  </joint>
+  <joint name="leg2_yaw" type="revolute">
+    <parent link="base" />
+    <child link="leg2_yaw" />
+    <origin xyz="0 0.1 0.0724719" rpy="0 0 0" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-0.436332" upper="0.750492" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base" />
+    <child link="imu" />
+    <origin xyz="0.08014 0 0.0579169" rpy="0 0 0" />
+  </joint>
+  <joint name="leg3_yaw" type="revolute">
+    <parent link="base" />
+    <child link="leg3_yaw" />
+    <origin xyz="-0.11 0.1 0.0724719" rpy="0 0 0" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-1.5708" upper="0.436332" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg3_hip" type="revolute">
+    <parent link="leg3_yaw" />
+    <child link="leg3_hip" />
+    <origin xyz="0 0.0605 0.00025" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-1.65806" upper="1.65806" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg2_hip" type="revolute">
+    <parent link="leg2_yaw" />
+    <child link="leg2_hip" />
+    <origin xyz="0 0.0605 0.00025" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-1.65806" upper="1.65806" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg1_hip" type="revolute">
+    <parent link="leg1_yaw" />
+    <child link="leg1_hip" />
+    <origin xyz="0 0.0605 0.00025" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-1.65806" upper="1.65806" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg1_yaw" type="revolute">
+    <parent link="base" />
+    <child link="leg1_yaw" />
+    <origin xyz="0.11 0.1 0.0724719" rpy="0 0 0" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-0.436332" upper="1.5708" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg6_yaw" type="revolute">
+    <parent link="base" />
+    <child link="leg6_yaw" />
+    <origin xyz="-0.11 -0.1 0.0724719" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.5708" upper="0.436332" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg5_yaw" type="revolute">
+    <parent link="base" />
+    <child link="leg5_yaw" />
+    <origin xyz="0 -0.1 0.0724719" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.750492" upper="0.436332" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg4_yaw" type="revolute">
+    <parent link="base" />
+    <child link="leg4_yaw" />
+    <origin xyz="0.11 -0.1 0.0724719" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.436332" upper="1.5708" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="arm_roll" type="revolute">
+    <parent link="arm_4" />
+    <child link="gripper" />
+    <origin xyz="0.0485 1.88985e-11 0" rpy="0 0 0" />
+    <axis xyz="1 -2.14755e-10 0" />
+    <limit lower="-3.14159" upper="3.14159" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="arm_wrist" type="revolute">
+    <parent link="arm_3" />
+    <child link="arm_4" />
+    <origin xyz="0.149 -3.19985e-11 0" rpy="0 0 0" />
+    <axis xyz="2.14755e-10 1 0" />
+    <limit lower="-1.8326" upper="2.18166" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="arm_yaw" type="revolute">
+    <parent link="base" />
+    <child link="arm_1" />
+    <origin xyz="0.108 0 0.177722" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14159" upper="3.14159" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="arm_shoulder" type="revolute">
+    <parent link="arm_1" />
+    <child link="arm_2" />
+    <origin xyz="0 -2.31936e-11 0.0595" rpy="0 0 0" />
+    <axis xyz="2.14755e-10 1 0" />
+    <limit lower="-1.65806" upper="1.91986" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="arm_elbow" type="revolute">
+    <parent link="arm_2" />
+    <child link="arm_3" />
+    <origin xyz="0.024 -5.15428e-12 0.128" rpy="0 0 0" />
+    <axis xyz="2.14755e-10 1 0" />
+    <limit lower="-2.00713" upper="1.5708" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="finger_l" type="prismatic">
+    <parent link="gripper" />
+    <child link="finger_l" />
+    <origin xyz="0.0995 -0.01145 0" rpy="0 0 0" />
+    <axis xyz="-2.14755e-10 -1 0" />
+    <limit lower="-0.00186" upper="0.025" effort="10" velocity="0.05" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="finger_r" type="prismatic">
+    <parent link="gripper" />
+    <child link="finger_r" />
+    <origin xyz="0.0995 0.01145 0" rpy="0 0 0" />
+    <axis xyz="2.14755e-10 1 0" />
+    <limit lower="-0.00186" upper="0.025" effort="10" velocity="0.05" />
+    <dynamics damping="0.1" friction="0.0" />
+    <mimic joint="finger_l" multiplier="1" offset="0" />
+  </joint>
+  <joint name="pallet_inner_1_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_inner_1" />
+    <origin xyz="0.0609 0.0767 0.162722" rpy="0 0 2.12151" />
+  </joint>
+  <joint name="pallet_inner_2_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_inner_2" />
+    <origin xyz="0.0231 0.03 0.162722" rpy="0 0 2.80193" />
+  </joint>
+  <joint name="pallet_inner_3_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_inner_3" />
+    <origin xyz="0.0231 -0.03 0.162722" rpy="0 0 -2.80193" />
+  </joint>
+  <joint name="pallet_inner_4_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_inner_4" />
+    <origin xyz="0.0609 -0.0767 0.162722" rpy="0 0 -2.12151" />
+  </joint>
+  <joint name="pallet_middle_1_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_middle_1" />
+    <origin xyz="-0.0112 0.0771 0.172722" rpy="0 0 2.56746" />
+  </joint>
+  <joint name="pallet_middle_2_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_middle_2" />
+    <origin xyz="-0.0314 0.027 0.172722" rpy="0 0 2.95027" />
+  </joint>
+  <joint name="pallet_middle_3_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_middle_3" />
+    <origin xyz="-0.0314 -0.027 0.172722" rpy="0 0 -2.95027" />
+  </joint>
+  <joint name="pallet_middle_4_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_middle_4" />
+    <origin xyz="-0.0112 -0.0771 0.172722" rpy="0 0 -2.56746" />
+  </joint>
+  <joint name="pallet_outer_1_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_outer_1" />
+    <origin xyz="-0.066 0.0788 0.184722" rpy="0 0 2.71635" />
+  </joint>
+  <joint name="pallet_outer_2_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_outer_2" />
+    <origin xyz="-0.0811 0.027 0.184722" rpy="0 0 2.99977" />
+  </joint>
+  <joint name="pallet_outer_3_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_outer_3" />
+    <origin xyz="-0.0811 -0.027 0.184722" rpy="0 0 -2.99977" />
+  </joint>
+  <joint name="pallet_outer_4_joint" type="fixed">
+    <parent link="base" />
+    <child link="pallet_outer_4" />
+    <origin xyz="-0.066 -0.0788 0.184722" rpy="0 0 -2.71635" />
+  </joint>
+  <joint name="leg6_hip" type="revolute">
+    <parent link="leg6_yaw" />
+    <child link="leg6_hip" />
+    <origin xyz="0 -0.0605 0.00025" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="-1.65806" upper="1.65806" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg5_hip" type="revolute">
+    <parent link="leg5_yaw" />
+    <child link="leg5_hip" />
+    <origin xyz="0 -0.0605 0.00025" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="-1.65806" upper="1.65806" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg4_hip" type="revolute">
+    <parent link="leg4_yaw" />
+    <child link="leg4_hip" />
+    <origin xyz="0 -0.0605 0.00025" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="-1.65806" upper="1.65806" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg3_knee" type="revolute">
+    <parent link="leg3_hip" />
+    <child link="leg3_knee" />
+    <origin xyz="0 0.081 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-2.00713" upper="1.74533" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg2_knee" type="revolute">
+    <parent link="leg2_hip" />
+    <child link="leg2_knee" />
+    <origin xyz="0 0.081 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-2.00713" upper="1.74533" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg1_knee" type="revolute">
+    <parent link="leg1_hip" />
+    <child link="leg1_knee" />
+    <origin xyz="0 0.081 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-2.00713" upper="1.74533" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg6_knee" type="revolute">
+    <parent link="leg6_hip" />
+    <child link="leg6_knee" />
+    <origin xyz="0 -0.081 0" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="-2.00713" upper="1.74533" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg5_knee" type="revolute">
+    <parent link="leg5_hip" />
+    <child link="leg5_knee" />
+    <origin xyz="0 -0.081 0" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="-2.00713" upper="1.74533" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <joint name="leg4_knee" type="revolute">
+    <parent link="leg4_hip" />
+    <child link="leg4_knee" />
+    <origin xyz="0 -0.081 0" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="-2.00713" upper="1.74533" effort="3.8" velocity="4.5" />
+    <dynamics damping="0.1" friction="0.0" />
+  </joint>
+  <!-- HC-SR04 ultrasonic range sensor on ultrasonic (+X = beam, origin = transducer front faces).
+       Datasheet: 0.02-4.0 m, 15 deg measuring angle, 3 mm resolution, 40 kHz, >= 60 ms period.
+       ROS: sensor_msgs/Range with header.frame_id "ultrasonic", ULTRASOUND (0), fov 0.261799 rad, min 0.02, max 4.0. -->
+  <sensor name="ultrasonic_front" update_rate="15">
+    <parent link="ultrasonic" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <ray>
+      <horizontal samples="5" resolution="1" min_angle="-0.1309" max_angle="0.1309" />
+      <vertical samples="5" resolution="1" min_angle="-0.1309" max_angle="0.1309" />
+    </ray>
+  </sensor>
+  <!-- ROBOTIS LDS-03 (COIN-D4) 360 deg 2D ToF LiDAR at lowest waffle-deck center (+X = 0 rad, CCW).
+       ROS: sensor_msgs/LaserScan with header.frame_id "lidar", min 0.10 m, max 12.0 m, 10 Hz. -->
+  <sensor name="lidar_2d" update_rate="10">
+    <parent link="lidar" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <ray>
+      <horizontal samples="720" resolution="1" min_angle="0" max_angle="6.2831853" />
+      <vertical samples="1" resolution="1" min_angle="0" max_angle="0" />
+    </ray>
+  </sensor>
+</robot>
