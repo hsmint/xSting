@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-11-14T23:19:46.509360+00:00",
+  "library": "skrl",
+  "metadata": {
+    "agent": "skrl_cfg_entry_point",
+    "algorithm": "ppo",
+    "ml_framework": "torch"
+  },
+  "task": "Isaac-XSting-CarpetWalk-Direct-v0",
+  "version": 1
+}
