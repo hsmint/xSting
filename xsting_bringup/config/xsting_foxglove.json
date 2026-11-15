@@ -1,0 +1,1163 @@
+{
+  "configById": {
+    "3D!cuvslam": {
+      "foxglovePanelTitle": "cuVSLAM 3D (경로 · 특징점 · 랜드마크)",
+      "fixedFrame": "odom",
+      "followTf": "odom",
+      "followMode": "follow-pose",
+      "layers": {
+        "22222222-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "22222222-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "divisions": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 1
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 4.5,
+        "phi": 55,
+        "thetaOffset": 45,
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#1e2229",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": true,
+          "labelSize": 0.08,
+          "axisSize": 0.2,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "map": {
+          "visible": true
+        },
+        "odom": {
+          "visible": true
+        },
+        "base": {
+          "visible": true
+        }
+      },
+      "topics": {
+        "/visual_slam/tracking/slam_path": {
+          "visible": true,
+          "lineWidth": 0.04,
+          "gradient": [
+            "#19ff00ff",
+            "#19ff00ff"
+          ]
+        },
+        "/visual_slam/tracking/vo_path": {
+          "visible": true,
+          "lineWidth": 0.025,
+          "gradient": [
+            "#00bfffff",
+            "#00bfffff"
+          ]
+        },
+        "/visual_slam/tracking/odometry": {
+          "visible": true
+        },
+        "/visual_slam/tracking/vo_pose": {
+          "visible": true
+        },
+        "/visual_slam/vis/observations_cloud": {
+          "visible": true,
+          "pointSize": 5,
+          "colorMode": "flat",
+          "flatColor": "#00e5ffff"
+        },
+        "/visual_slam/vis/landmarks_cloud": {
+          "visible": true,
+          "pointSize": 4,
+          "colorMode": "flat",
+          "flatColor": "#ff00ffff"
+        },
+        "/visual_slam/vis/loop_closure_cloud": {
+          "visible": true,
+          "pointSize": 6,
+          "colorMode": "flat",
+          "flatColor": "#ffff00ff"
+        },
+        "/visual_slam/vis/pose_graph_nodes": {
+          "visible": true
+        },
+        "/visual_slam/vis/pose_graph_edges": {
+          "visible": true
+        }
+      },
+      "publish": {
+        "type": "pose_estimate",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "3D!nvblox": {
+      "foxglovePanelTitle": "nvblox 2D/3D 맵 (Occupancy · ESDF · 복셀)",
+      "fixedFrame": "odom",
+      "followTf": "odom",
+      "followMode": "follow-pose",
+      "layers": {
+        "33333333-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "33333333-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "divisions": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 1
+        },
+        "33333333-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "33333333-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 4.5,
+        "phi": 55,
+        "thetaOffset": 45,
+        "targetOffset": [
+          0.4,
+          0,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#22252a",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": false,
+          "showLabel": false,
+          "axisSize": 0.15,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {},
+      "topics": {
+        "/nvblox_node/static_occupancy_grid": {
+          "visible": true
+        },
+        "/nvblox_node/static_esdf_pointcloud": {
+          "visible": true,
+          "pointSize": 5,
+          "colorField": "intensity",
+          "colorMode": "colormap",
+          "colorMap": "rainbow"
+        },
+        "/nvblox_node/color_layer_marker": {
+          "visible": true
+        },
+        "/nvblox_node/tsdf_layer_marker": {
+          "visible": false
+        },
+        "/nvblox_node/esdf_slice_bounds": {
+          "visible": false
+        },
+        "/nvblox_node/workspace_bounds": {
+          "visible": false
+        }
+      },
+      "publish": {
+        "type": "pose",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Plot!cuvslam_pose": {
+      "foxglovePanelTitle": "cuVSLAM 실시간 위치 Plot (x·y·z)",
+      "paths": [
+        {
+          "value": "/visual_slam/tracking/odometry.pose.pose.position.x",
+          "label": "x (m)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ff5252",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/visual_slam/tracking/odometry.pose.pose.position.y",
+          "label": "y (m)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4ade80",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/visual_slam/tracking/odometry.pose.pose.position.z",
+          "label": "z (m)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#38bdf8",
+          "lineSize": 1.5,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 20,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "RosOut!slam_log": {
+      "foxglovePanelTitle": "Action · 노드 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {}
+    },
+    "3D!urdf_yolo": {
+      "foxglovePanelTitle": "로봇 URDF + 결합 3D YOLO (base)",
+      "fixedFrame": "base",
+      "followTf": "base",
+      "followMode": "follow-pose",
+      "layers": {
+        "11111111-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "11111111-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 4,
+          "divisions": 8,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 1
+        },
+        "11111111-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "11111111-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 1.8,
+        "phi": 60,
+        "thetaOffset": -60,
+        "targetOffset": [
+          0.25,
+          0,
+          0.15
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#22252a",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": false,
+          "axisSize": 0.12,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "base": {
+          "visible": true
+        },
+        "camera_color_frame": {
+          "visible": true
+        },
+        "arducam_frame": {
+          "visible": true
+        }
+      },
+      "topics": {
+        "/detections_3d/scene": {
+          "visible": true
+        },
+        "/detections_3d/points": {
+          "visible": true,
+          "pointSize": 6,
+          "colorMode": "rgb",
+          "rgbByteOrder": "bgra"
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Image!arducam": {
+      "foxglovePanelTitle": "로봇팔 카메라 (/arducam)",
+      "imageMode": {
+        "imageTopic": "/arducam/image_rect/compressed",
+        "rectifyImage": false
+      },
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {}
+    },
+    "RawMessages!sign_yolo": {
+      "foxglovePanelTitle": "신호등 YOLO (/sign_yolo/detections)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sign_yolo/detections",
+      "expansion": "all"
+    },
+    "RawMessages!yolo_3d": {
+      "foxglovePanelTitle": "결합 3D YOLO 수치 (/detections_3d)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/detections_3d",
+      "expansion": "all"
+    },
+    "RosOut!yolo_log": {
+      "foxglovePanelTitle": "Action · 노드 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {}
+    },
+    "Tab!xsting_main": {
+      "activeTabIdx": 0,
+      "tabs": [
+        {
+          "title": "1. SLAM · 맵 (cuVSLAM + nvblox)",
+          "layout": {
+            "direction": "column",
+            "first": {
+              "direction": "row",
+              "first": "3D!cuvslam",
+              "second": "3D!nvblox",
+              "splitPercentage": 50
+            },
+            "second": {
+              "direction": "row",
+              "first": "Plot!cuvslam_pose",
+              "second": "RosOut!slam_log",
+              "splitPercentage": 45
+            },
+            "splitPercentage": 62
+          }
+        },
+        {
+          "title": "2. 비전 · 3D YOLO (URDF + 카메라 + PCA)",
+          "layout": {
+            "direction": "column",
+            "first": {
+              "direction": "row",
+              "first": "3D!urdf_yolo",
+              "second": "Image!arducam",
+              "splitPercentage": 60
+            },
+            "second": {
+              "direction": "row",
+              "first": {
+                "direction": "row",
+                "first": "RawMessages!sign_yolo",
+                "second": "RawMessages!yolo_3d",
+                "splitPercentage": 50
+              },
+              "second": "RosOut!yolo_log",
+              "splitPercentage": 55
+            },
+            "splitPercentage": 62
+          }
+        },
+        {
+          "title": "3. 보행 · 실측 보정 (Walk Calib)",
+          "layout": {
+            "direction": "column",
+            "first": {
+              "direction": "row",
+              "first": "3D!walk_calib_odom",
+              "second": {
+                "direction": "column",
+                "first": "Plot!walk_vel_xy",
+                "second": "Plot!walk_vel_wz",
+                "splitPercentage": 55
+              },
+              "splitPercentage": 52
+            },
+            "second": {
+              "direction": "row",
+              "first": {
+                "direction": "row",
+                "first": "RawMessages!walk_calib_info",
+                "second": "RawMessages!walk_calib_trial",
+                "splitPercentage": 52
+              },
+              "second": {
+                "direction": "column",
+                "first": "Publish!walk_calib_cmd",
+                "second": "RosOut!walk_calib_log",
+                "splitPercentage": 44
+              },
+              "splitPercentage": 62
+            },
+            "splitPercentage": 60
+          }
+        },
+        {
+          "title": "4. 보행 IMU · 관절 보정 (IMU & Joints)",
+          "layout": {
+            "direction": "column",
+            "first": {
+              "direction": "row",
+              "first": "3D!walk_calib_base",
+              "second": {
+                "direction": "column",
+                "first": "Plot!walk_imu_acc",
+                "second": "Plot!walk_imu_gyro",
+                "splitPercentage": 52
+              },
+              "splitPercentage": 48
+            },
+            "second": {
+              "direction": "row",
+              "first": "Plot!walk_leg_joints",
+              "second": {
+                "direction": "row",
+                "first": "RawMessages!walk_calib_info_tab2",
+                "second": "RosOut!walk_imu_joint_log",
+                "splitPercentage": 52
+              },
+              "splitPercentage": 38
+            },
+            "splitPercentage": 62
+          }
+        }
+      ]
+    },
+    "3D!walk_calib_odom": {
+      "foxglovePanelTitle": "보행 3D · 가상 줄자 · 주행 궤적 (odom)",
+      "fixedFrame": "odom",
+      "followTf": "base",
+      "followMode": "follow-none",
+      "layers": {
+        "44444444-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid (1m / 10cm)",
+          "instanceId": "44444444-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 4,
+          "divisions": 40,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 1
+        },
+        "44444444-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "44444444-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 1.85,
+        "phi": 52,
+        "thetaOffset": -45,
+        "targetOffset": [
+          0.25,
+          0.0,
+          0.08
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#1e2229",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": true,
+          "labelSize": 0.06,
+          "axisSize": 0.14,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "odom": {
+          "visible": true
+        },
+        "base": {
+          "visible": true
+        }
+      },
+      "topics": {
+        "/walk/vis": {
+          "visible": true
+        },
+        "/walk/calib_vis": {
+          "visible": true
+        },
+        "/walk/calib_path": {
+          "visible": true,
+          "lineWidth": 0.018,
+          "gradient": [
+            "#26ff5cff",
+            "#26ff5cff"
+          ]
+        },
+        "/visual_slam/tracking/slam_path": {
+          "visible": true,
+          "lineWidth": 0.015,
+          "gradient": [
+            "#00e5ffff",
+            "#00e5ffff"
+          ]
+        },
+        "/visual_slam/tracking/odometry": {
+          "visible": false
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "3D!walk_calib_base": {
+      "foxglovePanelTitle": "6족 FK · 지지/스윙 · 보정 중력 벡터 (base)",
+      "fixedFrame": "base",
+      "followTf": "base",
+      "followMode": "follow-pose",
+      "layers": {
+        "55555555-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "55555555-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 2,
+          "divisions": 20,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            -0.14
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 1
+        },
+        "55555555-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "55555555-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 1.05,
+        "phi": 62,
+        "thetaOffset": -38,
+        "targetOffset": [
+          0.04,
+          0.0,
+          0.04
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#22252a",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": false,
+          "axisSize": 0.12,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "base": {
+          "visible": true
+        },
+        "imu": {
+          "visible": true
+        }
+      },
+      "topics": {
+        "/walk/vis": {
+          "visible": true
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Plot!walk_vel_xy": {
+      "foxglovePanelTitle": "선속도 비교: 목표 vs 보정명령 vs 실측 (m/s)",
+      "paths": [
+        {
+          "value": "/walk/cmd_user.twist.linear.x",
+          "label": "목표 vx",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#00e5ff",
+          "lineSize": 1.8,
+          "showLine": true
+        },
+        {
+          "value": "/walk/cmd_calibrated.twist.linear.x",
+          "label": "보정명령 vx (scale)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ff9800",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/walk/vel_measured.twist.linear.x",
+          "label": "실측 vx (SLAM/기구학)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4ade80",
+          "lineSize": 2.0,
+          "showLine": true
+        },
+        {
+          "value": "/walk/cmd_user.twist.linear.y",
+          "label": "목표 vy",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#a78bfa",
+          "lineSize": 1.4,
+          "showLine": true
+        },
+        {
+          "value": "/walk/cmd_calibrated.twist.linear.y",
+          "label": "보정명령 vy (drift 포함)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#f472b6",
+          "lineSize": 1.4,
+          "showLine": true
+        },
+        {
+          "value": "/walk/vel_measured.twist.linear.y",
+          "label": "실측 vy",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#facc15",
+          "lineSize": 1.8,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 15,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "Plot!walk_vel_wz": {
+      "foxglovePanelTitle": "회전 각속도 & 직진 요 편향 비교 (rad/s · deg)",
+      "paths": [
+        {
+          "value": "/walk/cmd_user.twist.angular.z",
+          "label": "목표 wz (rad/s)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#00e5ff",
+          "lineSize": 1.8,
+          "showLine": true
+        },
+        {
+          "value": "/walk/cmd_calibrated.twist.angular.z",
+          "label": "보정명령 wz (scale+drift)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ff9800",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/walk/vel_measured.twist.angular.z",
+          "label": "실측 IMU wz (rad/s)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4ade80",
+          "lineSize": 2.0,
+          "showLine": true
+        },
+        {
+          "value": "/walk/status.data[13]",
+          "label": "직진 헤딩 오차 (deg)",
+          "enabled": false,
+          "timestampMethod": "receiveTime",
+          "color": "#ff5252",
+          "lineSize": 1.4,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 15,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "Plot!walk_imu_acc": {
+      "foxglovePanelTitle": "IMU 선가속도 보정 전 vs 보정 후 (평지 기준 [0, 0, +9.81] m/s²)",
+      "paths": [
+        {
+          "value": "/imu_broadcaster/imu.linear_acceleration.x",
+          "label": "원시 acc_x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#fca5a5",
+          "lineSize": 1.1,
+          "showLine": true
+        },
+        {
+          "value": "/walk/imu_calibrated.linear_acceleration.x",
+          "label": "보정후 acc_x (0 수렴)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ef4444",
+          "lineSize": 2.0,
+          "showLine": true
+        },
+        {
+          "value": "/imu_broadcaster/imu.linear_acceleration.y",
+          "label": "원시 acc_y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#86efac",
+          "lineSize": 1.1,
+          "showLine": true
+        },
+        {
+          "value": "/walk/imu_calibrated.linear_acceleration.y",
+          "label": "보정후 acc_y (0 수렴)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#22c55e",
+          "lineSize": 2.0,
+          "showLine": true
+        },
+        {
+          "value": "/imu_broadcaster/imu.linear_acceleration.z",
+          "label": "원시 acc_z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#93c5fd",
+          "lineSize": 1.1,
+          "showLine": true
+        },
+        {
+          "value": "/walk/imu_calibrated.linear_acceleration.z",
+          "label": "보정후 acc_z (+9.81 수렴)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#3b82f6",
+          "lineSize": 2.0,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 15,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "Plot!walk_imu_gyro": {
+      "foxglovePanelTitle": "IMU 자이로 보정 전 vs 보정 후 (정지 시 0.000 rad/s)",
+      "paths": [
+        {
+          "value": "/imu_broadcaster/imu.angular_velocity.x",
+          "label": "원시 gyro_x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#fca5a5",
+          "lineSize": 1.1,
+          "showLine": true
+        },
+        {
+          "value": "/walk/imu_calibrated.angular_velocity.x",
+          "label": "보정후 gyro_x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ef4444",
+          "lineSize": 1.9,
+          "showLine": true
+        },
+        {
+          "value": "/imu_broadcaster/imu.angular_velocity.y",
+          "label": "원시 gyro_y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#86efac",
+          "lineSize": 1.1,
+          "showLine": true
+        },
+        {
+          "value": "/walk/imu_calibrated.angular_velocity.y",
+          "label": "보정후 gyro_y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#22c55e",
+          "lineSize": 1.9,
+          "showLine": true
+        },
+        {
+          "value": "/imu_broadcaster/imu.angular_velocity.z",
+          "label": "원시 gyro_z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#93c5fd",
+          "lineSize": 1.1,
+          "showLine": true
+        },
+        {
+          "value": "/walk/imu_calibrated.angular_velocity.z",
+          "label": "보정후 gyro_z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#3b82f6",
+          "lineSize": 1.9,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 15,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "Plot!walk_leg_joints": {
+      "foxglovePanelTitle": "다리 관절각 피드백 (/joint_states - 부호·기립 확인)",
+      "paths": [
+        {
+          "value": "/joint_states.position[0]",
+          "label": "leg1_yaw (rad)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ff5252",
+          "lineSize": 1.6,
+          "showLine": true
+        },
+        {
+          "value": "/joint_states.position[1]",
+          "label": "leg1_hip (rad)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4ade80",
+          "lineSize": 1.6,
+          "showLine": true
+        },
+        {
+          "value": "/joint_states.position[2]",
+          "label": "leg1_knee (rad)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#38bdf8",
+          "lineSize": 1.6,
+          "showLine": true
+        },
+        {
+          "value": "/joint_states.position[9]",
+          "label": "leg4_yaw (rad)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#facc15",
+          "lineSize": 1.4,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 12,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "RawMessages!walk_calib_info": {
+      "foxglovePanelTitle": "현재 적용된 실측 보정값 (/walk/calib_info)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/walk/calib_info",
+      "expansion": "all"
+    },
+    "RawMessages!walk_calib_trial": {
+      "foxglovePanelTitle": "실측 시험 주행 · 계측 결과 (/walk/calib_trial)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/walk/calib_trial",
+      "expansion": "all"
+    },
+    "RawMessages!walk_calib_info_tab2": {
+      "foxglovePanelTitle": "IMU · 관절 실측 보정 상태 (/walk/calib_info)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/walk/calib_info",
+      "expansion": "all"
+    },
+    "Publish!walk_calib_cmd": {
+      "foxglovePanelTitle": "Foxglove 실측 보정 즉시 반영 (/walk/calib_cmd)",
+      "topicName": "/walk/calib_cmd",
+      "datatype": "std_msgs/msg/String",
+      "buttonText": "보정 명령 적용",
+      "buttonTooltip": "예: reload | clear_vis | vx_scale=1.08 | swing_clearance=0.040 | apply_vx:0.20:3.0:0.56:0.01",
+      "buttonColor": "#00a878",
+      "advancedView": true,
+      "value": "{\n  \"data\": \"reload\"\n}"
+    },
+    "RosOut!walk_calib_log": {
+      "foxglovePanelTitle": "보행 · 실측 보정 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [
+        "walk_node",
+        "calib_gait_node",
+        "calib_imu_node",
+        "calib_joints_node"
+      ],
+      "nameFilter": {}
+    },
+    "RosOut!walk_imu_joint_log": {
+      "foxglovePanelTitle": "IMU · 관절 보정 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [
+        "calib_imu_node",
+        "calib_joints_node",
+        "walk_node"
+      ],
+      "nameFilter": {}
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {
+    "d3d00001-5873-4f62-9a11-000000000001": {
+      "name": "detections_3d_scene",
+      "sourceCode": "import { Input } from \"./types.ts\";\nimport {\n  SceneUpdate,\n  SceneEntity,\n  SceneEntityDeletionType,\n  Color,\n} from \"@foxglove/schemas\";\n\nexport const inputs = [\"/detections_3d\"];\nexport const output = \"/detections_3d/scene\";\n\nfunction classColor(cls: string, alpha: number): Color {\n  if (cls.startsWith(\"red_\")) {\n    return { r: 1.0, g: 0.2, b: 0.2, a: alpha };\n  }\n  if (cls.startsWith(\"green_\")) {\n    return { r: 0.15, g: 0.95, b: 0.3, a: alpha };\n  }\n  if (cls === \"paper_box\") {\n    return { r: 0.95, g: 0.65, b: 0.2, a: alpha };\n  }\n  return { r: 0.2, g: 0.8, b: 1.0, a: alpha };\n}\n\nexport default function script(\n  event: Input<\"/detections_3d\">,\n): SceneUpdate {\n  const msg = event.message;\n  const stamp = event.receiveTime;\n  const frameId = msg.header.frame_id || \"base\";\n  const entities: SceneEntity[] = [];\n  const halfSqrt2 = Math.SQRT1_2;\n\n  for (let i = 0; i < msg.detections.length; i++) {\n    const det = msg.detections[i];\n    if (!det) {\n      continue;\n    }\n    const hyp = det.results[0]?.hypothesis;\n    const cls = hyp?.class_id ?? \"obj\";\n    const score = hyp?.score ?? 0;\n    const pos = det.bbox.center.position;\n    const ori = det.bbox.center.orientation;\n    const sz = det.bbox.size;\n    const isCyl = cls.includes(\"cylinder\");\n    const boxColor = classColor(cls, 0.55);\n    const solidColor = classColor(cls, 1.0);\n    const pose = {\n      position: { x: pos.x, y: pos.y, z: pos.z },\n      orientation: { x: ori.x, y: ori.y, z: ori.z, w: ori.w },\n    };\n    const size = {\n      x: Math.max(0.01, sz.x),\n      y: Math.max(0.01, sz.y),\n      z: Math.max(0.01, sz.z),\n    };\n    const cylPose = {\n      position: { x: pos.x, y: pos.y, z: pos.z },\n      orientation: {\n        x: halfSqrt2 * (ori.x - ori.z),\n        y: halfSqrt2 * (ori.w + ori.y),\n        z: halfSqrt2 * (ori.x + ori.z),\n        w: halfSqrt2 * (ori.w - ori.y),\n      },\n    };\n    const cylSize = {\n      x: size.z,\n      y: size.y,\n      z: size.x,\n    };\n    const maxHalf = Math.max(size.x, size.y, size.z) * 0.5;\n    const label = `${cls} ${(score * 100).toFixed(0)}% (${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)})`;\n\n    entities.push({\n      timestamp: stamp,\n      frame_id: frameId,\n      id: `det_${i}`,\n      lifetime: { sec: 0, nsec: 300000000 },\n      frame_locked: true,\n      metadata: [],\n      arrows: [\n        {\n          pose,\n          shaft_length: Math.max(0.04, size.x * 0.6),\n          shaft_diameter: 0.008,\n          head_length: 0.025,\n          head_diameter: 0.018,\n          color: { r: 1.0, g: 0.95, b: 0.1, a: 1.0 },\n        },\n      ],\n      cubes: isCyl ? [] : [{ pose, size, color: boxColor }],\n      spheres: [],\n      cylinders: isCyl\n        ? [{ pose: cylPose, size: cylSize, bottom_scale: 1.0, top_scale: 1.0, color: boxColor }]\n        : [],\n      lines: [],\n      triangles: [],\n      texts: [\n        {\n          pose: {\n            position: {\n              x: pos.x,\n              y: pos.y,\n              z: pos.z + Math.max(0.04, maxHalf + 0.04),\n            },\n            orientation: { x: 0, y: 0, z: 0, w: 1 },\n          },\n          billboard: true,\n          font_size: 13,\n          scale_invariant: true,\n          color: solidColor,\n          text: label,\n        },\n      ],\n      models: [],\n    });\n  }\n\n  const update: SceneUpdate = {\n    deletions: [\n      {\n        timestamp: stamp,\n        type: SceneEntityDeletionType.ALL,\n        id: \"\",\n      },\n    ],\n    entities,\n  };\n  return update;\n}\n"
+    }
+  },
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": "Tab!xsting_main"
+}

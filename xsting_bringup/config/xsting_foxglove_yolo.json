@@ -1,0 +1,163 @@
+{
+  "configById": {
+    "3D!urdf_yolo": {
+      "foxglovePanelTitle": "로봇 URDF + 결합 3D YOLO (base)",
+      "fixedFrame": "base",
+      "followTf": "base",
+      "followMode": "follow-pose",
+      "layers": {
+        "11111111-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "11111111-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 4,
+          "divisions": 8,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "order": 1
+        },
+        "11111111-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "11111111-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 1.8,
+        "phi": 60,
+        "thetaOffset": -60,
+        "targetOffset": [0.25, 0, 0.15],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#22252a",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": false,
+          "axisSize": 0.12,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "base": {
+          "visible": true
+        },
+        "camera_color_frame": {
+          "visible": true
+        },
+        "arducam_frame": {
+          "visible": true
+        }
+      },
+      "topics": {
+        "/detections_3d/scene": {
+          "visible": true
+        },
+        "/detections_3d/points": {
+          "visible": true,
+          "pointSize": 6,
+          "colorMode": "rgb",
+          "rgbByteOrder": "bgra"
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Image!arducam": {
+      "foxglovePanelTitle": "로봇팔 카메라 (/arducam)",
+      "imageMode": {
+        "imageTopic": "/arducam/image_rect/compressed",
+        "rectifyImage": false
+      },
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {}
+    },
+    "RawMessages!sign_yolo": {
+      "foxglovePanelTitle": "신호등 YOLO (/sign_yolo/detections)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sign_yolo/detections",
+      "expansion": "all"
+    },
+    "RawMessages!yolo_3d": {
+      "foxglovePanelTitle": "결합 3D YOLO 수치 (/detections_3d)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/detections_3d",
+      "expansion": "all"
+    },
+    "RosOut!action_log": {
+      "foxglovePanelTitle": "Action · 노드 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {}
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {
+    "d3d00001-5873-4f62-9a11-000000000001": {
+      "name": "detections_3d_scene",
+      "sourceCode": "import { Input } from \"./types.ts\";\nimport {\n  SceneUpdate,\n  SceneEntity,\n  SceneEntityDeletionType,\n  Color,\n} from \"@foxglove/schemas\";\n\nexport const inputs = [\"/detections_3d\"];\nexport const output = \"/detections_3d/scene\";\n\nfunction classColor(cls: string, alpha: number): Color {\n  if (cls.startsWith(\"red_\")) {\n    return { r: 1.0, g: 0.2, b: 0.2, a: alpha };\n  }\n  if (cls.startsWith(\"green_\")) {\n    return { r: 0.15, g: 0.95, b: 0.3, a: alpha };\n  }\n  if (cls === \"paper_box\") {\n    return { r: 0.95, g: 0.65, b: 0.2, a: alpha };\n  }\n  return { r: 0.2, g: 0.8, b: 1.0, a: alpha };\n}\n\nexport default function script(\n  event: Input<\"/detections_3d\">,\n): SceneUpdate {\n  const msg = event.message;\n  const stamp = event.receiveTime;\n  const frameId = msg.header.frame_id || \"base\";\n  const entities: SceneEntity[] = [];\n  const halfSqrt2 = Math.SQRT1_2;\n\n  for (let i = 0; i < msg.detections.length; i++) {\n    const det = msg.detections[i];\n    if (!det) {\n      continue;\n    }\n    const hyp = det.results[0]?.hypothesis;\n    const cls = hyp?.class_id ?? \"obj\";\n    const score = hyp?.score ?? 0;\n    const pos = det.bbox.center.position;\n    const ori = det.bbox.center.orientation;\n    const sz = det.bbox.size;\n    const isCyl = cls.includes(\"cylinder\");\n    const boxColor = classColor(cls, 0.55);\n    const solidColor = classColor(cls, 1.0);\n    const pose = {\n      position: { x: pos.x, y: pos.y, z: pos.z },\n      orientation: { x: ori.x, y: ori.y, z: ori.z, w: ori.w },\n    };\n    const size = {\n      x: Math.max(0.01, sz.x),\n      y: Math.max(0.01, sz.y),\n      z: Math.max(0.01, sz.z),\n    };\n    const cylPose = {\n      position: { x: pos.x, y: pos.y, z: pos.z },\n      orientation: {\n        x: halfSqrt2 * (ori.x - ori.z),\n        y: halfSqrt2 * (ori.w + ori.y),\n        z: halfSqrt2 * (ori.x + ori.z),\n        w: halfSqrt2 * (ori.w - ori.y),\n      },\n    };\n    const cylSize = {\n      x: size.z,\n      y: size.y,\n      z: size.x,\n    };\n    const maxHalf = Math.max(size.x, size.y, size.z) * 0.5;\n    const label = `${cls} ${(score * 100).toFixed(0)}% (${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)})`;\n\n    entities.push({\n      timestamp: stamp,\n      frame_id: frameId,\n      id: `det_${i}`,\n      lifetime: { sec: 0, nsec: 300000000 },\n      frame_locked: true,\n      metadata: [],\n      arrows: [\n        {\n          pose,\n          shaft_length: Math.max(0.04, size.x * 0.6),\n          shaft_diameter: 0.008,\n          head_length: 0.025,\n          head_diameter: 0.018,\n          color: { r: 1.0, g: 0.95, b: 0.1, a: 1.0 },\n        },\n      ],\n      cubes: isCyl ? [] : [{ pose, size, color: boxColor }],\n      spheres: [],\n      cylinders: isCyl\n        ? [{ pose: cylPose, size: cylSize, bottom_scale: 1.0, top_scale: 1.0, color: boxColor }]\n        : [],\n      lines: [],\n      triangles: [],\n      texts: [\n        {\n          pose: {\n            position: {\n              x: pos.x,\n              y: pos.y,\n              z: pos.z + Math.max(0.04, maxHalf + 0.04),\n            },\n            orientation: { x: 0, y: 0, z: 0, w: 1 },\n          },\n          billboard: true,\n          font_size: 13,\n          scale_invariant: true,\n          color: solidColor,\n          text: label,\n        },\n      ],\n      models: [],\n    });\n  }\n\n  const update: SceneUpdate = {\n    deletions: [\n      {\n        timestamp: stamp,\n        type: SceneEntityDeletionType.ALL,\n        id: \"\",\n      },\n    ],\n    entities,\n  };\n  return update;\n}\n"
+    }
+  },
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "column",
+    "first": {
+      "direction": "row",
+      "first": "3D!urdf_yolo",
+      "second": "Image!arducam",
+      "splitPercentage": 60
+    },
+    "second": {
+      "direction": "row",
+      "first": {
+        "direction": "row",
+        "first": "RawMessages!sign_yolo",
+        "second": "RawMessages!yolo_3d",
+        "splitPercentage": 50
+      },
+      "second": "RosOut!action_log",
+      "splitPercentage": 55
+    },
+    "splitPercentage": 62
+  }
+}

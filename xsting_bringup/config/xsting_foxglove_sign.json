@@ -1,0 +1,147 @@
+{
+  "configById": {
+    "Image!sign_cam": {
+      "foxglovePanelTitle": "전면 카메라 · 바코드 & 신호등 YOLO (/camera/color)",
+      "imageMode": {
+        "imageTopic": "/camera/color/image_raw/compressed",
+        "annotations": {
+          "/sign_yolo/annotations": {
+            "visible": true
+          }
+        },
+        "rectifyImage": false
+      },
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {}
+    },
+    "3D!sign_hud": {
+      "foxglovePanelTitle": "신호등 · 바코드 실시간 상태판 (12회 시퀀스 & 바코드)",
+      "fixedFrame": "base",
+      "followTf": "base",
+      "followMode": "follow-pose",
+      "layers": {
+        "44444444-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "44444444-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 2,
+          "divisions": 8,
+          "lineWidth": 1,
+          "color": "#2b3548",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "order": 1
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 1.35,
+        "phi": 82,
+        "thetaOffset": 0,
+        "targetOffset": [0.02, 0, 0.36],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#181b20",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": false,
+          "showLabel": false,
+          "axisSize": 0.1,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {},
+      "topics": {
+        "/sign_yolo/hud_scene": {
+          "visible": true
+        },
+        "/sign_barcode/hud_scene": {
+          "visible": true
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "RawMessages!action_fb": {
+      "foxglovePanelTitle": "Action 진행 피드백 (/read_sign_barcode/_action/feedback)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/read_sign_barcode/_action/feedback",
+      "expansion": "all"
+    },
+    "RawMessages!sign_det": {
+      "foxglovePanelTitle": "신호등 YOLO 검출 (/sign_yolo/detections)",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sign_yolo/detections",
+      "expansion": "all"
+    },
+    "RosOut!sign_log": {
+      "foxglovePanelTitle": "신호등 · 바코드 Action 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {}
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {
+    "51a00001-5873-4f62-9a11-000000000001": {
+      "name": "sign_yolo_annotations",
+      "sourceCode": "import { Input } from \"./types.ts\";\nimport {\n  ImageAnnotations,\n  PointsAnnotation,\n  PointsAnnotationType,\n  TextAnnotation,\n  Color,\n} from \"@foxglove/schemas\";\n\nexport const inputs = [\"/sign_yolo/detections\"];\nexport const output = \"/sign_yolo/annotations\";\n\nfunction lampStyle(cls: string): { name: string; color: Color; bg: Color } {\n  if (cls === \"1\" || cls === \"sign_tower_R\") {\n    return {\n      name: \"RED\",\n      color: { r: 1.0, g: 0.22, b: 0.22, a: 1.0 },\n      bg: { r: 0.35, g: 0.04, b: 0.04, a: 0.85 },\n    };\n  }\n  if (cls === \"2\" || cls === \"sign_tower_Y\") {\n    return {\n      name: \"YELLOW\",\n      color: { r: 1.0, g: 0.88, b: 0.15, a: 1.0 },\n      bg: { r: 0.35, g: 0.28, b: 0.02, a: 0.85 },\n    };\n  }\n  if (cls === \"3\" || cls === \"sign_tower_G\") {\n    return {\n      name: \"GREEN\",\n      color: { r: 0.18, g: 0.95, b: 0.38, a: 1.0 },\n      bg: { r: 0.03, g: 0.32, b: 0.1, a: 0.85 },\n    };\n  }\n  if (cls === \"0\" || cls === \"sign_tower\") {\n    return {\n      name: \"OFF\",\n      color: { r: 0.65, g: 0.78, b: 0.95, a: 1.0 },\n      bg: { r: 0.12, g: 0.16, b: 0.24, a: 0.85 },\n    };\n  }\n  return {\n    name: cls,\n    color: { r: 0.8, g: 0.8, b: 0.8, a: 1.0 },\n    bg: { r: 0.15, g: 0.15, b: 0.15, a: 0.85 },\n  };\n}\n\nexport default function script(\n  event: Input<\"/sign_yolo/detections\">,\n): ImageAnnotations {\n  const msg = event.message;\n  const stamp = msg.header.stamp;\n  const points: PointsAnnotation[] = [];\n  const texts: TextAnnotation[] = [];\n\n  for (let i = 0; i < msg.detections.length; i++) {\n    const det = msg.detections[i];\n    if (!det || det.results.length === 0) {\n      continue;\n    }\n    const hyp = det.results[0]?.hypothesis;\n    const cls = hyp?.class_id ?? \"\";\n    const score = hyp?.score ?? 0;\n    const cx = det.bbox.center.position.x;\n    const cy = det.bbox.center.position.y;\n    const hw = det.bbox.size_x * 0.5;\n    const hh = det.bbox.size_y * 0.5;\n    const x0 = cx - hw;\n    const y0 = cy - hh;\n    const x1 = cx + hw;\n    const y1 = cy + hh;\n    const style = lampStyle(cls);\n\n    points.push({\n      timestamp: stamp,\n      type: PointsAnnotationType.LINE_LOOP,\n      points: [\n        { x: x0, y: y0 },\n        { x: x1, y: y0 },\n        { x: x1, y: y1 },\n        { x: x0, y: y1 },\n      ],\n      outline_color: style.color,\n      outline_colors: [],\n      fill_color: { r: style.color.r, g: style.color.g, b: style.color.b, a: 0.1 },\n      thickness: 3,\n    });\n\n    texts.push({\n      timestamp: stamp,\n      position: { x: x0, y: Math.max(18, y0 - 8) },\n      text: `${style.name} ${(score * 100).toFixed(0)}%`,\n      font_size: 16,\n      text_color: style.color,\n      background_color: style.bg,\n    });\n  }\n\n  return { circles: [], points, texts };\n}\n"
+    },
+    "51a00001-5873-4f62-9a11-000000000002": {
+      "name": "sign_tower_hud",
+      "sourceCode": "import { Input } from \"./types.ts\";\nimport {\n  SceneUpdate,\n  SceneEntity,\n  SceneEntityDeletionType,\n  Color,\n} from \"@foxglove/schemas\";\n\nexport const inputs = [\"/sign_yolo/detections\"];\nexport const output = \"/sign_yolo/hud_scene\";\n\nfunction mapLamp(cls: string): string {\n  if (cls === \"0\" || cls === \"sign_tower\") return \"OFF\";\n  if (cls === \"1\" || cls === \"sign_tower_R\") return \"R\";\n  if (cls === \"2\" || cls === \"sign_tower_Y\") return \"Y\";\n  if (cls === \"3\" || cls === \"sign_tower_G\") return \"G\";\n  return \"NONE\";\n}\n\nexport default function script(\n  event: Input<\"/sign_yolo/detections\">,\n): SceneUpdate {\n  const msg = event.message;\n  const stamp = event.receiveTime;\n  let bestLamp = \"NONE\";\n  let bestScore = 0.5;\n\n  for (let i = 0; i < msg.detections.length; i++) {\n    const det = msg.detections[i];\n    if (!det) continue;\n    for (let j = 0; j < det.results.length; j++) {\n      const res = det.results[j];\n      if (!res) continue;\n      const lamp = mapLamp(res.hypothesis.class_id);\n      if (lamp !== \"NONE\" && res.hypothesis.score >= bestScore) {\n        bestScore = res.hypothesis.score;\n        bestLamp = lamp;\n      }\n    }\n  }\n\n  const isR = bestLamp === \"R\";\n  const isY = bestLamp === \"Y\";\n  const isG = bestLamp === \"G\";\n  const q = { x: 0, y: 0, z: 0, w: 1 };\n\n  let statusText = \"신호등: 미검출\";\n  let statusColor: Color = { r: 0.6, g: 0.65, b: 0.72, a: 1.0 };\n  if (bestLamp === \"OFF\") {\n    statusText = `신호등: OFF 소등 (${(bestScore * 100).toFixed(0)}%)`;\n    statusColor = { r: 0.75, g: 0.85, b: 1.0, a: 1.0 };\n  } else if (isR) {\n    statusText = `신호등: RED (${(bestScore * 100).toFixed(0)}%)`;\n    statusColor = { r: 1.0, g: 0.28, b: 0.28, a: 1.0 };\n  } else if (isY) {\n    statusText = `신호등: YELLOW (${(bestScore * 100).toFixed(0)}%)`;\n    statusColor = { r: 1.0, g: 0.9, b: 0.2, a: 1.0 };\n  } else if (isG) {\n    statusText = `신호등: GREEN (${(bestScore * 100).toFixed(0)}%)`;\n    statusColor = { r: 0.2, g: 0.95, b: 0.4, a: 1.0 };\n  }\n\n  const rSize = isR ? 0.115 : 0.085;\n  const ySize = isY ? 0.115 : 0.085;\n  const gSize = isG ? 0.115 : 0.085;\n\n  const entity: SceneEntity = {\n    timestamp: stamp,\n    frame_id: \"base\",\n    id: \"sign_tower\",\n    lifetime: { sec: 1, nsec: 0 },\n    frame_locked: true,\n    metadata: [],\n    arrows: [],\n    cubes: [\n      {\n        pose: { position: { x: -0.45, y: 0.02, z: 0.36 }, orientation: q },\n        size: { x: 0.16, y: 0.09, z: 0.50 },\n        color: { r: 0.16, g: 0.18, b: 0.22, a: 0.95 },\n      },\n      {\n        pose: { position: { x: -0.45, y: 0.02, z: 0.10 }, orientation: q },\n        size: { x: 0.24, y: 0.16, z: 0.025 },\n        color: { r: 0.28, g: 0.31, b: 0.38, a: 0.95 },\n      },\n    ],\n    spheres: [\n      {\n        pose: { position: { x: -0.45, y: -0.03, z: 0.51 }, orientation: q },\n        size: { x: rSize, y: rSize, z: rSize },\n        color: isR\n          ? { r: 1.0, g: 0.18, b: 0.18, a: 1.0 }\n          : { r: 0.45, g: 0.1, b: 0.1, a: 0.28 },\n      },\n      {\n        pose: { position: { x: -0.45, y: -0.03, z: 0.36 }, orientation: q },\n        size: { x: ySize, y: ySize, z: ySize },\n        color: isY\n          ? { r: 1.0, g: 0.88, b: 0.12, a: 1.0 }\n          : { r: 0.45, g: 0.38, b: 0.08, a: 0.28 },\n      },\n      {\n        pose: { position: { x: -0.45, y: -0.03, z: 0.21 }, orientation: q },\n        size: { x: gSize, y: gSize, z: gSize },\n        color: isG\n          ? { r: 0.15, g: 0.95, b: 0.35, a: 1.0 }\n          : { r: 0.08, g: 0.42, b: 0.15, a: 0.28 },\n      },\n    ],\n    cylinders: [],\n    lines: [],\n    triangles: [],\n    texts: [\n      {\n        pose: { position: { x: -0.45, y: 0.0, z: 0.67 }, orientation: q },\n        billboard: true,\n        font_size: 15,\n        scale_invariant: true,\n        color: statusColor,\n        text: statusText,\n      },\n    ],\n    models: [],\n  };\n\n  return {\n    deletions: [\n      {\n        timestamp: stamp,\n        type: SceneEntityDeletionType.ALL,\n        id: \"\",\n      },\n    ],\n    entities: [entity],\n  };\n}\n"
+    },
+    "51a00001-5873-4f62-9a11-000000000003": {
+      "name": "sign_action_hud",
+      "sourceCode": "import { Input } from \"./types.ts\";\nimport {\n  SceneUpdate,\n  SceneEntity,\n  SceneEntityDeletionType,\n  CubePrimitive,\n  TextPrimitive,\n  Color,\n} from \"@foxglove/schemas\";\n\nexport const inputs = [\"/read_sign_barcode/_action/feedback\"];\nexport const output = \"/sign_barcode/hud_scene\";\n\nfunction slotColor(ch: string): Color {\n  if (ch === \"R\") return { r: 1.0, g: 0.22, b: 0.22, a: 0.95 };\n  if (ch === \"Y\") return { r: 1.0, g: 0.88, b: 0.15, a: 0.95 };\n  if (ch === \"G\") return { r: 0.18, g: 0.95, b: 0.38, a: 0.95 };\n  return { r: 0.22, g: 0.25, b: 0.32, a: 0.65 };\n}\n\nexport default function script(\n  event: Input<\"/read_sign_barcode/_action/feedback\">,\n): SceneUpdate {\n  const raw: any = event.message;\n  const fb = raw.feedback ?? raw;\n  const seq: string = fb.sequence ?? \"\";\n  const barcode: string = fb.barcode ?? \"\";\n  const stamp = event.receiveTime;\n  const q = { x: 0, y: 0, z: 0, w: 1 };\n\n  const cubes: CubePrimitive[] = [];\n  const texts: TextPrimitive[] = [];\n\n  let rCnt = 0;\n  let yCnt = 0;\n  let gCnt = 0;\n  for (let i = 0; i < seq.length; i++) {\n    if (seq[i] === \"R\") rCnt++;\n    else if (seq[i] === \"Y\") yCnt++;\n    else if (seq[i] === \"G\") gCnt++;\n  }\n\n  for (let i = 0; i < 12; i++) {\n    const ch = i < seq.length ? (seq[i] ?? \"-\") : \"-\";\n    const x = -0.22 + i * 0.068;\n    const c = slotColor(ch);\n    cubes.push({\n      pose: { position: { x, y: 0.0, z: 0.35 }, orientation: q },\n      size: { x: 0.054, y: 0.04, z: 0.08 },\n      color: c,\n    });\n    texts.push({\n      pose: { position: { x, y: -0.03, z: 0.43 }, orientation: q },\n      billboard: true,\n      font_size: 13,\n      scale_invariant: true,\n      color: ch === \"-\" ? { r: 0.55, g: 0.6, b: 0.68, a: 1.0 } : c,\n      text: `${i + 1}:${ch}`,\n    });\n  }\n\n  let bcText = \"바코드: 해독 대기 중...\";\n  let bcColor: Color = { r: 0.7, g: 0.76, b: 0.85, a: 1.0 };\n  if (barcode === \"P2-01\" || barcode === \"P2-03\") {\n    bcText = `바코드: ${barcode}  [오름차순 · 적은 횟수부터]`;\n    bcColor = { r: 0.25, g: 0.92, b: 1.0, a: 1.0 };\n  } else if (barcode === \"P2-02\" || barcode === \"P2-04\") {\n    bcText = `바코드: ${barcode}  [내림차순 · 많은 횟수부터]`;\n    bcColor = { r: 1.0, g: 0.72, b: 0.25, a: 1.0 };\n  } else if (barcode.length > 0) {\n    bcText = `바코드: ${barcode}`;\n    bcColor = { r: 1.0, g: 0.4, b: 0.4, a: 1.0 };\n  }\n\n  cubes.push({\n    pose: { position: { x: 0.15, y: 0.02, z: 0.56 }, orientation: q },\n    size: { x: 0.78, y: 0.03, z: 0.09 },\n    color: { r: 0.14, g: 0.2, b: 0.28, a: 0.9 },\n  });\n\n  texts.push({\n    pose: { position: { x: 0.15, y: -0.02, z: 0.56 }, orientation: q },\n    billboard: true,\n    font_size: 16,\n    scale_invariant: true,\n    color: bcColor,\n    text: bcText,\n  });\n\n  texts.push({\n    pose: { position: { x: 0.15, y: 0.0, z: 0.20 }, orientation: q },\n    billboard: true,\n    font_size: 15,\n    scale_invariant: true,\n    color: { r: 0.92, g: 0.95, b: 1.0, a: 1.0 },\n    text: `점멸 기록: ${seq.length}/12   |   R: ${rCnt}   Y: ${yCnt}   G: ${gCnt}`,\n  });\n\n  const entity: SceneEntity = {\n    timestamp: stamp,\n    frame_id: \"base\",\n    id: \"sign_feedback_hud\",\n    lifetime: { sec: 0, nsec: 0 },\n    frame_locked: true,\n    metadata: [],\n    arrows: [],\n    cubes,\n    spheres: [],\n    cylinders: [],\n    lines: [],\n    triangles: [],\n    texts,\n    models: [],\n  };\n\n  return {\n    deletions: [\n      {\n        timestamp: stamp,\n        type: SceneEntityDeletionType.ALL,\n        id: \"\",\n      },\n    ],\n    entities: [entity],\n  };\n}\n"
+    }
+  },
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "column",
+    "first": {
+      "direction": "row",
+      "first": "Image!sign_cam",
+      "second": "3D!sign_hud",
+      "splitPercentage": 50
+    },
+    "second": {
+      "direction": "row",
+      "first": {
+        "direction": "row",
+        "first": "RawMessages!action_fb",
+        "second": "RawMessages!sign_det",
+        "splitPercentage": 50
+      },
+      "second": "RosOut!sign_log",
+      "splitPercentage": 52
+    },
+    "splitPercentage": 62
+  }
+}

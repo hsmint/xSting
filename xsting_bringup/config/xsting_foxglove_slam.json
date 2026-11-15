@@ -1,0 +1,293 @@
+{
+  "configById": {
+    "3D!cuvslam": {
+      "foxglovePanelTitle": "cuVSLAM 3D (경로 · 특징점 · 랜드마크)",
+      "fixedFrame": "odom",
+      "followTf": "odom",
+      "followMode": "follow-pose",
+      "layers": {
+        "22222222-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "22222222-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "divisions": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "order": 1
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 4.5,
+        "phi": 55,
+        "thetaOffset": 45,
+        "targetOffset": [0, 0, 0],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#1e2229",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": true,
+          "labelSize": 0.08,
+          "axisSize": 0.2,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "map": {
+          "visible": true
+        },
+        "odom": {
+          "visible": true
+        },
+        "base": {
+          "visible": true
+        }
+      },
+      "topics": {
+        "/visual_slam/tracking/slam_path": {
+          "visible": true,
+          "lineWidth": 0.04,
+          "gradient": [
+            "#19ff00ff",
+            "#19ff00ff"
+          ]
+        },
+        "/visual_slam/tracking/vo_path": {
+          "visible": true,
+          "lineWidth": 0.025,
+          "gradient": [
+            "#00bfffff",
+            "#00bfffff"
+          ]
+        },
+        "/visual_slam/tracking/odometry": {
+          "visible": true
+        },
+        "/visual_slam/tracking/vo_pose": {
+          "visible": true
+        },
+        "/visual_slam/vis/observations_cloud": {
+          "visible": true,
+          "pointSize": 5,
+          "colorMode": "flat",
+          "flatColor": "#00e5ffff"
+        },
+        "/visual_slam/vis/landmarks_cloud": {
+          "visible": true,
+          "pointSize": 4,
+          "colorMode": "flat",
+          "flatColor": "#ff00ffff"
+        },
+        "/visual_slam/vis/loop_closure_cloud": {
+          "visible": true,
+          "pointSize": 6,
+          "colorMode": "flat",
+          "flatColor": "#ffff00ff"
+        },
+        "/visual_slam/vis/pose_graph_nodes": {
+          "visible": true
+        },
+        "/visual_slam/vis/pose_graph_edges": {
+          "visible": true
+        },
+        "/scan_filtered": {
+          "visible": true,
+          "pointSize": 5,
+          "colorMode": "flat",
+          "flatColor": "#ff5500ff"
+        }
+      },
+      "publish": {
+        "type": "pose_estimate",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "3D!nvblox": {
+      "foxglovePanelTitle": "nvblox 2D/3D 맵 (Occupancy · ESDF · 복셀)",
+      "fixedFrame": "odom",
+      "followTf": "odom",
+      "followMode": "follow-pose",
+      "layers": {
+        "33333333-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "33333333-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "divisions": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "order": 1
+        },
+        "33333333-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "33333333-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 4.5,
+        "phi": 55,
+        "thetaOffset": 45,
+        "targetOffset": [0.4, 0, 0],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#22252a",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": false,
+          "showLabel": false,
+          "axisSize": 0.15,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {},
+      "topics": {
+        "/nvblox_node/static_occupancy_grid": {
+          "visible": true
+        },
+        "/nvblox_node/static_esdf_pointcloud": {
+          "visible": true,
+          "pointSize": 5,
+          "colorField": "intensity",
+          "colorMode": "colormap",
+          "colorMap": "rainbow"
+        },
+        "/nvblox_node/color_layer_marker": {
+          "visible": true
+        },
+        "/nvblox_node/tsdf_layer_marker": {
+          "visible": false
+        },
+        "/nvblox_node/esdf_slice_bounds": {
+          "visible": false
+        },
+        "/nvblox_node/workspace_bounds": {
+          "visible": false
+        },
+        "/scan_filtered": {
+          "visible": true,
+          "pointSize": 5,
+          "colorMode": "flat",
+          "flatColor": "#ff5500ff"
+        }
+      },
+      "publish": {
+        "type": "pose",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Plot!cuvslam_pose": {
+      "foxglovePanelTitle": "cuVSLAM 실시간 위치 Plot (x·y·z)",
+      "paths": [
+        {
+          "value": "/visual_slam/tracking/odometry.pose.pose.position.x",
+          "label": "x (m)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ff5252",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/visual_slam/tracking/odometry.pose.pose.position.y",
+          "label": "y (m)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4ade80",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/visual_slam/tracking/odometry.pose.pose.position.z",
+          "label": "z (m)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#38bdf8",
+          "lineSize": 1.5,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 20,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "RosOut!action_log": {
+      "foxglovePanelTitle": "Action · 노드 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {}
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "column",
+    "first": {
+      "direction": "row",
+      "first": "3D!cuvslam",
+      "second": "3D!nvblox",
+      "splitPercentage": 50
+    },
+    "second": {
+      "direction": "row",
+      "first": "Plot!cuvslam_pose",
+      "second": "RosOut!action_log",
+      "splitPercentage": 45
+    },
+    "splitPercentage": 62
+  }
+}
