@@ -1,0 +1,70 @@
+# xSting 실기 보정 통합 설정 (q_hw = direction * q_sim + offset_rad)
+output_leg_order: [leg1_yaw, leg1_hip, leg1_knee, leg2_yaw, leg2_hip, leg2_knee, leg3_yaw, leg3_hip, leg3_knee, leg4_yaw, leg4_hip, leg4_knee, leg5_yaw, leg5_hip, leg5_knee, leg6_yaw, leg6_hip, leg6_knee]
+
+leg_joints:
+  leg3_yaw: {ros_name: leg3_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.570800, upper_rad: 0.436332, stand_rad: -0.698132}
+  leg3_hip: {ros_name: leg3_hip, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.523599}
+  leg3_knee: {ros_name: leg3_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.919862}
+  leg2_yaw: {ros_name: leg2_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -0.436332, upper_rad: 0.750492, stand_rad: 0.000000}
+  leg2_hip: {ros_name: leg2_hip, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.523599}
+  leg2_knee: {ros_name: leg2_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.919862}
+  leg1_yaw: {ros_name: leg1_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -0.436332, upper_rad: 1.570800, stand_rad: 0.698132}
+  leg1_hip: {ros_name: leg1_hip, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.523599}
+  leg1_knee: {ros_name: leg1_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.919862}
+  leg6_yaw: {ros_name: leg6_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.570800, upper_rad: 0.436332, stand_rad: -0.698132}
+  leg6_hip: {ros_name: leg6_hip, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.523599}
+  leg6_knee: {ros_name: leg6_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.919862}
+  leg5_yaw: {ros_name: leg5_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -0.750492, upper_rad: 0.436332, stand_rad: 0.000000}
+  leg5_hip: {ros_name: leg5_hip, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.523599}
+  leg5_knee: {ros_name: leg5_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.919862}
+  leg4_yaw: {ros_name: leg4_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -0.436332, upper_rad: 1.570800, stand_rad: 0.698132}
+  leg4_hip: {ros_name: leg4_hip, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.523599}
+  leg4_knee: {ros_name: leg4_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.919862}
+
+arm_joints:
+  arm_yaw: {ros_name: arm_yaw, direction: 1.0, offset_rad: 0.000000, lower_rad: -3.141590, upper_rad: 3.141590, stand_rad: 0.000000}
+  arm_shoulder: {ros_name: arm_shoulder, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658063, upper_rad: 1.919862, stand_rad: -1.296263}
+  arm_elbow: {ros_name: arm_elbow, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007129, upper_rad: 1.570796, stand_rad: 1.296263}
+  arm_wrist: {ros_name: arm_wrist, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.832600, upper_rad: 2.181660, stand_rad: 0.000000}
+  arm_roll: {ros_name: arm_roll, direction: 1.0, offset_rad: 0.000000, lower_rad: -3.141590, upper_rad: 3.141590, stand_rad: 0.000000}
+  finger_l: {ros_name: finger_l, direction: 1.0, offset_rad: 0.000000, lower_rad: -0.001860, upper_rad: 0.025000, stand_rad: 0.000000}
+
+imu:
+  mount_quat_xyzw: [-0.002699, -0.003916, 0.000000, 0.999989]
+  gyro_bias_rad_s: [-0.003329, 0.004666, 0.000000]
+
+camera_box:
+  cam_pos_m: [0.157793, 0.017500, 0.107498]
+  cam_rpy_deg: [-0.991901, 3.380141, -0.029268]
+  base_z_m: 0.042904
+  robot_front_x_m: 0.162000
+  target_gap_m: 0.020000
+  box_half_m: 0.102500
+  box_height_m: 0.070000
+  puck_radius_m: 0.015000
+  standoff_m: 0.284500
+  pos_tol_m: 0.020000
+  yaw_tol_rad: 0.050000
+  hold_time_s: 2.000000
+
+ultrasonic:
+  enabled: true
+  us_pos_m: [0.127180, 0.000000, 0.024522]
+  min_range_m: 0.020000
+  max_range_m: 4.000000
+  range_bias_m: 0.000000
+  close_range_fusion: true
+  safety_brake_gap_m: 0.008000
+
+gait_safety:
+  walk_scale: 0.500000
+  gait_freq_hz: 3.000000
+  speed_limits: [0.200000, 0.100000, 0.500000]
+  speed_scale: [1.000000, 1.000000, 1.000000]
+  stop_enter_thresh: 0.120000
+  stop_exit_thresh: 0.220000
+  action_deadband: 0.080000
+  max_leg_step_rad: 0.075000
+  blind_zone_dead_reckoning: true
+  blind_zone_max_dist_m: 0.280000
+  dry_run: false

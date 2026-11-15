@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xSting 2cm 정밀 접근 실행 및 실측 보정 가이드</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-alt: #263349;
+      --panel-deep: #151e30;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --green: #34d399;
+      --green-soft: rgba(52, 211, 153, 0.14);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251, 191, 36, 0.14);
+      --rose: #fb7185;
+      --rose-soft: rgba(251, 113, 133, 0.14);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.14);
+      --cyan: #22d3ee;
+      --code-bg: #0b1120;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 36px 24px 72px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-blue { background: var(--accent-soft); color: var(--accent); }
+    .badge-green { background: var(--green-soft); color: var(--green); }
+    .badge-amber { background: var(--amber-soft); color: var(--amber); }
+    .badge-rose { background: var(--rose-soft); color: var(--rose); }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 820px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 38px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+
+    code, pre {
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    }
+
+    code {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 12.5px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .callout {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      font-size: 14px;
+      margin: 14px 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--amber);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .callout.ok {
+      border-left-color: var(--green);
+      background: rgba(52, 211, 153, 0.08);
+    }
+
+    .flow-step {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px 16px;
+      position: relative;
+    }
+
+    .flow-num {
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .cmd-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+
+    .cmd-row pre {
+      margin: 0;
+      font-size: 13px;
+      color: var(--green);
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .copy-btn:hover { opacity: 0.9; }
+
+    .term-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 10px;
+    }
+
+    /* Mode Switch Tabs */
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .mode-tab {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-tab.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .mode-pane { display: none; }
+    .mode-pane.active { display: block; }
+
+    .step-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Color Swatch Legend */
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .legend-item {
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      background: var(--panel-deep);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .svg-box {
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    ul.clean {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    ul.clean li { margin-bottom: 6px; }
+
+    footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="badge-row">
+          <span class="badge badge-blue">ROS 2 Lyrical</span>
+          <span class="badge badge-green">xsting_approach</span>
+          <span class="badge badge-amber">실측 보정 (IMU · D435 · 초음파)</span>
+          <span class="badge badge-purple">Foxglove Studio 실시간 검증</span>
+        </div>
+        <h1>xSting 2cm 정밀 접근 실행 &amp; 실측 보정 가이드</h1>
+        <p class="subtitle">
+          어느 터미널에서 무엇을 켜고, 상자를 어디에 놓고 어떻게 보정하며, 보정 후 2 cm 정밀 접근과 서기 자세 전환을 어떻게 실행하는지 순서대로 정리한 안내서입니다.
+        </p>
+      </div>
+    </header>
+
+    <!-- 0. 한눈에 보는 전체 순서 -->
+    <section>
+      <h2>0. 전체 진행 순서 (4단계 요약)</h2>
+      <div class="grid-4">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <h3>빌드 &amp; 기본 노드 실행</h3>
+          <p style="margin:0; font-size:13px; color:var(--muted);">
+            터미널 1에서 하드웨어(다리·팔·IMU·초음파), 터미널 2에서 전면 카메라·YOLO·Foxglove 브리지를 켭니다.
+          </p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <h3>평지 + 20cm 상자 배치</h3>
+          <p style="margin:0; font-size:13px; color:var(--muted);">
+            평평한 바닥에 로봇을 두고, 로봇 차체 앞면(<code>X=0.162m</code>)에서 정확히 <strong>20.0 cm</strong> 앞에 상자를 놓습니다.
+          </p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <h3>실측 보정 저장 (1회)</h3>
+          <p style="margin:0; font-size:13px; color:var(--muted);">
+            Foxglove에서 <code>/calib/imu</code> → <code>/calib/cam</code> 버튼을 누르거나 마법사 스크립트로 <code>calibration.yaml</code>을 저장합니다.
+          </p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <h3>2cm 정밀 접근 실행</h3>
+          <p style="margin:0; font-size:13px; color:var(--muted);">
+            보정 노드를 끄고 <code>approach.launch.py</code>를 켠 뒤 <code>/approach_box</code> 액션을 보내면 2 cm 앞에서 자동 서기 자세로 멈춥니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <strong>자동 서기 자세 맞춤 내장:</strong>
+        <code>xsting_hardware</code>는 부팅 직후 몸통이 높은 초기 기립 자세(<code>~47 mm</code>)로 서 있지만, 보정 노드(<code>calib.launch.py</code> / <code>calib_wizard.sh</code>)를 실행하면 <strong>자동으로 1.5초 동안 실제 보행·작업 서기 자세(<code>base_z = 21.3 mm</code>)로 부드럽게 낮춰 고정</strong>한 뒤 보정하므로 높이를 따로 맞출 필요가 없습니다.
+      </div>
+    </section>
+
+    <!-- 1. 사전 준비 & 물리 배치도 -->
+    <section>
+      <h2>1. 보정 전 물리 배치 방법 (줄자로 20.0 cm 맞추기)</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>준비물 및 배치 기준</h3>
+          <ul class="clean">
+            <li><strong>바닥:</strong> 기울어지지 않은 평평한 바닥 (전방 1 m 이내에 상자 외 다른 장애물 치우기)</li>
+            <li><strong>대상 상자:</strong> 대회 규격 종이 상자 (가로 <code>205 mm</code> × 세로 <code>205 mm</code> × 높이 <code>70 mm</code>)</li>
+            <li><strong>거리 측정 기준:</strong> 로봇 몸통 앞쪽 끝(전면 범퍼 라인, <code>base_link</code> 중심에서 <code>+16.2 cm</code> 지점)으로부터 <strong>정확히 <code>20.0 cm</code>(<code>0.200 m</code>)</strong> 앞에 상자 앞면이 오도록 놓습니다.</li>
+            <li><strong>정렬 기준:</strong> 상자 앞면이 로봇 정면과 평행하고, 좌우 정중앙(<code>Y = 0</code>)에 오도록 맞춥니다.</li>
+          </ul>
+          <div class="callout warn" style="margin-bottom:0;">
+            <strong>주의:</strong> 카메라 렌즈 끝이나 초음파 센서 끝이 아니라 <strong>차체 전면 끝단(<code>X = 0.162 m</code>)</strong>에서 <code>20.0 cm</code>입니다. 다른 거리에 놓았다면 실행 시 <code>box_gap_m:=0.250</code>처럼 실제 거리(m)를 인자로 넘기면 됩니다.
+          </div>
+        </div>
+
+        <div class="svg-box">
+          <svg viewBox="0 0 540 240" width="100%" style="max-width:520px; height:auto;">
+            <!-- Background Grid -->
+            <line x1="30" y1="120" x2="510" y2="120" stroke="#334155" stroke-dasharray="5,5" stroke-width="1.5"/>
+            <text x="455" y="112" fill="#94a3b8" font-size="11" font-family="monospace">+X (정면 중심축 Y=0)</text>
+
+            <!-- Robot Body -->
+            <rect x="45" y="65" width="145" height="110" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+            <circle cx="105" cy="120" r="4" fill="#38bdf8"/>
+            <text x="62" y="102" fill="#f1f5f9" font-size="12" font-weight="bold">xSting 차체</text>
+            <text x="62" y="142" fill="#94a3b8" font-size="11" font-family="monospace">base_link (0,0)</text>
+
+            <!-- Ultrasonic & Camera -->
+            <rect x="168" y="112" width="14" height="16" rx="3" fill="#22d3ee"/>
+            <text x="128" y="162" fill="#22d3ee" font-size="10.5">초음파(0.127m)</text>
+            <rect x="178" y="82" width="12" height="22" rx="2" fill="#c084fc"/>
+            <text x="132" y="56" fill="#c084fc" font-size="10.5">전면 D435(0.158m)</text>
+
+            <!-- Bumper Line -->
+            <line x1="190" y1="42" x2="190" y2="198" stroke="#f8fafc" stroke-width="2.5"/>
+            <text x="155" y="34" fill="#f8fafc" font-size="11.5" font-weight="bold">차체 전면 (X=0.162m)</text>
+
+            <!-- 20.0 cm Measure Arrow -->
+            <line x1="192" y1="120" x2="338" y2="120" stroke="#fbbf24" stroke-width="3"/>
+            <polygon points="192,120 200,115 200,125" fill="#fbbf24"/>
+            <polygon points="338,120 330,115 330,125" fill="#fbbf24"/>
+            <rect x="223" y="96" width="84" height="20" rx="4" fill="#0b1120" stroke="#fbbf24"/>
+            <text x="234" y="110" fill="#fbbf24" font-size="12" font-weight="bold">20.0 cm</text>
+
+            <!-- Target Box -->
+            <rect x="340" y="58" width="124" height="124" rx="4" fill="rgba(52,211,153,0.18)" stroke="#34d399" stroke-width="2.5"/>
+            <text x="358" y="114" fill="#34d399" font-size="13" font-weight="bold">종이 상자</text>
+            <text x="352" y="132" fill="#cbd5e1" font-size="11" font-family="monospace">205 × 205 × 70 mm</text>
+            <text x="342" y="198" fill="#34d399" font-size="11">상자 앞면 (X=0.362m)</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 공통 기본 실행 (빌드 + 터미널 1, 2) -->
+    <section>
+      <h2>2. 공통 준비 — 빌드 및 하드웨어·비전 실행 (터미널 1 · 터미널 2)</h2>
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="step-head">
+          <span class="step-title">최초 1회 패키지 빌드</span>
+          <span class="badge badge-blue">최초 1회</span>
+        </div>
+        <div class="cmd-row">
+          <pre>cd /home/pa03/Documents/FINAL/mk2_ws && colcon build --symlink-install --packages-select xsting_interfaces xsting_approach && source install/setup.bash</pre>
+          <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="step-head">
+            <span class="step-title">터미널 1 — 하드웨어 제어 구동</span>
+            <span class="badge badge-amber">필수 유지</span>
+          </div>
+          <p style="margin:0; font-size:13.5px; color:var(--muted);">
+            6족 다리(<code>/leg_controller</code>), 로봇팔(<code>/arm_controller</code>), IMU(<code>/imu_broadcaster/imu</code>), 전면 초음파(<code>/sonar_broadcaster/range</code>)를 실행합니다.
+          </p>
+          <div class="cmd-row">
+            <pre>source /home/pa03/Documents/FINAL/mk2_ws/install/setup.bash
+ros2 launch xsting_hardware hardware.launch.py</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="step-head">
+            <span class="step-title">터미널 2 — 전면 D435 · YOLO · Foxglove 브리지</span>
+            <span class="badge badge-purple">필수 유지</span>
+          </div>
+          <p style="margin:0; font-size:13.5px; color:var(--muted);">
+            하드웨어 런치가 이미 URDF·관절 상태를 발행하므로 <code>urdf:=false joint_states:=false</code>로 중복 발행을 끄고 Foxglove 브리지(포트 <code>8765</code>)를 함께 켭니다.
+          </p>
+          <div class="cmd-row">
+            <pre>source /home/pa03/Documents/FINAL/mk2_ws/install/setup.bash
+ros2 launch xsting_bringup xsting.launch.py urdf:=false joint_states:=false imu:=true imu_topic:=/imu_broadcaster/imu map_3d:=false foxglove:=true</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 실측 보정 방법 선택 (탭) -->
+    <section>
+      <h2>3. 실측 보정 실행하기 (터미널 3 — 편한 방법 1가지 선택)</h2>
+      <div class="mode-tabs">
+        <button class="mode-tab active" onclick="switchMode('fg', this)">방법 A (권장): Foxglove 화면을 보면서 클릭으로 보정</button>
+        <button class="mode-tab" onclick="switchMode('cli', this)">방법 B: 터미널 마법사(calib_wizard.sh)로 빠르게 보정</button>
+      </div>
+
+      <!-- 방법 A: Foxglove -->
+      <div id="pane-fg" class="mode-pane active">
+        <div class="step-card">
+          <div class="step-head">
+            <span class="step-title">Step A-1. 터미널 3에서 실시간 보정 노드 실행</span>
+            <span class="badge badge-green">터미널 3</span>
+          </div>
+          <p style="margin:0; font-size:13.5px; color:var(--muted);">
+            실행 즉시 로봇이 1.5초 동안 21.3 mm 서기 자세로 정렬되며, Foxglove 확인용 토픽(<code>/approach/markers</code>, <code>/approach/points</code>, <code>/approach/metrics</code>, <code>/approach/depth_preview</code>)과 보정 서비스를 대기 상태로 열어둡니다.
+            <br/>※ 터미널 2에서 이미 <code>foxglove:=true</code>를 켰으므로 여기서는 기본값(<code>foxglove:=false</code>) 그대로 실행합니다.
+          </p>
+          <div class="cmd-row">
+            <pre>source /home/pa03/Documents/FINAL/mk2_ws/install/setup.bash
+ros2 launch xsting_approach calib.launch.py</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-head">
+            <span class="step-title">Step A-2. Foxglove Studio 연결 &amp; 전용 보정 레이아웃 불러오기</span>
+            <span class="badge badge-blue">최초 1회 Import</span>
+          </div>
+          <ol class="clean" style="margin-top:4px;">
+            <li>PC에서 <strong>Foxglove Studio</strong>를 열고 <strong>Open connection</strong> → <strong>Foxglove WebSocket</strong> → <code>ws://&lt;로봇_IP&gt;:8765</code> (로봇 본체에서 열 때는 <code>ws://localhost:8765</code>) 연결</li>
+            <li>우측 상단 <strong>Layout</strong> 아이콘 클릭 → <strong>Import from file...</strong> 선택</li>
+            <li>아래 경로의 레이아웃 JSON 파일을 선택하면 3D 뷰·깊이 ROI 화면·거리 오차 그래프·보정 버튼 패널이 한 번에 배치됩니다.</li>
+          </ol>
+          <div class="cmd-row">
+            <pre>/home/pa03/Documents/FINAL/mk2_ws/src/xsting_approach/config/xsting_foxglove_calib.json</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">경로 복사</button>
+          </div>
+
+          <div class="legend-grid">
+            <div class="legend-item">
+              <span class="swatch" style="background:#34d399;"></span>
+              <div><strong>반투명 녹색 상자 (기준 정답)</strong><br/><span style="color:var(--muted);">범퍼 앞 <code>20.0 cm</code>(또는 주행 시 <code>2.0 cm</code>) 목표 위치</span></div>
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background:#fb923c;"></span>
+              <div><strong>주황색 상자 + 노란 화살표 (실측값)</strong><br/><span style="color:var(--muted);">전면 D435 깊이 점군 PCA로 계산된 실제 상자 위치·법선</span></div>
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background:#22d3ee;"></span>
+              <div><strong>청록색 구 + 광선 (초음파 실측)</strong><br/><span style="color:var(--muted);">보정된 초음파 거리가 가리키는 전방 벽면 타격 지점</span></div>
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background:#38bdf8;"></span>
+              <div><strong>하늘색 / 노란색 점군</strong><br/><span style="color:var(--muted);">하늘색 점군이 격자 바닥(<code>Z=0</code>)에 평평히 붙으면 피치·높이 정상</span></div>
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background:#f8fafc;"></span>
+              <div><strong>흰색 가로선 (<code>X = 0.162 m</code>)</strong><br/><span style="color:var(--muted);">로봇 차체 전면 범퍼 기준선</span></div>
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background:#e879f9;"></span>
+              <div><strong>보라색 화살표 (IMU 중력 벡터)</strong><br/><span style="color:var(--muted);">보정 후 수직 아래(<code>-Z</code>)를 곧게 가리키면 정상</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-head">
+            <span class="step-title">Step A-3. 버튼 2번 클릭으로 IMU → 카메라·초음파 보정 완료</span>
+            <span class="badge badge-amber">실측 저장</span>
+          </div>
+          <ul class="clean">
+            <li><strong>1) IMU 수평·자이로 보정:</strong> 로봇이 평지에 가만히 서 있는 상태에서 우측 하단 <strong><code>1. IMU 수평 보정 (/calib/imu)</code></strong> 패널의 <strong>Call</strong> 버튼을 누릅니다. → 3D 화면 보라색 중력 화살표가 수직 아래로 정렬되고 IMU 기울기 그래프가 <code>0.0°</code> 부근으로 내려옵니다.</li>
+            <li><strong>2) 카메라·바닥·초음파 동시 보정:</strong> 차체 앞 <code>20.0 cm</code>에 상자가 놓인 상태에서 깊이 ROI 프리뷰 화면에 초록색 상자 박스가 잡혀 있는지 확인한 뒤, <strong><code>2. 카메라·상자·초음파 보정 (/calib/cam)</code></strong> 패널의 <strong>Call</strong> 버튼을 누릅니다.</li>
+            <li><strong>3) 눈으로 즉시 검증:</strong> 버튼을 누른 직후 <strong>주황색 실측 상자</strong>와 <strong>청록색 초음파 구</strong>가 <strong>녹색 기준 상자</strong>에 정확히 포개지고, 상단 HUD 텍스트 및 우측 오차 그래프가 <strong><code>±2 mm / ±1°</code> 이내</strong>로 들어오면 보정이 완벽히 끝난 것입니다!</li>
+            <li>확인 후 터미널 3에서 <code>Ctrl + C</code>를 눌러 보정 노드를 종료합니다 (보정값은 <code>src/xsting_approach/config/calibration.yaml</code>에 자동 저장 완료).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 방법 B: CLI Wizard -->
+      <div id="pane-cli" class="mode-pane">
+        <div class="step-card">
+          <div class="step-head">
+            <span class="step-title">터미널 3에서 대화형 보정 마법사 실행</span>
+            <span class="badge badge-green">Foxglove 없이 터미널만 사용</span>
+          </div>
+          <p style="margin:0; font-size:13.5px; color:var(--muted);">
+            터미널 안내에 따라 <code>Enter</code>만 누르면 순서대로 IMU와 카메라·초음파를 보정하여 <code>src/xsting_approach/config/calibration.yaml</code>에 저장합니다.
+          </p>
+          <div class="cmd-row">
+            <pre>cd /home/pa03/Documents/FINAL/mk2_ws
+source install/setup.bash
+./src/xsting_approach/scripts/calib_wizard.sh</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+          </div>
+          <ul class="clean" style="margin-top:12px;">
+            <li><strong><code>[1/3] 관절 영점 보정을 실행할까요? (y/N)</code></strong> → 그냥 <strong><code>Enter</code>(N 권장)</strong>를 누릅니다. (다이나믹셀 절대 위치제어 특성상 기본 오프셋 <code>0</code>을 그대로 쓰는 것이 가장 정확합니다.)</li>
+            <li><strong><code>[2/3] 평지에 로봇을 정지시킨 뒤 Enter...</code></strong> → 로봇을 건드리지 않고 <strong><code>Enter</code></strong>를 누르면 자동으로 서기 자세(<code>21.3 mm</code>) 정렬 후 IMU 200샘플을 측정해 저장합니다.</li>
+            <li><strong><code>[3/3] 차체 전면(X=0.162m)에서 0.200 m 앞에 상자 배치 후 Enter...</code></strong> → 줄자로 <code>20.0 cm</code>를 맞춘 뒤 <strong><code>Enter</code></strong>를 누르면 바닥 높이·카메라 각도/위치·초음파 바이어스를 한 번에 계산해 저장하고 자동 종료합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 2cm 정밀 접근 실행 및 동작 확인 -->
+    <section>
+      <h2>4. 2 cm 정밀 접근 실행하기 (터미널 3 · 터미널 4)</h2>
+      <div class="callout">
+        <strong>중요:</strong> 보정 노드(<code>calib_cam_node</code>)와 정밀 접근 노드(<code>approach_node</code>)는 같은 다리 명령·시각화 토픽을 사용하므로, 반드시 <strong>보정 노드를 종료(<code>Ctrl + C</code>)한 뒤</strong> 아래 정밀 접근 노드를 실행하세요.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="step-head">
+            <span class="step-title">① (선택) 다리 움직임 없이 안전 점검 (Dry-Run)</span>
+            <span class="badge badge-amber">안전 테스트</span>
+          </div>
+          <p style="margin:0; font-size:13.5px; color:var(--muted);">
+            <code>dry_run:=true</code>로 띄우면 다리 모터 명령을 보내지 않고 Foxglove에서 상자 추적과 정책 속도 출력만 먼저 확인할 수 있습니다.
+          </p>
+          <div class="cmd-row">
+            <pre>ros2 launch xsting_approach approach.launch.py dry_run:=true</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="step-head">
+            <span class="step-title">② 실제 2 cm 정밀 접근 노드 실행 (터미널 3)</span>
+            <span class="badge badge-green">실주행 대기</span>
+          </div>
+          <p style="margin:0; font-size:13.5px; color:var(--muted);">
+            방금 저장한 <code>calibration.yaml</code>을 자동 로드하고, 명령이 올 때까지 안정적인 서기 자세(<code>base_z = 21.3 mm</code>)로 대기합니다.
+          </p>
+          <div class="cmd-row">
+            <pre>ros2 launch xsting_approach approach.launch.py</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="step-head">
+          <span class="step-title">③ 정밀 접근 출발 명령 보내기 (터미널 4 또는 Foxglove 버튼)</span>
+          <span class="badge badge-blue">액션 / 서비스</span>
+        </div>
+        <p style="margin:0; font-size:13.5px; color:var(--muted);">
+          상자를 전방 <code>35 ~ 80 cm</code> 임의 위치·각도에 놓은 뒤 아래 Action 명령을 보내거나, Foxglove 우측 하단의 <code>/approach/start</code> Call 버튼을 누릅니다.
+        </p>
+
+        <div class="term-tag">방법 1 — ROS 2 Action 호출 (실시간 거리·각도 오차 피드백 출력 + 완료 판정 수신, 권장)</div>
+        <div class="cmd-row">
+          <pre>ros2 action send_goal /approach_box xsting_interfaces/action/ApproachBox "{target_gap_m: 0.020, timeout_sec: 35.0}" --feedback</pre>
+          <button class="copy-btn" onclick="copyCmd(this)">복사</button>
+        </div>
+
+        <div class="term-tag">방법 2 — 간단 시작 / 즉시 정지 / 보정 파일 무중단 재로드 서비스</div>
+        <div class="grid-3" style="margin-top:6px;">
+          <div class="cmd-row" style="margin-top:0;">
+            <pre>ros2 service call /approach/start std_srvs/srv/Trigger "{}"</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">시작</button>
+          </div>
+          <div class="cmd-row" style="margin-top:0;">
+            <pre>ros2 service call /approach/stop std_srvs/srv/Trigger "{}"</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">정지</button>
+          </div>
+          <div class="cmd-row" style="margin-top:0;">
+            <pre>ros2 service call /approach/reload_calib std_srvs/srv/Trigger "{}"</pre>
+            <button class="copy-btn" onclick="copyCmd(this)">재로드</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout ok" style="margin-top:16px;">
+        <strong>도달 완료 시 로봇 동작 요약 (서기 자세 자동 전환 &amp; 로봇팔 양보):</strong>
+        <ul class="clean" style="margin-top:6px;">
+          <li>상자 앞 <code>2.0 cm</code>(오차 <code>±2.0 cm</code>, 각도 <code>±2.9°</code>) 안에 들어오면 보행 중이던 다리를 <strong>기본 서기 자세(<code>stand_rad</code>, <code>base_z = 21.3 mm</code>)로 매끄럽게 모아 정지</strong>합니다.</li>
+          <li>서기 자세로 흔들림 없이 <strong><code>2.0초</code> 연속 유지</strong>되면 <code>reached = true</code> 성공을 반환하고, 이후에도 다리는 계속 서기 자세로 단단히 버텨줍니다.</li>
+          <li>동시에 <code>/arm_controller/commands</code> 발행을 즉시 중단하므로, 곧바로 <code>xsting_pick_place</code> 노드가 충돌 없이 로봇팔을 움직여 상자 안의 퍽을 집을 수 있습니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. 문제 해결 표 -->
+    <section>
+      <h2>5. 자주 겪는 증상 &amp; 해결 방법</h2>
+      <div class="card" style="padding: 6px 16px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 26%;">증상</th>
+              <th style="width: 34%;">원인</th>
+              <th>해결 방법</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>보정 시 <code>점군/초음파 샘플 부족</code> 메시지가 뜸</strong></td>
+              <td>상자가 너무 멀거나 가까워 기대 위치(<code>20 cm ± 10 cm</code>) 밖이거나 YOLO 상자 미검출</td>
+              <td>
+                차체 전면(<code>X=0.162m</code>)에서 상자 앞면까지 거리가 약 <code>20 cm</code>인지 확인하고, Foxglove 좌측 깊이 프리뷰 화면에 초록색 ROI 박스가 잡히는지 확인하세요.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Foxglove에서 Call 버튼이 비활성화되어 안 눌림</strong></td>
+              <td><code>foxglove_bridge</code>가 켜지지 않았거나 연결 주소 오타</td>
+              <td>
+                터미널 2 실행 명령어에 <code>foxglove:=true</code>가 포함되었는지 확인하고, Foxglove WebSocket 주소(<code>ws://&lt;로봇_IP&gt;:8765</code>)를 재연결하세요.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>주황색 상자가 녹색 기준 상자보다 위/아래로 떠 있거나 기울어짐</strong></td>
+              <td>카메라 장착 피치각 또는 차체 높이 미보정</td>
+              <td>
+                전방 바닥이 가려지지 않게 비운 뒤 <code>/calib/cam</code>을 다시 누르면 바닥 RANSAC이 <code>cam_rpy_deg</code>와 <code>base_z_m</code>을 재계산해 바닥 격자(<code>Z=0</code>)에 딱 붙입니다.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>초음파 값이 <code>4.00 m</code> 또는 무효로 표시됨</strong></td>
+              <td>상자가 센서 정면 콘 각도를 벗어났거나 <code>/sonar_broadcaster/range</code> 미수신</td>
+              <td>
+                터미널 1(<code>hardware.launch.py</code>) 실행 여부와 <code>ros2 topic echo /sonar_broadcaster/range --once</code> 값을 확인하고 상자를 정면 중앙에 놓아주세요.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>접근 중 너무 일찍 멈추거나 2 cm보다 살짝 멀리/가까이 멈춤</strong></td>
+              <td>현장 바닥 마찰 변화 또는 초음파 급제동 임계치</td>
+              <td>
+                <code>src/xsting_approach/config/calibration.yaml</code>의 <code>camera.target_gap_m</code>(기본 <code>0.020</code>) 또는 <code>ultrasonic.brake_gap_m</code>(기본 <code>0.008</code>)을 수정한 뒤 <code>/approach/reload_calib</code>을 호출하면 재빌드 없이 즉시 반영됩니다.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <span>패키지 경로: <code>/home/pa03/Documents/FINAL/mk2_ws/src/xsting_approach</code></span>
+      <span>보정 저장 파일: <code>src/xsting_approach/config/calibration.yaml</code></span>
+    </footer>
+  </div>
+
+  <script>
+    function copyCmd(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '복사됨!';
+        setTimeout(() => { btn.textContent = orig; }, 1200);
+      });
+    }
+
+    function switchMode(mode, btn) {
+      document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.mode-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('pane-' + mode).classList.add('active');
+    }
+  </script>
+</body>
+</html>

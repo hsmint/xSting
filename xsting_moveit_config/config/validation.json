@@ -1,0 +1,8 @@
+{
+  "asset_consistency": "PASS",
+  "initial_sphere_self_collision": "NONE",
+  "urdf_usd_forward_kinematics": "MATCH",
+  "arm_dof": 5,
+  "sphere_count": 4637,
+  "physx_cumotion_execution": "NOT TESTED: GPU unavailable"
+}

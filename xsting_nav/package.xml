@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>xsting_nav</name>
+  <version>0.1.0</version>
+  <description>XSting 6족 로봇 강화학습 전역 주행, 동적 장애물 우회 및 상자 5~10cm 도달 시 정밀 접근(/approach_box) 연동 C++ 패키지</description>
+  <maintainer email="dev@example.com">xsting</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>ament_index_cpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>vision_msgs</depend>
+  <depend>xsting_interfaces</depend>
+  <depend>yaml-cpp</depend>
+
+  <!-- Isaac ROS nvBlox DistanceMapSlice 선택적 지원 -->
+  <depend>nvblox_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,35 @@
+/**:
+  ros__parameters:
+    # 강화학습 정책 가중치 및 실기 보정 파일 경로
+    approach_model: "models/approach_policy_xsting.bin"
+    walk_model: "models/walk_actor_26d.bin"
+    calib_file: "config/calibration.yaml"
+
+    # xsting_hardware 다리·팔·관절·IMU·초음파 토픽
+    leg_cmd_topic: "/leg_controller/commands"
+    arm_cmd_topic: "/arm_controller/commands"
+    joint_topic: "/joint_states"
+    imu_topic: "/imu_broadcaster/imu"
+    range_topic: "/sonar_broadcaster/range"
+    alt_range_topic: "/ultrasonic/range"
+
+    # xsting_bringup 전면 D435 깊이·검출 및 cuVSLAM 오도메트리 토픽
+    depth_topic: "/camera/depth/image_emitter_on"
+    depth_info_topic: "/camera/depth/camera_info"
+    color_info_topic: "/camera/color/camera_info"
+    det2d_topic: "/camera/color/detections"
+    det3d_topic: "/detections_3d"
+    odom_topic: "/visual_slam/tracking/odometry"
+
+    # D435 컬러-깊이 광학 축 간격(m) 및 센서 유효 시간(s)
+    color_offset_x: -0.015
+    vis_timeout: 0.35
+    sonar_timeout: 0.35
+    default_goal_timeout: 35.0
+
+    # 보행 중에만 팔 홈 자세 유지 (도달 후 xsting_pick_place에 제어권 양보)
+    # stand_when_idle: false 시 비활성 상태에서 /leg_controller/commands 발행 안 함 (xsting_nav와 충돌 방지)
+    hold_arm_walking: true
+    stand_when_idle: false
+    auto_start: false
+    dry_run: false

@@ -1,0 +1,78 @@
+/**:
+  ros__parameters:
+    # 정책 네트워크, 정적 아레나 ESDF 맵, 실기체 보정 파일 경로
+    policy_json: "config/mk2_nav_policy.json"
+    arena_json: "config/arena_static_esdf.json"
+    calib_file: "config/calibration.yaml"
+    hardware_profile: "xsting"
+
+    # 미션 브리지(xsting_mission) 및 정밀 접근(xsting_approach) 액션 이름
+    nav_action: "/nav/run"
+    approach_action: "/approach_box"
+
+    # 부팅 즉시 주행 목표 (-1: /nav/run 액션 또는 /nav/goal_id 대기, 0: HOME, 1~6: S1~S6, 7~9: L1~L3)
+    goal_id: -1
+    default_nav_timeout_s: 150.0
+    human_wait_timeout_s: 10.0
+
+    # 상자 검출 + 사전 접근 지점(~20cm 범퍼 간격) 5~10cm 이내 도달 시 /approach_box 정밀 접근 전환
+    pre_approach_tol_m: 0.08          # 8cm (5~10cm 범위 내 설정)
+    pre_approach_yaw_tol_rad: 0.20    # 약 11.5 deg
+    pre_approach_hold_steps: 5        # 20Hz 기준 0.25s 안정화 후 정밀 접근 전환
+    box_vis_timeout_s: 0.60
+    box_search_timeout_s: 5.0
+    box_detect_min_score: 0.25
+    box_assoc_radius_m: 0.35          # 인접 상자(최소 간격 0.734m) 오매칭 방지 반경
+    max_target_refine_m: 0.25
+    require_box_before_approach: true
+    chain_approach_for_box_goals: true
+    chain_approach_on_custom_goal: false
+    approach_timeout_s: 35.0
+    approach_server_wait_s: 2.5
+
+    # 비-상자 목표(HOME 등) 도달 허용 오차
+    goal_pos_tol_m: 0.08
+    goal_yaw_tol_rad: 0.18
+
+    # 보행 및 제어권 양보 설정 (비활성·정밀 접근 중 /leg_controller/commands 충돌 방지)
+    gait_freq_hz: 2.2
+    step_height_m: 0.030
+    max_stride_m: 0.042
+    hold_arm_walking: true
+    stand_when_idle: false
+    dry_run: false
+    odom_watchdog_timeout_s: 0.60
+    max_safe_tilt_deg: 38.0
+
+    # 좌표계 및 TF 정렬 (auto: 외부 SLAM map->odom이 없을 때만 map->odom 발행)
+    pose_source: "odom_calibrated"
+    map_frame: "map"
+    arena_frame: "arena"
+    odom_frame: "odom"
+    base_frame: "base"
+    publish_arena_tf: true
+    publish_map_to_odom_tf: "auto"
+
+    # 360도 2D LiDAR + 정적 경기장 ESDF 기반 전역 초기 정합 및 연속 누적 오차(Drift) 보정
+    enable_lidar_localization: true
+    auto_initial_relocalize: true
+    loc_update_period_s: 0.40         # 2.5Hz 주행·대기 중 저주파 연속 드리프트 보정 (도킹·접근 중 자동 동결)
+    loc_pos_alpha: 0.25
+    loc_yaw_alpha: 0.20
+    loc_max_step_pos_m: 0.06
+    loc_max_step_yaw_rad: 0.08
+    loc_min_inliers: 20
+    loc_max_rmse_m: 0.065
+
+    # mk2_ws 표준 하드웨어·비전·센서 토픽
+    leg_cmd_topic: "/leg_controller/commands"
+    arm_cmd_topic: "/arm_controller/commands"
+    joint_topic: "/joint_states"
+    imu_topic: "/imu_broadcaster/imu"
+    odom_topic: "/visual_slam/tracking/odometry"
+    esdf_topic: "/nvblox_node/static_map_slice"
+    lidar_scan_topic: "/scan_filtered"
+    ultrasonic_topic: "/sonar_broadcaster/range"
+    det3d_topic: "/detections_3d"
+    det2d_topic: "/camera/color/detections"
+    box_cloud_topic: ""
