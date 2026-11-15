@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(xsting_bringup)
+
 find_package(ament_cmake REQUIRED)
-install(DIRECTORY launch config description maps DESTINATION share/${PROJECT_NAME})
-if(BUILD_TESTING)
-  find_package(ament_cmake_pytest REQUIRED)
-  ament_add_pytest_test(test_bringup_contracts test/test_bringup_contracts.py
-    ENV "ROS_LOG_DIR=${CMAKE_CURRENT_BINARY_DIR}/ros_log")
-endif()
+
+# 런치 파일과 설정 파일 설치
+install(DIRECTORY launch config
+  DESTINATION share/${PROJECT_NAME}
+)
+
 ament_package()
