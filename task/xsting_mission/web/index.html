@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xSting 가짜 경기장</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #1d2330; --muted: #6b7380; --line: #dfe3e8;
+    --wall: #3a4250; --box: #e9d9b4; --boxline: #b59a62; --start: #d6e8f7; --path: #2f7de1;
+    --red: #e04646; --green: #2fa35a; --yellow: #f2c230; --ok: #2fa35a; --bad: #d64545;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 13px/1.45 system-ui, "Noto Sans KR", sans-serif; display: flex; height: 100vh; }
+  #mapwrap { flex: 1; min-width: 0; position: relative; }
+  canvas { width: 100%; height: 100%; display: block; }
+  #panel { width: 400px; overflow-y: auto; background: var(--panel); border-left: 1px solid var(--line); padding: 12px 14px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 16px 0 6px; }
+  h2:first-child { margin-top: 0; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .cmd { font-weight: 600; font-size: 15px; }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 12px; }
+  .chips { display: flex; gap: 3px; flex-wrap: wrap; }
+  .chip { width: 20px; height: 20px; border-radius: 4px; color: #fff; font-weight: 700; font-size: 11px;
+          display: flex; align-items: center; justify-content: center; }
+  .grid { display: grid; gap: 3px; }
+  .cell { aspect-ratio: 1; border: 1px dashed var(--line); border-radius: 5px; display: flex;
+          align-items: center; justify-content: center; font-size: 10px; position: relative; }
+  .cell.want { border: 1px solid var(--boxline); background: #fbf6ea; }
+  .puck { width: 70%; height: 70%; display: flex; align-items: center; justify-content: center;
+          color: #fff; font-weight: 700; font-size: 10px; }
+  .puck.cylinder { border-radius: 50%; }
+  .puck.box { border-radius: 2px; }
+  .locs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .loc .title { font-weight: 600; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .badge { font-size: 10px; padding: 0 5px; border-radius: 8px; background: #e7f5ec; color: var(--ok); }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 2px 4px; vertical-align: top; border-bottom: 1px solid #f0f2f4; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  .kv { display: grid; grid-template-columns: 80px 1fr; gap: 2px 8px; }
+  button, select, input { font: inherit; }
+  button { border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+  button:hover { border-color: #b8c2d0; }
+  button.on { background: var(--path); color: #fff; border-color: var(--path); }
+  button.primary { background: var(--path); color: #fff; border-color: var(--path); padding: 4px 14px; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  select { border: 1px solid var(--line); border-radius: 6px; padding: 2px 4px; background: #fff; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 4px 0; }
+  pre { background: #f6f7f9; border-radius: 6px; padding: 6px 8px; margin: 4px 0; font-size: 11px;
+        white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow: auto; }
+  tr.h { cursor: pointer; } tr.h:hover td { background: #f6f8fb; }
+  .src { font-size: 10px; padding: 0 5px; border-radius: 8px; background: #eef1f5; color: var(--muted); }
+  .src.web { background: #fff3dc; color: #a26a00; }
+  .src.replay { background: #e7f5ec; color: var(--ok); }
+  .who { font-size: 11px; padding: 0 6px; border-radius: 8px; font-weight: 600; white-space: nowrap; }
+  .who.ai { background: #e8f0fd; color: #1f5fbf; }
+  .who.rule { background: #eef1f5; color: #5b6472; }
+  .who.user { background: #fff3dc; color: #a26a00; }
+  .tabs { display: flex; gap: 4px; margin: -2px 0 10px; position: sticky; top: -12px; background: var(--panel);
+          padding: 8px 0 6px; z-index: 1; border-bottom: 1px solid var(--line); }
+  .tabs button { border-radius: 6px 6px 0 0; }
+  .dec { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+  .dec > .head { padding: 6px 10px; cursor: pointer; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+  .dec > .head:hover { background: #f6f8fb; }
+  .dec > .body { padding: 0 10px 8px; border-top: 1px solid #f0f2f4; }
+  /* 미리 판단 진행 카드: 실제 판단이 아니므로 작고 흐리게, 점선 테두리로 구별한다 */
+  .dec.pre { border: 1px dashed #d4c8ef; background: #fbf9ff; margin: -4px 0 6px 18px; border-radius: 6px; }
+  .dec.pre.gone { border-color: var(--line); background: #f8f9fb; }
+  .dec.pre > .head { padding: 2px 8px; font-size: 11px; cursor: default; gap: 4px; color: var(--muted); }
+  .dec.pre > .head:hover { background: transparent; }
+  .think { background: #f3f0fb; border-left: 3px solid #8b6fd6; border-radius: 4px; padding: 6px 8px; margin: 6px 0; white-space: pre-wrap; }
+  .plan ol { margin: 4px 0 2px; padding-left: 22px; }
+  .plan li.next { font-weight: 700; }
+  .chg { background: #fff6e6; border-left: 3px solid #e8892b; border-radius: 4px; padding: 5px 8px; margin: 5px 0; }
+  .pretag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #efe9fb; color: #5b3fa8; font-weight: 600; }
+  .calctag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #e6f4ea; color: #1e7a3c; font-weight: 600; }
+  .chgtag { font-size: 10px; padding: 0 6px; border-radius: 8px; background: #fff0d6; color: #a25a00; font-weight: 600; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1d2330; color: #fff;
+           padding: 8px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 10; }
+  #toast.show { opacity: .95; }
+  #toast.bad { background: var(--bad); }
+  button.danger { color: var(--bad); border-color: #f0c4c4; }
+  input.name { border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; width: 190px; }
+  .say { background: #eef6ff; border-left: 3px solid var(--path); border-radius: 4px; padding: 6px 8px; margin: 6px 0; white-space: pre-wrap; }
+  details summary { cursor: pointer; color: var(--muted); margin-top: 6px; }
+  #status { position: absolute; left: 12px; top: 10px; background: rgba(255,255,255,.9);
+            border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+  #blockedToggle { position: absolute; left: 12px; bottom: 10px; background: rgba(255,255,255,.9);
+            border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="mapwrap"><canvas id="map"></canvas><div id="status">연결 중…</div>
+  <label id="blockedToggle"><input type="checkbox" id="showBlocked" checked> 로봇이 못 가는 곳 표시</label></div>
+<div id="toast"></div>
+<div id="panel">
+  <div class="tabs"><button id="tabBtnRobot" class="on">로봇 · 조작</button><button id="tabBtnLLM">LLM 판단 <span id="decCount"></span></button></div>
+  <div id="tabLLM" hidden>
+    <div class="muted" style="margin-bottom:6px">판마다 ~/xsting_logs/run_*/ 에 자동 저장됨. 지난 판은 로봇 · 조작 탭의 목록에서 고르면 여기에 바로 보임</div>
+    <div class="card" id="decSummary"></div>
+    <h2>AI 계획</h2><div class="card plan" id="planCardLLM"></div>
+    <div class="row">누가 <select id="whoFilter"><option value="">전체</option><option value="ai">AI</option>
+      <option value="rule">규칙(테스트)</option><option value="user">사용자</option></select>
+      <label><input type="checkbox" id="onlyThink"> 생각 요약이 있는 판단만</label>
+      <label><input type="checkbox" id="onlyCalc"> 경로 비교한 판단만</label></div>
+    <div style="margin-top:8px" id="decisions"><span class="muted">아직 판단 기록 없음 (llm_commander를 실행하면 여기에 쌓입니다)</span></div>
+  </div>
+  <div id="tabRobot">
+  <h2>조작</h2>
+  <div class="card">
+    <div class="row"><span class="muted">배속</span><span id="speeds"></span></div>
+    <div class="row"><span class="muted">이번 문제</span><span id="answer" class="mono"></span></div>
+    <div class="row"><button id="pause">⏸ 일시정지</button><button id="stop">■ 미션 정지</button>
+      <span class="muted">가짜 로봇과 중계 노드에 함께 적용</span></div>
+    <div class="row"><button id="reset">경기장 초기화</button><span class="muted" id="resetMsg">새 무작위 문제(퍽·신호·바코드)로 처음부터</span></div>
+  </div>
+  <h2>지난 판 다시 실행</h2>
+  <div class="card">
+    <div class="row"><select id="runSel" style="max-width:270px"><option>목록 불러오는 중…</option></select>
+      <button id="runRefresh" title="목록 새로 고침">↻</button></div>
+    <div class="row"><input class="name" id="runName" maxlength="60" placeholder="이 판의 이름 (예: luna 오탐 재현)">
+      <button id="runNameSave">이름 저장</button><button class="danger" id="runDelete">삭제</button></div>
+    <div class="row"><button class="primary" id="runPlay">다시 실행</button>
+      <span class="muted">판을 고르면 그 판의 판단이 LLM 판단 탭에 채워짐 (읽기만 함)</span></div>
+    <div class="muted" id="replayStatus">같은 문제로 경기장을 맞추고 기록된 명령을 순서대로 다시 보냅니다 (API 비용 없음). 중계 노드는 꺼 두세요.</div>
+  </div>
+  <h2>실패 주입 (시험용)</h2>
+  <div class="card">
+    <div class="row"><select id="fAction" aria-label="행동"></select><select id="fCode" aria-label="에러"></select>
+      <select id="fTarget" aria-label="대상"></select></div>
+    <div class="row"><label id="fOptWrap"><span id="fOptLabel"></span> <input id="fOption" type="number" style="width:60px"></label>
+      <label>횟수 <select id="fTimes"><option>1</option><option>2</option><option>3</option><option>5</option></select></label>
+      <button class="primary" id="fAdd">주입</button></div>
+    <div id="fHelp" class="say" style="margin:6px 0"></div>
+    <div class="muted">로봇이 그 행동을 할 때(대상을 고르면 그 장소에서만) 걸어 둔 횟수만큼 실패합니다.
+      웹에서 건 실패는 경기장 초기화하면 사라집니다. 에러별 뜻은 docs/error_codes.md</div>
+    <div id="faultList" style="margin-top:6px"></div>
+    <div class="row" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">
+      <span class="muted">무작위 인식 실패</span>
+      <label>처음 실패 <input id="pFail" type="number" min="0" max="100" style="width:52px">%</label>
+      <label>한 바퀴 탐색 후 찾음 <input id="pSearch" type="number" min="0" max="100" style="width:52px">%</label>
+      <button id="pApply">적용</button></div>
+    <div class="muted" id="pHelp"></div>
+  </div>
+  <h2>명령 보내기 (ROS action)</h2>
+  <div class="card">
+    <div class="row">
+      <select id="cmdName"></select>
+      <button class="primary" id="cmdSend">보내기</button>
+    </div>
+    <div id="cmdArgs"></div>
+    <div class="muted" style="margin-top:4px">보낼 내용</div><pre id="cmdPreview"></pre>
+    <div class="muted">결과</div><pre id="cmdResult">아직 보낸 명령 없음</pre>
+  </div>
+  <h2>진행 중인 명령</h2><div class="card" id="command"></div>
+  <h2>중계 노드 · LLM 판단</h2><div class="card" id="commander"></div>
+  <h2>AI 계획</h2><div class="card plan" id="planCard"></div>
+  <h2>신호등 관측</h2><div class="card"><div class="chips" id="signal"></div></div>
+  <h2>적재함 (4×3)</h2><div class="card"><div class="grid" id="storage" style="grid-template-columns: repeat(4, 1fr)"></div></div>
+  <h2>하차 박스</h2><div class="locs" id="locs"></div>
+  <h2>받은 명령 기록 <span class="muted" style="text-transform:none">(누르면 인자·결과)</span></h2><div class="card"><table id="history"></table></div>
+  </div>
+</div>
+<script>
+const COLOR = { R: getVar('--red'), G: getVar('--green'), Y: getVar('--yellow'), '?': getVar('--line') };
+function getVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+const canvas = document.getElementById('map'), ctx = canvas.getContext('2d');
+let M = null, mapImg = null, blockedImg = null, S = null, view = null;
+
+async function init() {
+  M = await (await fetch('/map')).json();
+  // 벽 격자를 한 번만 이미지로 만든다 (0행 = 아래쪽이라 위아래를 뒤집어 그린다)
+  mapImg = document.createElement('canvas');
+  mapImg.width = M.width; mapImg.height = M.height;
+  const ic = mapImg.getContext('2d'), img = ic.createImageData(M.width, M.height);
+  const occ = atob(M.occupied_b64);
+  for (let j = 0; j < M.height; j++) for (let i = 0; i < M.width; i++) {
+    if (occ.charCodeAt(j * M.width + i)) {
+      const k = ((M.height - 1 - j) * M.width + i) * 4;
+      img.data[k] = 58; img.data[k + 1] = 66; img.data[k + 2] = 80; img.data[k + 3] = 255;
+    }
+  }
+  ic.putImageData(img, 0, 0);
+  // 로봇 중심(점)이 갈 수 없는 곳 (벽·박스에서 arena.yaml의 costmap.padding 안)
+  blockedImg = document.createElement('canvas');
+  blockedImg.width = M.plan_w; blockedImg.height = M.plan_h;
+  const bc = blockedImg.getContext('2d'), bimg = bc.createImageData(M.plan_w, M.plan_h);
+  const blk = atob(M.blocked_b64);
+  for (let j = 0; j < M.plan_h; j++) for (let i = 0; i < M.plan_w; i++) {
+    if (blk.charCodeAt(j * M.plan_w + i)) {
+      const k = ((M.plan_h - 1 - j) * M.plan_w + i) * 4;
+      bimg.data[k] = 220; bimg.data[k + 1] = 90; bimg.data[k + 2] = 80; bimg.data[k + 3] = 60;
+    }
+  }
+  bc.putImageData(bimg, 0, 0);
+  initFaults();
+  poll();
+}
+
+// ---------- 실패 주입 ----------
+const FAULT_TARGETS = { GOTO: null, LOAD: /^S/, UNLOAD: /^L/, VERIFY_LOCATION: /^L/, READ_MISSION_INPUT: false };
+function initFaults() {
+  const act = document.getElementById('fAction'), code = document.getElementById('fCode'), tgt = document.getElementById('fTarget');
+  act.innerHTML = Object.keys(M.fault_codes).map(a => `<option>${a}</option>`).join('');
+  const syncOption = () => {
+    const label = M.fault_codes[act.value][code.value];
+    document.getElementById('fOptWrap').hidden = !label;
+    document.getElementById('fOptLabel').textContent = label ? OPT_TEXT[label] || label : '';
+    document.getElementById('fOption').value = label ? M.fault_default_option[label] : '';
+    renderFaultHelp();
+  };
+  const syncAction = () => {
+    code.innerHTML = Object.keys(M.fault_codes[act.value]).map(c => `<option>${c}</option>`).join('');
+    const rule = FAULT_TARGETS[act.value];
+    const places = rule === false ? [] : Object.keys(M.targets).filter(p => !rule || rule.test(p));
+    tgt.innerHTML = '<option value="">아무 곳</option>' + places.map(p => `<option>${p}</option>`).join('');
+    tgt.disabled = rule === false;
+    syncOption();
+  };
+  act.addEventListener('change', syncAction);
+  tgt.addEventListener('change', renderFaultHelp);
+  document.getElementById('fOption').addEventListener('input', renderFaultHelp);
+  document.getElementById('fTimes').addEventListener('change', renderFaultHelp);
+  for (const id of ['pFail', 'pSearch']) document.getElementById(id).addEventListener('input', renderPerceptionHelp);
+  code.addEventListener('change', syncOption);
+  syncAction();
+  document.getElementById('fAdd').addEventListener('click', async () => {
+    const r = await post('/fault', { action: act.value, code: code.value, target: tgt.value || null,
+      option: document.getElementById('fOption').value, times: Number(document.getElementById('fTimes').value) });
+    toast(r.ok ? `${act.value}${tgt.value ? ' ' + tgt.value : ''}에 ${code.value} 실패를 걸었습니다` : '걸지 못함: ' + r.error, !r.ok);
+  });
+  document.getElementById('pApply').addEventListener('click', async () => {
+    const r = await post('/perception', { fail_rate: Number(document.getElementById('pFail').value),
+      search_success_rate: Number(document.getElementById('pSearch').value) });
+    toast(r.ok ? `인식 실패 ${r.perception.fail_rate}%, 탐색 후 찾음 ${r.perception.search_success_rate}%로 바꿨습니다` : '바꾸지 못함: ' + r.error, !r.ok);
+  });
+  document.getElementById('faultList').addEventListener('click', async e => {
+    const id = e.target.dataset.fault;
+    if (id) { await post('/fault_remove', { id: Number(id) }); toast('실패를 지웠습니다'); }
+  });
+}
+// 옵션 이름과, 고른 에러가 실제로 어떻게 동작하는지 쉬운 말 설명
+const OPT_TEXT = { '멈출 지점 %': '막히는 위치 (경로의 %)', '실을 개수': '실을 퍽 수', '실패할 항목 번호': '실패할 퍽 순서',
+  '탐색 후 찾을 확률 %': '한 바퀴 돌고 다시 찾을 확률 %' };
+function renderFaultHelp() {
+  const a = document.getElementById('fAction').value, c = document.getElementById('fCode').value;
+  const t = document.getElementById('fTarget').value, n = Number(document.getElementById('fOption').value);
+  const times = document.getElementById('fTimes').value;
+  const where = a === 'GOTO' ? (t ? `${t}로 가는` : '어디로든 가는') : (t ? `${t}에서 하는` : '어디서든 하는');
+  const pct = Math.min(Math.max(n || 0, 1), 90);
+  const text = {
+    OBSTACLE_BLOCKED: `${where} 길의 ${pct}% 지점에서 로봇 앞에 장애물(25cm)이 나타나 멈춥니다. 장애물은 경기장 시간 5초 뒤 사라지고, 그동안 다른 경로는 장애물을 돌아갑니다. (1~90%: 출발 직후 ~ 목적지 조금 전)`,
+    NO_PROGRESS: `${where} 길의 ${pct}% 지점에서 원인 모르게 앞으로 못 가 멈춥니다. 장애물은 없습니다.`,
+    NAV_FAILED: `${where} 길의 ${pct}% 지점에서 주행이 중단돼 멈춥니다.`,
+    LOCALIZATION_LOST: `${where} 길의 ${pct}% 지점에서 위치를 잃고 멈춥니다. 결과의 위치(pose)가 비어 있습니다.`,
+    NO_PATH: `${where} 길을 찾지 못해 출발하지 않습니다.`,
+    GRASP_FAILED: `${where} LOAD에서 박스의 퍽 2개 중 ${Math.max(0, Math.min(n || 0, 1))}개만 싣고 집기에 실패합니다.`,
+    PLACE_FAILED: `${where} UNLOAD에서 ${Math.max(1, n || 1)}번째 퍽을 놓다가 실패합니다. 앞 퍽들은 놓인 채로 남고, 그 퍽은 적재함에 남습니다.`,
+    PERCEPTION_FAILED: `${where} 인식이 처음에 반드시 실패합니다. 로봇이 제자리에서 한 바퀴 돌며 다시 찾고, ${Math.min(Math.max(n || 0, 0), 100)}% 확률로 찾습니다 (0이면 끝내 못 찾아 PERCEPTION_FAILED, 100이면 반드시 찾아 성공).`,
+    ROBOT_FAULT: `${where} 행동이 시작되자마자 하드웨어 이상(모터 과전류)으로 실패합니다.`,
+    INTERNAL_ERROR: `${where} 행동이 시작되자마자 로봇 코드 예외로 실패합니다.`,
+    BAD_RESULT: `${where} 행동은 실제로 하고, 결과를 규약과 다르게 돌려줍니다. 로봇 서버가 BAD_RESULT로 바꿔 알립니다.`,
+  }[c] || '';
+  document.getElementById('fHelp').textContent = `${text} · ${times}번`;
+}
+function renderPerceptionHelp() {
+  const f = Math.min(Math.max(Number(document.getElementById('pFail').value) || 0, 0), 100);
+  const sr = Math.min(Math.max(Number(document.getElementById('pSearch').value) || 0, 0), 100);
+  document.getElementById('pHelp').textContent = f === 0
+    ? '꺼짐. READ·LOAD·VERIFY에서 로봇이 처음 볼 때 못 볼 확률(처음 실패)을 0보다 크게 하면 켜집니다.'
+    : `READ·LOAD·VERIFY마다 처음 볼 때 ${f}% 확률로 못 봅니다. 못 보면 제자리에서 한 바퀴 돌며 다시 찾고 ${sr}% 확률로 찾습니다. `
+      + `인식 100번이면 약 ${Math.round(100 - f)}번은 바로 보고, ${Math.round(f * sr / 100)}번은 돌고 찾고, ${Math.round(f * (100 - sr) / 100)}번은 PERCEPTION_FAILED입니다. 위의 실패 주입과 달리 판 전체에 계속 적용됩니다.`;
+}
+let faultKey = '';
+function renderFaults() {
+  for (const [id, k] of [['pFail', 'fail_rate'], ['pSearch', 'search_success_rate']]) {  // 입력 중이 아니면 서버 값으로
+    const el = document.getElementById(id);
+    if (S.perception && document.activeElement !== el) el.value = S.perception[k];
+  }
+  renderPerceptionHelp();
+  const key = JSON.stringify(S.faults || []);
+  if (key === faultKey) return;
+  faultKey = key;
+  document.getElementById('faultList').innerHTML = (S.faults || []).length
+    ? S.faults.map(f => `<div style="display:flex;gap:6px;align-items:center;margin:3px 0"><span class="chgtag">대기</span>
+        <span class="mono" style="flex:1;min-width:0;font-size:12px">${esc(f.action)}${f.target ? ' ' + esc(f.target) : ''} → ${esc(f.code)}${f.option_label ? ` (${esc(f.option_label)} ${f.option})` : ''} · ${f.times}번</span>
+        <button data-fault="${f.id}" title="지우기" aria-label="지우기">×</button></div>`).join('')
+    : '<span class="muted">걸어 둔 실패 없음</span>';
+}
+
+async function poll() {
+  try {
+    S = await (await fetch('/state')).json();
+    document.getElementById('status').textContent = `가짜 로봇 연결됨 · ${S.time_scale}배속` + (S.paused ? ' · ⏸ 일시정지 중' : '');
+    draw(); renderPanel();
+  } catch (e) {
+    document.getElementById('status').textContent = '로봇 서버에 연결할 수 없음 (robot_command_server backend:=fake 실행 중인지 확인)';
+  }
+  setTimeout(poll, 120);
+}
+
+// ---------- 지도 ----------
+function setupView() {
+  const dpr = window.devicePixelRatio || 1, r = canvas.getBoundingClientRect();
+  canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+  const W = M.width * M.res_mm, H = M.height * M.res_mm, pad = 24 * dpr;
+  const s = Math.min((canvas.width - 2 * pad) / W, (canvas.height - 2 * pad) / H);
+  const ox = (canvas.width - W * s) / 2, oy = (canvas.height - H * s) / 2;
+  view = { s, dpr, W, H, ox, oy,
+    px: x => ox + (x - M.origin_mm[0]) * s,
+    py: y => oy + (H - (y - M.origin_mm[1])) * s };
+}
+window.addEventListener('resize', () => { if (M) { setupView(); draw(); } });
+
+function rect(cx, cy, size, fill, stroke) {
+  const v = view, w = size * v.s;
+  ctx.fillStyle = fill; ctx.fillRect(v.px(cx) - w / 2, v.py(cy) - w / 2, w, w);
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = v.dpr; ctx.strokeRect(v.px(cx) - w / 2, v.py(cy) - w / 2, w, w); }
+}
+function label(text, x, y, dy = 0) {
+  ctx.fillStyle = getVar('--muted'); ctx.font = `${11 * view.dpr}px system-ui`; ctx.textAlign = 'center';
+  ctx.fillText(text, view.px(x), view.py(y) + dy * view.dpr);
+}
+function puck(p, x, y) {
+  const r = Math.max(15 * view.s, 4 * view.dpr);
+  ctx.fillStyle = COLOR[p.color] || '#888';
+  ctx.beginPath();
+  if (p.shape === 'box') ctx.rect(view.px(x) - r, view.py(y) - r, 2 * r, 2 * r);
+  else ctx.arc(view.px(x), view.py(y), r, 0, 2 * Math.PI);
+  ctx.fill();
+}
+function cellXY(loc, cell) {
+  const [tx, ty] = M.targets[loc];
+  return [tx + ((cell % 3) - 1) * 60, ty + (1 - Math.floor(cell / 3)) * 60];
+}
+
+function draw() {
+  if (!view || canvas.width !== Math.round(canvas.getBoundingClientRect().width * (window.devicePixelRatio || 1))) setupView();
+  const v = view;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#fff'; ctx.fillRect(v.px(M.origin_mm[0]), v.py(M.origin_mm[1] + v.H), v.W * v.s, v.H * v.s);
+
+  // 출발 구역, 중앙 받침대
+  const st = M.targets.HOME;
+  rect(st[0], st[1], M.start_zone_mm, getVar('--start'));
+  label('HOME', st[0], st[1] - M.start_zone_mm / 2, -4);
+  for (const o of M.obstacles) {  // arena.yaml의 obstacles (중앙 받침대 등)
+    const [cx, cy] = o.center, [sx, sy] = o.size;
+    ctx.fillStyle = '#f1ead9'; ctx.fillRect(v.px(cx - sx / 2), v.py(cy + sy / 2), sx * v.s, sy * v.s);
+    ctx.strokeStyle = '#d8c9a3'; ctx.lineWidth = v.dpr; ctx.strokeRect(v.px(cx - sx / 2), v.py(cy + sy / 2), sx * v.s, sy * v.s);
+  }
+
+  ctx.imageSmoothingEnabled = false;
+  if (document.getElementById('showBlocked').checked) {
+    const pw = M.plan_w * M.plan_cell_mm, ph = M.plan_h * M.plan_cell_mm;
+    ctx.drawImage(blockedImg, v.px(M.origin_mm[0]), v.py(M.origin_mm[1] + ph), pw * v.s, ph * v.s);
+  }
+  ctx.drawImage(mapImg, v.ox, v.oy, v.W * v.s, v.H * v.s);
+  // 가벽 (팀이 정한 진입 금지선): 진짜 벽과 구별되게 주황 점선으로 그린다
+  ctx.save(); ctx.strokeStyle = '#e8892b'; ctx.lineWidth = Math.max(M.wall_mm * v.s, 2 * v.dpr);
+  ctx.setLineDash([6 * v.dpr, 4 * v.dpr]); ctx.lineCap = 'butt';
+  for (const vw of M.virtual_walls) {
+    ctx.beginPath(); ctx.moveTo(v.px(vw.from[0]), v.py(vw.from[1])); ctx.lineTo(v.px(vw.to[0]), v.py(vw.to[1])); ctx.stroke();
+    label(vw.id, (vw.from[0] + vw.to[0]) / 2, (vw.from[1] + vw.to[1]) / 2, -4);
+  }
+  ctx.restore();
+
+  // 시작 박스와 퍽
+  for (let k = 1; k <= 6; k++) {
+    const name = `S${k}`, [x, y] = M.targets[name];
+    rect(x, y, M.box_mm, getVar('--box'), getVar('--boxline'));
+    label(name, x, y + M.box_mm / 2, -5);
+    (S.boxes[name] || []).forEach((p, i) => { if (p) puck(p, x + M.puck_offset_mm[i], y); });
+  }
+  // 배치 장소: 3x3 점과 놓인 퍽
+  for (const loc of ['L1', 'L2', 'L3']) {
+    const [x, y] = M.targets[loc];
+    rect(x, y, M.box_mm, '#e4f0ea', '#8fbca2');
+    label(loc, x, y + M.box_mm / 2, -5);
+    for (let c = 0; c < 9; c++) {
+      const [cx, cy] = cellXY(loc, c), p = S.placed[loc][c];
+      if (p) puck(p, cx, cy);
+      else { ctx.fillStyle = '#9fb7a9'; ctx.beginPath(); ctx.arc(v.px(cx), v.py(cy), 1.5 * v.dpr, 0, 7); ctx.fill(); }
+    }
+  }
+  // 신호등과 바코드
+  const [lx, ly] = M.light_mm, lr = Math.max(25 * v.s, 4 * v.dpr);
+  ctx.fillStyle = '#2a2f38'; ctx.fillRect(v.px(lx) - lr * 1.4, v.py(ly) - lr * 4, lr * 2.8, lr * 8);
+  ['R', 'Y', 'G'].forEach((c, i) => {
+    ctx.fillStyle = S.light === c ? COLOR[c] : '#555b66';
+    ctx.beginPath(); ctx.arc(v.px(lx), v.py(ly) - lr * 2.5 + i * lr * 2.5, lr, 0, 7); ctx.fill();
+  });
+  const [bx, by] = M.barcode_mm;
+  ctx.fillStyle = '#111'; ctx.fillRect(v.px(bx) - 3 * v.dpr, v.py(by) - 8 * v.dpr, 6 * v.dpr, 16 * v.dpr);
+  label(S.barcode ? S.barcode : '바코드', bx + 250, by, 4);
+
+  // arena.yaml의 출발·복귀 자세 (나머지 장소는 GOTO마다 대상 둘레 무작위)
+  ctx.strokeStyle = '#b8c2d0'; ctx.lineWidth = v.dpr;
+  {
+    const a = M.start_pose, x = v.px(a[0]), y = v.py(a[1]), d = 4 * v.dpr;
+    ctx.beginPath(); ctx.moveTo(x - d, y - d); ctx.lineTo(x + d, y + d); ctx.moveTo(x + d, y - d); ctx.lineTo(x - d, y + d); ctx.stroke();
+  }
+  // 임시 장애물 (OBSTACLE_BLOCKED로 생김, 잠시 뒤 사라짐)
+  for (const o of S.temp_obstacles || []) {
+    const [w, hh] = o.size_mm;
+    ctx.fillStyle = 'rgba(214,69,69,.35)'; ctx.strokeStyle = '#d64545'; ctx.lineWidth = v.dpr;
+    ctx.fillRect(v.px(o.x - w / 2), v.py(o.y + hh / 2), w * v.s, hh * v.s);
+    ctx.strokeRect(v.px(o.x - w / 2), v.py(o.y + hh / 2), w * v.s, hh * v.s);
+    label(`장애물 ${o.left_s.toFixed(1)}초`, o.x, o.y + hh / 2 + 120, 4);
+  }
+  // 경로
+  if (S.path.length) {
+    ctx.strokeStyle = getVar('--path'); ctx.lineWidth = 2 * v.dpr; ctx.setLineDash([6 * v.dpr, 4 * v.dpr]);
+    ctx.beginPath(); S.path.forEach(([x, y], i) => i ? ctx.lineTo(v.px(x), v.py(y)) : ctx.moveTo(v.px(x), v.py(y)));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // 로봇
+  const { x, y, yaw } = S.pose, fp = M.footprint_mm;
+  const hl = Math.max(...fp.map(p => Math.abs(p[0]))) * v.s, hw = Math.max(...fp.map(p => Math.abs(p[1]))) * v.s;
+  ctx.save(); ctx.translate(v.px(x), v.py(y)); ctx.rotate(-yaw * Math.PI / 180);
+  ctx.fillStyle = S.command ? '#2f7de1' : '#4b5567'; ctx.globalAlpha = .9;
+  ctx.beginPath(); fp.forEach(([px, py], k) => k ? ctx.lineTo(px * v.s, -py * v.s) : ctx.moveTo(px * v.s, -py * v.s));
+  ctx.closePath(); ctx.fill();  // arena.yaml의 footprint 그대로 (화면은 y가 아래로 커서 -y)
+  ctx.globalAlpha = 1; ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.moveTo(hl * .9, 0); ctx.lineTo(hl * .2, -hw * .45); ctx.lineTo(hl * .2, hw * .45); ctx.fill();
+  ctx.restore();
+}
+
+// ---------- 오른쪽 패널 ----------
+const srcLabel = s => ({ web: '화면', replay: '다시 실행', relay: '중계 노드' }[s] || s);
+const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const escAttr = s => esc(s).replace(/"/g, '&quot;');
+const argText = a => {
+  if (!a || !Object.keys(a).length) return '';
+  if (a.items) return a.items.map(i => `${i.puck_id}→c${i.cell}`).join(' ');
+  return Object.entries(a).map(([k, v]) => `${k}=${v}`).join(' ');
+};
+function puckHTML(p) {
+  if (!p) return '';
+  return `<div class="puck ${p.shape}" style="background:${COLOR[p.color]}" title="id ${p.id} ${p.color} ${p.shape}">${p.id}</div>`;
+}
+function renderPanel() {
+  const c = S.command;
+  document.getElementById('command').innerHTML = c
+    ? `<div class="cmd">${esc(c.name)} <span class="mono muted">${esc(argText(c.args))}</span> <span class="src ${c.source}">${srcLabel(c.source)}</span></div>
+       <div class="muted">${esc(c.phase || '…')} · ${((Date.now() / 1000) - c.started).toFixed(1)}초</div>`
+    : '<span class="muted">대기 중 (LLM 판단을 기다리는 중)</span>';
+
+  const m = S.commander;
+  if (!m) document.getElementById('commander').innerHTML = '<span class="muted">llm_commander가 아직 실행되지 않음</span>';
+  else {
+    const st = m.state, d = m.decision, w = st.world;
+    document.getElementById('commander').innerHTML = `<div class="kv">
+      <span class="muted">모델</span><span>${esc(m.model)}</span>
+      <span class="muted">페이즈</span><span><b>${esc(st.phase)}</b> · turn ${m.turn} · here=${esc(st.robot.here)}</span>
+      <span class="muted">마지막 판단</span><span>${d ? `<b>${esc(d.name)}</b> <span class="mono">${esc(argText(d.args))}</span> · ${d.latency_s}초` : '-'}</span>
+      ${d && d.text ? `<span class="muted">설명</span><span>${esc(d.text)}</span>` : ''}
+      <span class="muted">입력</span><span>${w.barcode ? `${esc(w.barcode.code)} (${esc(w.barcode.order)})` : '바코드 전'}${w.signal ? ` · R${w.signal.counts.R} Y${w.signal.counts.Y} G${w.signal.counts.G}` : ''}</span>
+      ${st.last_action && !st.last_action.success ? `<span class="muted">직전 실패</span><span class="bad">${esc(st.last_action.name)} ${esc(st.last_action.error || '')}</span>` : ''}
+      ${m.halt ? `<span class="muted">중단</span><span class="bad">${esc(m.halt)}</span>` : ''}</div>`;
+  }
+
+  document.getElementById('signal').innerHTML = S.seen_signal.length
+    ? S.seen_signal.map((c, i) => `<div class="chip" style="background:${COLOR[c]};${S.light && i === S.seen_signal.length - 1 ? 'outline:2px solid #222' : ''}">${c}</div>`).join('')
+    : '<span class="muted">아직 관측 전</span>';
+
+  let storage = '';
+  for (let i = 0; i < 12; i++) storage += `<div class="cell" title="slot ${i}">${puckHTML(S.storage[i])}</div>`;
+  document.getElementById('storage').innerHTML = storage;
+
+  document.getElementById('locs').innerHTML = ['L1', 'L2', 'L3'].map(loc => {
+    let cells = '';
+    for (let i = 0; i < 9; i++) cells += `<div class="cell" title="cell ${i}">${puckHTML(S.placed[loc][i])}</div>`;
+    return `<div class="loc"><div class="title">${loc}${S.verified.includes(loc) ? '<span class="badge">검증</span>' : ''}</div>
+            <div class="grid" style="grid-template-columns: repeat(3, 1fr)">${cells}</div></div>`;
+  }).join('');
+
+  const ans = S.answer, cnt = c => ans.signal.split(c).length - 1;
+  const all = Object.values(ans.pucks).flat(), n = (c, sh) => all.filter(p => p.color === c && (!sh || p.shape === sh)).length;
+  document.getElementById('answer').innerHTML = `${esc(ans.barcode)} · ` +
+    ans.signal.split('').map(c => `<span style="color:${COLOR[c]};font-weight:700">${c}</span>`).join('') +
+    ` <span class="muted">(R${cnt('R')} Y${cnt('Y')} G${cnt('G')})</span><br><span class="muted">퍽: 빨강 ${n('R')} (○${n('R', 'cylinder')} □${n('R', 'box')}) · 초록 ${n('G')} (○${n('G', 'cylinder')} □${n('G', 'box')})</span>`;
+  const pb = document.getElementById('pause');
+  pb.textContent = S.paused ? '▶ 재개' : '⏸ 일시정지';
+  pb.classList.toggle('on', S.paused);
+  renderHistory();
+  renderFaults();
+  renderWebResult();
+  renderReplay();
+  loadDecisions();
+  renderSpeeds();
+  document.getElementById('cmdSend').disabled = !!S.command;
+}
+
+// ---------- 탭 ----------
+for (const [btn, tab] of [['tabBtnRobot', 'tabRobot'], ['tabBtnLLM', 'tabLLM']]) {
+  document.getElementById(btn).addEventListener('click', () => {
+    for (const [b, t] of [['tabBtnRobot', 'tabRobot'], ['tabBtnLLM', 'tabLLM']]) {
+      document.getElementById(t).hidden = t !== tab;
+      document.getElementById(b).classList.toggle('on', b === btn);
+    }
+  });
+}
+
+// ---------- LLM 판단 기록 ----------
+let decKey = '', decisions = [];
+const decOpen = new Set(), decClosed = new Set();
+const k = n => n == null ? '-' : n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+async function loadDecisions() {
+  if (S.decisions_key === decKey) return;
+  decKey = S.decisions_key;
+  decisions = await (await fetch('/decisions')).json();
+  renderDecisions();
+}
+function usageOf(d) {
+  const u = d.usage || {}, i = u.input_tokens_details || {}, o = u.output_tokens_details || {};
+  return { input: u.input_tokens, cached: i.cached_tokens, output: u.output_tokens, reasoning: o.reasoning_tokens };
+}
+// 누가 정한 행동인지: ai(ChatGPT) | rule(decider:=script 고정 행동) | user(웹 화면에서 직접 보낸 명령)
+const WHO = { ai: 'AI', rule: '규칙(테스트)', user: '사용자' };
+const whoOf = d => d.decider || (d.usage || d.raw_output || d.latency_s != null ? 'ai' : 'rule');
+// 태그 이름: AI는 모델 이름의 끝부분을 붙인다 (gpt-6-luna → AI-luna, gpt-6.1-sol → AI-sol)
+const modelTag = m => m ? 'AI-' + String(m).split('-').pop() : 'AI';
+const tagOf = d => whoOf(d) === 'ai' ? modelTag(d.model) : WHO[whoOf(d)];
+// ---------- 계획 ----------
+// 판단마다 함께 적힌 plan으로 현재 계획과 변경 이력을 그린다 (실시간·지난 판 보기 모두 같은 기록을 쓴다)
+const routeHTML = (route, nextFirst) => route && route.length
+  ? `<ol>${route.map((r, i) => `<li class="${nextFirst && i === 0 ? 'next' : ''}">${esc(r)}</li>`).join('')}</ol>`
+  : '<div class="muted">남은 순서 없음</div>';
+function renderPlan() {
+  const recs = decisions.filter(d => d.plan && whoOf(d) !== 'user');
+  let html;
+  if (!recs.length) html = '<span class="muted">아직 계획 없음 (판단마다 함께 적힌 계획이 여기에 보임)</span>';
+  else {
+    const cur = recs[recs.length - 1], p = cur.plan;
+    const changes = recs.filter((d, i) => i === 0 || d.plan.change);
+    const lastChange = changes[changes.length - 1];
+    html = `<div class="kv">
+        <span class="muted">처음 세움</span><span>#${recs[0].turn}${changes.length > 1 ? ` · 마지막 변경 <b>#${lastChange.turn}</b> (${changes.length - 1}회 바뀜)` : ' · 바뀐 적 없음'}</span>
+        <span class="muted">할당</span><span>${esc(p.assignment || '-')}</span>
+        <span class="muted">근거</span><span>${esc(p.reason || '-')}</span></div>
+      <div class="muted" style="margin-top:6px">#${cur.turn} ${esc(cur.name || '')} 다음 남은 순서 (굵은 것이 다음 행동)</div>${routeHTML(p.route, true)}
+      ${changes.length > 1 ? `<div class="muted" style="margin-top:6px">계획 변경 기록</div>` + changes.slice(1).reverse().map(d => {
+        const before = recs[recs.indexOf(d) - 1];
+        return `<div class="chg"><b>#${d.turn}</b> <span class="chgtag">계획 변경</span> ${esc(d.plan.change)}
+          <details><summary>바뀌기 전 (#${before.turn}) / 바뀐 뒤 순서</summary>
+            <div class="muted">전</div>${routeHTML(before.plan.route)}<div class="muted">후</div>${routeHTML(d.plan.route)}</details></div>`;
+      }).join('') : ''}`;
+  }
+  for (const id of ['planCard', 'planCardLLM']) {
+    const el = document.getElementById(id), open = [...el.querySelectorAll('details')].map(x => x.open);
+    el.innerHTML = html;
+    el.querySelectorAll('details').forEach((x, i) => { if (open[i]) x.open = true; });  // 펼친 것은 유지
+  }
+}
+function renderDecisions() {
+  renderPlan();
+  document.getElementById('decCount').textContent = decisions.length ? `(${decisions.length})` : '';
+  if (!decisions.length) {  // 경기장 초기화 등으로 비었으면 화면도 비운다
+    document.getElementById('decSummary').innerHTML = '';
+    document.getElementById('decisions').innerHTML = '<span class="muted">아직 판단 기록 없음 (llm_commander를 실행하거나 명령 보내기를 하면 여기에 쌓입니다)</span>';
+    return;
+  }
+  const rid = String(decisions[0].run_id);
+  const source = rid.startsWith('replay:') ? ['다시 실행', rid.slice(7)] : rid.startsWith('log:') ? ['기록 보기', rid.slice(4)] : null;
+  const thinkCount = decisions.filter(d => d.reasoning && d.reasoning.length).length;
+  const calcDecs = decisions.filter(d => d.calcs && d.calcs.length);
+  const preDecs = decisions.filter(d => d.prefetched);
+  const real = decisions.filter(d => !d.prefetch);  // 미리 판단 진행 카드는 판단 수에 넣지 않는다
+  const whoCount = {}; real.forEach(d => { const t = whoOf(d) + '|' + tagOf(d); whoCount[t] = (whoCount[t] || 0) + 1; });
+  const aiRec = decisions.find(d => whoOf(d) === 'ai' && d.model);
+  const sum = f => decisions.reduce((a, d) => a + (usageOf(d)[f] || 0), 0);
+  const lat = real.filter(d => d.latency_s).map(d => d.latency_s);
+  document.getElementById('decSummary').innerHTML = `<div class="kv">
+    ${source ? `<span class="muted">기록</span><span><b>${source[0]}</b> ${esc(source[1])}</span>` : ''}
+    <span class="muted">누가</span><span>${Object.entries(whoCount).map(([t, n]) => `<span class="who ${t.split('|')[0]}">${esc(t.split('|')[1])}</span> ${n}회`).join(' · ')}</span>
+    <span class="muted">모델</span><span>${aiRec ? `${esc(aiRec.model)} · effort ${esc(aiRec.effort)}` : decisions.some(d => whoOf(d) === 'ai') ? '<span class="muted">이 판에는 기록 없음</span>' : '<span class="muted">LLM을 쓰지 않음</span>'}</span>
+    <span class="muted">판단 수</span><span>${real.length}회 · 평균 ${(lat.reduce((a, b) => a + b, 0) / Math.max(lat.length, 1)).toFixed(1)}초 · 최대 ${Math.max(0, ...lat).toFixed(1)}초</span>
+    <span class="muted">생각 요약</span><span>${thinkCount}회 (effort가 낮으면 생각이 짧아 요약이 없는 판단이 많음)</span>
+    <span class="muted">미리 판단</span><span>${preDecs.length ? `${preDecs.length}회 · 기다리지 않은 시간 약 ${preDecs.reduce((a, d) => a + Math.max(0, (d.latency_s || 0) - (d.prefetch_wait_s || 0)), 0).toFixed(0)}초` : '없음'}</span>
+    <span class="muted">경로 비교</span><span>${calcDecs.length ? `판단 ${calcDecs.length}개에서 COMPARE_ROUTES ${calcDecs.reduce((a, d) => a + d.calcs.length, 0)}번 (#${calcDecs.map(d => d.turn).join(', #')})` : '쓰지 않음'}</span>
+    <span class="muted">토큰 합계</span><span>입력 ${k(sum('input'))} (캐시 ${k(sum('cached'))}) · 출력 ${k(sum('output'))} (생각 ${k(sum('reasoning'))})</span></div>`;
+  const newest = decisions[decisions.length - 1];
+  const keepOpen = new Set([...document.querySelectorAll('#decisions details[open]')].map(x => x.dataset.key));
+  const onlyThink = document.getElementById('onlyThink').checked, who = document.getElementById('whoFilter').value;
+  const onlyCalc = document.getElementById('onlyCalc').checked;
+  document.getElementById('decisions').innerHTML = decisions.map((d, i) => [d, i]).reverse()
+    .filter(([d]) => (!onlyThink || (d.reasoning && d.reasoning.length)) && (!who || whoOf(d) === who)
+      && (!onlyCalc || (d.calcs && d.calcs.length))).map(([d, i]) => {
+    const w = whoOf(d), id = `${d.run_id}:${i}`, u = usageOf(d), o = d.outcome;
+    const open = decOpen.has(id) || (d === newest && !decClosed.has(id));
+    if (d.prefetch) {  // 미리 판단 진행 카드: 요청함 → 받음 → (실제 판단으로 교체) / 버림
+      const p = d.prefetch, label = { requested: '미리 판단 요청함', answered: '미리 판단 받음', discarded: '미리 판단 버림' }[p.status];
+      const detail = p.status === 'requested' ? `${esc(p.assume)} · 답 받는 중…`
+        : p.status === 'answered' ? `${esc(p.assume)} → <b>${esc(p.answer)}</b> · 로봇 결과 확인 중`
+        : `${esc(p.reason || '')}`;
+      return `<div class="dec pre${p.status === 'discarded' ? ' gone' : ''}"><div class="head"><span class="mono">#${d.turn}</span>
+        <span class="pretag" style="${p.status === 'discarded' ? 'background:#eef1f5;color:#5b6472' : ''}">${label}</span>
+        <span>${detail}</span></div></div>`;
+    }
+    const act = d.error ? `<span class="bad">${esc(d.error)}</span>` : `<b>${esc(d.name)}</b> <span class="mono">${esc(argText(d.args))}</span>`;
+    const res = (o ? `<span class="${o.success ? 'ok' : 'bad'}">${o.success ? '✓' : '✗ ' + esc(o.error || '')}</span>` : (d.error ? '' : '<span class="muted">실행 중…</span>'))
+      + (o && o.recorded ? ` <span class="bad" title="다시 실행 결과가 원래 기록과 다름">⚠ 기록: ${o.recorded.success ? '✓' : '✗ ' + esc(o.recorded.error || '')}</span>` : '');
+    const llmPart = w !== 'ai' ? `<div class="muted" style="margin-top:6px">${w === 'user'
+        ? '웹 화면 "명령 보내기"로 사람이 직접 보낸 명령입니다. LLM 판단이 아닙니다.'
+        : '고정 행동 목록(decider:=script, config/fixed_actions.yaml)에서 보낸 행동입니다. LLM을 부르지 않았습니다.'}</div>
+      <div class="muted">보낸 명령</div><pre>${esc(`${d.name}(${JSON.stringify(d.args || {})})`)}</pre>` : `
+      <div class="muted" style="margin-top:6px">생각 요약</div>
+      ${d.reasoning && d.reasoning.length ? d.reasoning.map(r => `<div class="think">${esc(r)}</div>`).join('') : '<div class="muted">요약 없음 (계정·모델이 요약을 지원하지 않거나 생각이 짧았음)</div>'}
+      ${d.text && d.text.length ? `<div class="muted">응답 문장</div><div class="say">${esc(d.text.join('\n'))}</div>` : ''}
+      ${d.calcs && d.calcs.length ? `<div class="muted">도구 호출 순서</div><div><span class="calctag">${'COMPARE_ROUTES → '.repeat(d.calcs.length)}${esc(d.name || '?')}</span></div>` : ''}
+      <div class="muted">고른 도구</div><pre>${esc(d.name ? `${d.name}(${d.arguments ?? JSON.stringify(d.args || {})})` : '없음')}</pre>
+      <div class="muted">토큰</div><div class="mono">입력 ${k(u.input)} (캐시 ${k(u.cached)}) · 출력 ${k(u.output)} (생각 ${k(u.reasoning)}) · ${d.latency_s}초</div>`;
+    const calcPart = !(d.calcs && d.calcs.length) ? '' : `<div class="muted" style="margin-top:6px">경로 비교 (COMPARE_ROUTES, 로봇은 안 움직임)</div>`
+      + d.calcs.map((c, n) => {
+        const rs = (c.result && c.result.routes) || [], best = Math.min(...rs.map(r => r.total_mm ?? Infinity));
+        return `<div class="mono" style="margin:2px 0">#${n + 1} 출발 (${c.result ? c.result.from.x + ', ' + c.result.from.y : '-'})</div>` + rs.map(r =>
+          `<div class="mono" style="${r.total_mm === best ? 'font-weight:700' : ''}">${r.total_mm == null ? '갈 수 없음' : (r.total_mm / 1000).toFixed(2) + 'm'} · ${esc(r.route.join('→'))}</div>`).join('');
+      }).join('');
+    const planPart = !d.plan ? '' : `<div class="muted" style="margin-top:6px">계획 ${d.plan.change ? '<span class="chgtag">계획 변경</span>' : ''}</div>
+      ${d.plan.change ? `<div class="chg">${esc(d.plan.change)}</div>` : ''}
+      <div class="kv"><span class="muted">할당</span><span>${esc(d.plan.assignment || '-')}</span>
+        <span class="muted">근거</span><span>${esc(d.plan.reason || '-')}</span></div>${routeHTML(d.plan.route)}`;
+    const body = !open ? '' : `<div class="body">${llmPart}${calcPart}${planPart}
+      ${o ? `<div class="muted" style="margin-top:6px">로봇 결과 → 다음 페이즈 ${esc(o.phase_after)}</div><pre>${esc(JSON.stringify(o.result, null, 1))}</pre>` : ''}
+      ${d.input_state ? `<details data-key="${id}:state" ${keepOpen.has(id + ':state') ? 'open' : ''}><summary>보낸 상태 (MissionState, phase=${esc(d.input_state.phase)}, here=${esc(d.input_state.robot.here)})${d.input_state_rebuilt ? ' · 기록된 로봇 결과로 다시 계산함' : ''}</summary><pre>${esc(JSON.stringify(d.input_state, null, 1))}</pre></details>` : '<div class="muted">보낸 상태 기록 없음</div>'}
+      ${w === 'ai' ? `<details data-key="${id}:raw" ${keepOpen.has(id + ':raw') ? 'open' : ''}><summary>응답 원문 (response.output)</summary><pre>${esc(JSON.stringify(d.raw_output || [], null, 1))}</pre></details>` : ''}
+    </div>`;
+    return `<div class="dec"><div class="head" data-id="${id}" data-newest="${d === newest}">
+      <span class="muted mono">#${d.turn}</span> <span class="who ${w}" title="${w === 'ai' ? esc(d.model || '모델 기록 없음') : ''}">${esc(tagOf(d))}</span> ${act} ${res}${d.reasoning && d.reasoning.length ? ' <span title="생각 요약 있음">💭</span>' : ''}${d.plan && d.plan.change ?  ' <span class="chgtag" title="' + escAttr(d.plan.change) + '">계획 변경</span>' : ''}${d.prefetched ? ` <span class="pretag" title="로봇이 앞 행동을 하는 동안 미리 받은 판단: AI 응답 ${d.latency_s}초 중 도착 뒤 ${d.prefetch_wait_s}초만 기다림">미리 판단</span>` : ''}${d.calcs && d.calcs.length ? ` <span class="calctag" title="COMPARE_ROUTES ${d.calcs.length}번 (후보 ${d.calcs.map(c => (c.routes || []).length).join('·')}개)">경로 비교 ×${d.calcs.length}</span>` : ''}
+      <span class="muted" style="margin-left:auto">${w === 'ai' ? `${d.latency_s ?? '-'}초 · ${k(u.input)}/${k(u.output)}` : ''}</span></div>${body}</div>`;
+  }).join('');
+}
+document.getElementById('onlyThink').addEventListener('change', renderDecisions);
+document.getElementById('onlyCalc').addEventListener('change', renderDecisions);
+document.getElementById('whoFilter').addEventListener('change', renderDecisions);
+document.getElementById('decisions').addEventListener('click', e => {
+  const h = e.target.closest('.head');
+  if (!h || !h.dataset.id) return;  // 미리 판단 진행 카드는 펼칠 내용이 없다
+  const id = h.dataset.id, isOpen = !!h.nextElementSibling;
+  if (isOpen) { decOpen.delete(id); decClosed.add(id); } else { decOpen.add(id); decClosed.delete(id); }
+  renderDecisions();
+});
+
+// ---------- 지난 판 다시 실행 ----------
+let runsInfo = {};
+async function loadRuns() {
+  const runs = await (await fetch('/runs')).json(), sel = document.getElementById('runSel');
+  runsInfo = Object.fromEntries(runs.map(r => [r.run_id, r]));
+  const keep = sel.value;
+  sel.innerHTML = '<option value="">지난 판 고르기…</option>' + runs.map(r => `<option value="${esc(r.run_id)}">${r.name ? '★ ' + esc(r.name) + ' · ' : ''}${esc(r.run_id)} · ${esc(r.phase || '?')}`
+    + `${r.halt ? ' (' + esc(String(r.halt).slice(0, 20)) + ')' : ''}`
+    + ` · ${Object.entries(r.deciders || {}).map(([w, n]) => ({ ai: modelTag(r.model), rule: '규칙', user: '사용자' }[w] || w) + ' ' + n).join(' + ') || '기록 없음'}`
+    + `${r.legacy ? ' · 보기만' : ''}${!r.turns ? ' · 비어 있음' : ''}`
+    + `${r.has_problem ? '' : ' · 문제 복원'}</option>`).join('');
+  if (!runs.length) sel.innerHTML = '<option value="">저장된 판 없음</option>';
+  else if (keep && runsInfo[keep]) sel.value = keep;
+  syncRunButtons();
+}
+function syncRunButtons() {
+  const chosen = runsInfo[document.getElementById('runSel').value];
+  document.getElementById('runName').value = chosen ? chosen.name || '' : '';
+  for (const id of ['runName', 'runNameSave', 'runDelete']) document.getElementById(id).disabled = !chosen;
+}
+let toastTimer = null;
+function toast(msg, bad = false) {  // 화면 아래에 잠깐 떴다 사라지는 알림
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.className = ''; }, 2500);
+}
+document.getElementById('runNameSave').addEventListener('click', async () => {
+  const id = document.getElementById('runSel').value;
+  if (!id) return;
+  const r = await post('/run_name', { run_id: id, name: document.getElementById('runName').value });
+  if (!r.ok) return toast('이름을 저장하지 못함: ' + r.error, true);
+  toast(r.name ? `이름을 "${r.name}"(으)로 저장했습니다` : '이름을 지웠습니다');
+  loadRuns();
+});
+document.getElementById('runName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('runNameSave').click(); });
+document.getElementById('runDelete').addEventListener('click', async () => {
+  const id = document.getElementById('runSel').value, chosen = runsInfo[id];
+  if (!id) return;
+  const label = chosen && chosen.name ? `"${chosen.name}" (${id})` : id;
+  if (!confirm(`${label} 판의 기록을 삭제할까요?\n~/xsting_logs/run_${id} 폴더가 지워지고 되돌릴 수 없습니다.`)) return;
+  const r = await post('/run_delete', { run_id: id });
+  if (!r.ok) return toast('삭제하지 못함: ' + r.error, true);
+  toast(`${label} 판을 삭제했습니다`);
+  document.getElementById('runSel').value = '';
+  decKey = '';
+  loadRuns();
+});
+document.getElementById('runRefresh').addEventListener('click', loadRuns);
+document.getElementById('runSel').addEventListener('change', async e => {
+  syncRunButtons();
+  if (!e.target.value) return;
+  const r = await post('/view_run', { run_id: e.target.value });  // 읽기만 함, 저장하지 않음
+  if (!r.ok) return document.getElementById('replayStatus').textContent = '불러오지 못함: ' + r.error;
+  decKey = '';  // 판단 기록만 새로 불러온다. 탭은 그대로 둔다 (LLM 판단 탭에서 볼 수 있음)
+});
+document.getElementById('runPlay').addEventListener('click', async () => {
+  const id = document.getElementById('runSel').value;
+  if (!id) return;
+  const r = await post('/replay', { run_id: id });
+  if (!r.ok) document.getElementById('replayStatus').textContent = '시작하지 못함: ' + r.error;
+});
+function renderReplay() {
+  const r = S.replay, el = document.getElementById('replayStatus');
+  const chosen = runsInfo[document.getElementById('runSel').value];
+  document.getElementById('runPlay').disabled = !!(r && !r.done) || !!S.command || !chosen || chosen.legacy || !chosen.turns;
+  if (!r) return;
+  el.innerHTML = `${r.done ? '끝남' : '<b>다시 실행 중</b>'} ${esc(r.run_id)} · #${r.turn}/${r.total}`
+    + (r.mismatch ? ` · <span class="bad">기록과 결과가 다른 명령 ${r.mismatch}개</span>` : '')
+    + (r.reconstructed ? '<br><span class="muted">이 판은 problem.json이 없어 최종 상태에서 문제를 복원함 (끝까지 못 실은 퍽은 임시값)</span>' : '');
+}
+loadRuns();
+
+// ---------- 받은 명령 기록 ----------
+const opened = new Set();
+let historyKey = '';
+function renderHistory() {
+  const key = S.history.length + ':' + (S.history.length ? S.history[S.history.length - 1].t : 0) + ':' + [...opened].join(',');
+  if (key === historyKey) return;  // 바뀐 것이 있을 때만 다시 그린다 (펼친 내용 유지)
+  historyKey = key;
+  document.getElementById('history').innerHTML = S.history.slice().reverse().map(h => {
+    const id = String(h.t);
+    const row = `<tr class="h" data-id="${id}"><td class="muted mono">${new Date(h.started * 1000).toLocaleTimeString()}</td>
+      <td class="${h.success ? 'ok' : 'bad'}">${h.success ? '✓' : '✗'}</td>
+      <td><b>${esc(h.name)}</b> <span class="mono muted">${esc(argText(h.args))}</span>
+        <span class="src ${h.source}">${srcLabel(h.source)}</span>${h.result && h.result.injected ? ' <span class="chgtag" title="웹·시나리오에서 걸어 둔 실패">주입됨</span>' : ''}
+        <span class="muted">${h.duration_s}초</span>${h.error ? ` <span class="bad">${esc(h.error)}</span>` : ''}</td></tr>`;
+    const detail = opened.has(id) ? `<tr><td></td><td colspan="2">
+      <div class="muted">받은 인자 (args)</div><pre>${esc(JSON.stringify(h.args, null, 1))}</pre>
+      <div class="muted">돌려준 결과 (result)</div><pre>${esc(JSON.stringify(h.result, null, 1))}</pre></td></tr>` : '';
+    return row + detail;
+  }).join('');
+}
+document.getElementById('history').addEventListener('click', e => {
+  const tr = e.target.closest('tr.h');
+  if (!tr) return;
+  opened.has(tr.dataset.id) ? opened.delete(tr.dataset.id) : opened.add(tr.dataset.id);
+  historyKey = ''; renderHistory();
+});
+
+// ---------- 배속, 초기화 ----------
+const SPEEDS = [0.5, 1, 2, 4, 8, 16];
+function renderSpeeds() {
+  const el = document.getElementById('speeds');
+  if (!el.children.length) {
+    el.innerHTML = SPEEDS.map(v => `<button data-v="${v}">${v}×</button>`).join(' ');
+    el.addEventListener('click', async e => {
+      const v = e.target.dataset.v;
+      if (v) await post('/time_scale', { value: Number(v) });
+    });
+  }
+  for (const b of el.children) b.classList.toggle('on', Number(b.dataset.v) === S.time_scale);
+}
+document.getElementById('pause').addEventListener('click', () => post('/control', { cmd: S.paused ? 'resume' : 'pause' }));
+document.getElementById('stop').addEventListener('click', () => {
+  if (confirm('진행 중인 명령을 취소하고 중계 노드의 미션을 끝낼까요?')) post('/control', { cmd: 'stop' });
+});
+document.getElementById('reset').addEventListener('click', async () => {
+  if (!confirm('경기장을 처음 상태로 되돌릴까요? 중계 노드(llm_commander)가 실행 중이면 그쪽 상태와 어긋나니 다시 시작하세요.')) return;
+  const r = await post('/reset', {});
+  document.getElementById('resetMsg').textContent = r.ok ? '초기화했습니다' : r.error;
+});
+async function post(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return res.json();
+}
+
+// ---------- 명령 보내기 ----------
+const ACTIONS = {
+  READ_MISSION_INPUT: { where: 'HOME', args: 'none' },
+  GOTO: { where: '어디서든', args: 't' },
+  LOAD: { where: 'S1~S6', args: 'none' },
+  UNLOAD: { where: 'L1~L3', args: 'items' },
+  VERIFY_LOCATION: { where: 'L1~L3', args: 'items' },
+};
+const PLACE_IDS = ['HOME', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'L1', 'L2', 'L3'];
+let items = [{ puck_id: 0, cell: 4 }];
+const nameSel = document.getElementById('cmdName');
+nameSel.innerHTML = Object.keys(ACTIONS).map(n => `<option>${n}</option>`).join('');
+
+function puckLabel(id) {  // 적재함에 있으면 색·모양을 함께 보여 준다
+  const p = S && Object.values(S.storage || {}).find(q => q && q.id === id);
+  return p ? `${id} (${p.color} ${p.shape === 'box' ? '□' : '○'} 적재함)` : String(id);
+}
+function renderArgs() {
+  const a = ACTIONS[nameSel.value], box = document.getElementById('cmdArgs');
+  let html = `<div class="muted">위치 조건: ${a.where}</div>`;
+  if (a.args === 't') {
+    html += `<div class="row">t <select id="argT">${PLACE_IDS.map(p => `<option>${p}</option>`).join('')}</select></div>`;
+  } else if (a.args === 'items') {
+    html += items.map((it, i) => `<div class="row">
+      <span class="muted">${i + 1}.</span>
+      puck_id <select data-i="${i}" data-k="puck_id">${[...Array(12).keys()].map(v => `<option value="${v}" ${v === it.puck_id ? 'selected' : ''}>${puckLabel(v)}</option>`).join('')}</select>
+      cell <select data-i="${i}" data-k="cell">${[...Array(9).keys()].map(v => `<option ${v === it.cell ? 'selected' : ''}>${v}</option>`).join('')}</select>
+      <button data-del="${i}" ${items.length === 1 ? 'disabled' : ''}>×</button></div>`).join('');
+    html += `<div class="row"><button id="addItem">+ 항목 추가</button><button id="fillStorage">적재함 퍽 모두 넣기</button></div>`;
+  } else {
+    html += '<div class="muted">인자 없음</div>';
+  }
+  box.innerHTML = html;
+  renderPreview();
+}
+function currentArgs() {
+  const a = ACTIONS[nameSel.value];
+  if (a.args === 't') return { t: document.getElementById('argT').value };
+  if (a.args === 'items') return { items: items.map(it => ({ puck_id: it.puck_id, cell: it.cell })) };
+  return {};
+}
+function renderPreview() {
+  document.getElementById('cmdPreview').textContent = JSON.stringify({ name: nameSel.value, args: currentArgs() });
+}
+nameSel.addEventListener('change', renderArgs);
+document.getElementById('cmdArgs').addEventListener('change', e => {
+  const i = e.target.dataset.i;
+  if (i !== undefined) items[i][e.target.dataset.k] = Number(e.target.value);
+  renderPreview();
+});
+document.getElementById('cmdArgs').addEventListener('click', e => {
+  if (e.target.dataset.del !== undefined) { items.splice(Number(e.target.dataset.del), 1); renderArgs(); }
+  else if (e.target.id === 'addItem') { items.push({ puck_id: 0, cell: 0 }); renderArgs(); }
+  else if (e.target.id === 'fillStorage') {
+    const ids = Object.values(S.storage || {}).filter(Boolean).map(p => p.id).sort((a, b) => a - b);
+    if (ids.length) { items = ids.map((id, k) => ({ puck_id: id, cell: k % 9 })); renderArgs(); }
+  }
+});
+document.getElementById('cmdSend').addEventListener('click', async () => {
+  const r = await post('/command', { name: nameSel.value, args: currentArgs() });
+  if (!r.ok) document.getElementById('cmdResult').textContent = '보내지 못함: ' + r.error;
+});
+let webShown = null;
+function renderWebResult() {
+  const w = S.web_last;
+  if (!w) return;
+  const key = w.t + ':' + (w.result === null);
+  if (key === webShown) return;  // 새 결과가 있을 때만 바꾼다 ("보내지 못함" 메시지를 덮지 않게)
+  webShown = key;
+  document.getElementById('cmdResult').textContent = w.result === null
+    ? `${w.name} 실행 중…`
+    : `${w.name} ${w.result.success ? '성공' : '실패'}\n` + JSON.stringify(w.result, null, 1);
+}
+renderArgs();
+init();
+</script>
+</body>
+</html>

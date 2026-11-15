@@ -1,0 +1,37 @@
+# llm_commander를 decider:=script로 켜면 AI 대신 이 순서대로 행동을 보낸다 (AI 없이 시험용).
+#   ros2 run xsting_mission llm_commander --ros-args -p decider:=script
+#
+# 행동 쓰는 법:
+#   - READ_MISSION_INPUT                    인자 없는 행동은 이름만
+#   - {GOTO: S1}                            GOTO는 대상만
+#   - {UNLOAD: auto}                        지금 있는 하차 박스에 놓을 퍽과 cell을 할당 계획(planner.py)으로 정한다.
+#   - {VERIFY_LOCATION: auto}                 신호·바코드·실은 퍽의 색·모양으로 계산하므로 퍽 12개를 모두 실은 뒤에 쓴다
+#   - {UNLOAD: [{puck_id: 0, cell: 4}]}     직접 지정 (퍽 id를 미리 알아야 한다)
+#
+# 실패한 행동은 retries번까지 다시 보낸다. 그래도 실패하면 stop_on_fail이 true면 멈추고, false면 다음 행동으로 넘어간다.
+retries: 2
+stop_on_fail: false
+actions:
+  - READ_MISSION_INPUT
+  - {GOTO: S1}
+  - LOAD
+  - {GOTO: S2}
+  - LOAD
+  - {GOTO: S6}
+  - LOAD
+  - {GOTO: S3}
+  - LOAD
+  - {GOTO: S5}
+  - LOAD
+  - {GOTO: S4}
+  - LOAD
+  - {GOTO: L2}
+  - {UNLOAD: auto}
+  - {VERIFY_LOCATION: auto}
+  - {GOTO: L3}
+  - {UNLOAD: auto}
+  - {VERIFY_LOCATION: auto}
+  - {GOTO: L1}
+  - {UNLOAD: auto}
+  - {VERIFY_LOCATION: auto}
+  - {GOTO: HOME}

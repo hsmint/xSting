@@ -1,0 +1,42 @@
+/**:
+  ros__parameters:
+    # 주행 모드:
+    #   manual : 수동 보행 이동 후 /mission_bridge/nav_arrive 서비스 호출로 도착 확인 (주행 학습 완료 전 기본값)
+    #   action : xsting_nav(/nav/run) 주행 액션 호출 (상자 검출 + 5~10cm 도달 시 내부에서 /approach_box까지 완료 후 반환)
+    #   stub   : 이동 대기 없이 즉시 도착 처리 (책상 위 비전·팔 단독 연동 시험용)
+    nav_mode: "manual"
+    nav_action: "/nav/run"
+
+    # 정밀 접근(/approach_box) 설정:
+    #   - nav_mode="action"에서는 xsting_nav가 /approach_box까지 수행하고 반환하므로 중복 호출 방지(approach_after_nav: false)
+    #   - nav_mode="manual"에서는 수동 도착 후 브리지가 /approach_box를 이어서 실행(approach_in_manual: true)
+    approach_action: "/approach_box"
+    approach_after_nav: false
+    approach_in_manual: true
+    require_approach_in_manual: false
+    approach_in_stub: false
+    approach_timeout_s: 35.0
+    approach_dry_run: false
+    walk_stop_service: "/walk/stop"
+
+    # 로봇 비전·팔 액션 및 토픽 이름 (mk2_ws 기준)
+    sign_action: "/read_sign_barcode"
+    pick_action: "/pick_place"
+    det3d_topic: "/detections_3d"
+    puck_tags_topic: "/puck_tags"
+
+    # 적재·하역·관측 동작 파라미터
+    pucks_per_box: 2
+    default_puck_conf: 0.90
+    default_box_x: 0.285
+    default_box_y: 0.0
+    unload_hold_s: 2.0
+    observe_wait_s: 3.0
+    use_arm_observe_pose: true
+    allow_direct_slot_fallback: false
+    reset_on_read_input: true
+
+    # 좌표계 설정 (xsting_description 기본 프레임: base, 없으면 base_link 자동 폴백)
+    map_frame: "map"
+    base_frame: "base"
+    snap_cardinal_yaw: true
