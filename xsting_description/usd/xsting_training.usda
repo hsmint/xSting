@@ -1,0 +1,2263 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.3.2"
+    }
+    defaultPrim = "xsting"
+    doc = "xSting PhysX training asset; source: ../urdf/xsting.urdf. Zero pose; floating base; zero drive gains."
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "xsting" (
+    apiSchemas = ["GeomModelAPI"]
+    assetInfo = {
+        string name = "xsting"
+    }
+    kind = "component"
+)
+{
+    float3[] extentsHint = [(-0.13725111, -0.37425, -0.0039780876), (0.47309998, 0.37425, 0.44784155), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (-0.13725111, -0.37425, -0.0039780876), (0.47309998, 0.37425, 0.44784155)]
+
+    def Scope "Materials"
+    {
+        def Material "base_link_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_13>
+        )
+        {
+            color3f inputs:diffuseColor = (0.050876085, 0.05087609, 0.059253518)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/base_link_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_duo_2_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_5>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_duo_2_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "leg_1_hip_motor_2_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_14>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/leg_1_hip_motor_2_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_leg_2_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_15>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_leg_2_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_duo_3_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_21>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_duo_3_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "leg_1_hip_motor_3_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_17>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/leg_1_hip_motor_3_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_leg_3_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_23>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_leg_3_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_duo_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_22>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_duo_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "leg_1_hip_motor_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_6>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/leg_1_hip_motor_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_leg_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_9>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_leg_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_duo_6_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_1>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_duo_6_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "leg_1_hip_motor_6_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_18>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/leg_1_hip_motor_6_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_leg_6_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_7>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_leg_6_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_duo_5_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_19>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_duo_5_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "leg_1_hip_motor_5_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_26>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/leg_1_hip_motor_5_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_leg_5_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_2>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_leg_5_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_duo_4_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_4>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_duo_4_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "leg_1_hip_motor_4_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_20>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/leg_1_hip_motor_4_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "XM430_bracket_leg_4_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_12>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/XM430_bracket_leg_4_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_link1_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_3>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_link1_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_link2_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_25>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_link2_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_link3_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_8>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_link3_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_link4_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_24>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_link4_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_gripper_link_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_16>
+        )
+        {
+            color3f inputs:diffuseColor = (0.019606648, 0.01960665, 0.024515007)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_gripper_link_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_finger_l_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_11>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_finger_l_1_mat/PreviewSurface.outputs:surface>
+        }
+
+        def Material "x53_finger_r_1_mat" (
+            instanceable = true
+            add references = </xsting/Library/Flattened_Prototype_10>
+        )
+        {
+            color3f inputs:diffuseColor = (0.6382832, 0.63828325, 0.69207114)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.5
+            token inputs:wrapMode = "repeat"
+            token outputs:surface.connect = </xsting/Materials/x53_finger_r_1_mat/PreviewSurface.outputs:surface>
+        }
+    }
+
+    def Scope "Physics"
+    {
+        def PhysicsRevoluteJoint "leg2_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/leg2_yaw>
+            point3f physics:localPos0 = (0, 0.1, 0.0724719)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, -1, 0, 0)
+            quatf physics:localRot1 = (0, -1, 0, 0)
+            float physics:lowerLimit = -24.999983
+            float physics:upperLimit = 43.000023
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg3_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/leg3_yaw>
+            point3f physics:localPos0 = (-0.11, 0.1, 0.0724719)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, -1, 0, 0)
+            quatf physics:localRot1 = (0, -1, 0, 0)
+            float physics:lowerLimit = -90.00021
+            float physics:upperLimit = 24.999983
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg3_hip" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg3_yaw>
+            rel physics:body1 = </xsting/leg3_hip>
+            point3f physics:localPos0 = (0, 0.0605, 0.00025)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 94.99984
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg2_hip" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg2_yaw>
+            rel physics:body1 = </xsting/leg2_hip>
+            point3f physics:localPos0 = (0, 0.0605, 0.00025)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 94.99984
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg1_hip" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg1_yaw>
+            rel physics:body1 = </xsting/leg1_hip>
+            point3f physics:localPos0 = (0, 0.0605, 0.00025)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 94.99984
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg1_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/leg1_yaw>
+            point3f physics:localPos0 = (0.11, 0.1, 0.0724719)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, -1, 0, 0)
+            quatf physics:localRot1 = (0, -1, 0, 0)
+            float physics:lowerLimit = -24.999983
+            float physics:upperLimit = 90.00021
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg6_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/leg6_yaw>
+            point3f physics:localPos0 = (-0.11, -0.1, 0.0724719)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -90.00021
+            float physics:upperLimit = 24.999983
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg5_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/leg5_yaw>
+            point3f physics:localPos0 = (0, -0.1, 0.0724719)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -43.000023
+            float physics:upperLimit = 24.999983
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg4_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/leg4_yaw>
+            point3f physics:localPos0 = (0.11, -0.1, 0.0724719)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -24.999983
+            float physics:upperLimit = 90.00021
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "arm_roll" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/arm_4>
+            rel physics:body1 = </xsting/gripper>
+            point3f physics:localPos0 = (0.0485, 1.88985e-11, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -179.99985
+            float physics:upperLimit = 179.99985
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "arm_wrist" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Y"
+            rel physics:body0 = </xsting/arm_3>
+            rel physics:body1 = </xsting/arm_4>
+            point3f physics:localPos0 = (0.149, -3.19985e-11, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -105.000244
+            float physics:upperLimit = 124.99991
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "arm_yaw" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Z"
+            rel physics:body0 = </xsting/base>
+            rel physics:body1 = </xsting/arm_1>
+            point3f physics:localPos0 = (0.108, 0, 0.177722)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -179.99985
+            float physics:upperLimit = 179.99985
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "arm_shoulder" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Y"
+            rel physics:body0 = </xsting/arm_1>
+            rel physics:body1 = </xsting/arm_2>
+            point3f physics:localPos0 = (0, -2.31936e-11, 0.0595)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 109.99988
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "arm_elbow" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Y"
+            rel physics:body0 = </xsting/arm_2>
+            rel physics:body1 = </xsting/arm_3>
+            point3f physics:localPos0 = (0.024, -5.15428e-12, 0.128)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 90.00021
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsPrismaticJoint "finger_l" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:linear"]
+        )
+        {
+            float drive:linear:physics:damping = 0
+            float drive:linear:physics:maxForce = 10
+            float drive:linear:physics:stiffness = 0
+            uniform token drive:linear:physics:type = "force"
+            uniform token physics:axis = "Y"
+            rel physics:body0 = </xsting/gripper>
+            rel physics:body1 = </xsting/finger_l>
+            point3f physics:localPos0 = (0.0995, -0.01145, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (-2.14755e-10, -1, 0, 0)
+            quatf physics:localRot1 = (-2.14755e-10, -1, 0, 0)
+            float physics:lowerLimit = -0.00186
+            float physics:upperLimit = 0.025
+            float physxJoint:maxJointVelocity = 0.05
+            custom float urdf:limit:effort = 10
+        }
+
+        def PhysicsPrismaticJoint "finger_r" (
+            apiSchemas = ["PhysxJointAPI", "PhysxMimicJointAPI:rotX"]
+        )
+        {
+            uniform token physics:axis = "Y"
+            rel physics:body0 = </xsting/gripper>
+            rel physics:body1 = </xsting/finger_r>
+            point3f physics:localPos0 = (0.0995, 0.01145, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -0.00186
+            float physics:upperLimit = 0.025
+            float physxJoint:maxJointVelocity = 0.05
+            float physxMimicJoint:rotX:gearing = -1
+            float physxMimicJoint:rotX:offset = 0
+            custom rel physxMimicJoint:rotX:referenceJoint = </xsting/Physics/finger_l>
+            token physxMimicJoint:rotX:referenceJointAxis = "rotX"
+            custom float urdf:limit:effort = 10
+        }
+
+        def PhysicsRevoluteJoint "leg6_hip" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg6_yaw>
+            rel physics:body1 = </xsting/leg6_hip>
+            point3f physics:localPos0 = (0, -0.0605, 0.00025)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, 0, -1, 0)
+            quatf physics:localRot1 = (0, 0, -1, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 94.99984
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg5_hip" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg5_yaw>
+            rel physics:body1 = </xsting/leg5_hip>
+            point3f physics:localPos0 = (0, -0.0605, 0.00025)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, 0, -1, 0)
+            quatf physics:localRot1 = (0, 0, -1, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 94.99984
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg4_hip" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg4_yaw>
+            rel physics:body1 = </xsting/leg4_hip>
+            point3f physics:localPos0 = (0, -0.0605, 0.00025)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, 0, -1, 0)
+            quatf physics:localRot1 = (0, 0, -1, 0)
+            float physics:lowerLimit = -94.99984
+            float physics:upperLimit = 94.99984
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg3_knee" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg3_hip>
+            rel physics:body1 = </xsting/leg3_knee>
+            point3f physics:localPos0 = (0, 0.081, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 100.000046
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg2_knee" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg2_hip>
+            rel physics:body1 = </xsting/leg2_knee>
+            point3f physics:localPos0 = (0, 0.081, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 100.000046
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg1_knee" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg1_hip>
+            rel physics:body1 = </xsting/leg1_knee>
+            point3f physics:localPos0 = (0, 0.081, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 100.000046
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg6_knee" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg6_hip>
+            rel physics:body1 = </xsting/leg6_knee>
+            point3f physics:localPos0 = (0, -0.081, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, 0, -1, 0)
+            quatf physics:localRot1 = (0, 0, -1, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 100.000046
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg5_knee" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg5_hip>
+            rel physics:body1 = </xsting/leg5_knee>
+            point3f physics:localPos0 = (0, -0.081, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, 0, -1, 0)
+            quatf physics:localRot1 = (0, 0, -1, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 100.000046
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+
+        def PhysicsRevoluteJoint "leg4_knee" (
+            apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0
+            float drive:angular:physics:maxForce = 3.8
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </xsting/leg4_hip>
+            rel physics:body1 = </xsting/leg4_knee>
+            point3f physics:localPos0 = (0, -0.081, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0, 0, -1, 0)
+            quatf physics:localRot1 = (0, 0, -1, 0)
+            float physics:lowerLimit = -115.00008
+            float physics:upperLimit = 100.000046
+            float physxJoint:maxJointVelocity = 257.831
+            custom float urdf:limit:effort = 3.8
+        }
+    }
+
+    def Scope "Library"
+    {
+        over "Flattened_Prototype_1"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_1.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_1.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_1.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_1.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_2"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_2.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_2.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_2.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_2.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_3"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_3.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_3.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_3.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_3.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_4"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_4.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_4.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_4.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_4.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_5"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_5.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_5.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_5.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_5.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_6"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_6.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_6.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_6.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_6.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_7"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_7.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_7.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_7.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_7.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_8"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_8.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_8.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_8.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_8.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_9"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_9.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_9.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_9.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_9.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_10"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_10.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_10.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_10.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_10.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_11"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_11.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_11.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_11.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_11.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_12"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_12.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_12.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_12.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_12.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_13"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_13.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_13.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_13.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_13.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_14"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_14.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_14.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_14.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_14.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_15"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_15.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_15.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_15.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_15.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_16"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_16.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_16.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_16.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_16.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_17"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_17.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_17.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_17.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_17.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_18"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_18.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_18.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_18.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_18.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_19"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_19.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_19.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_19.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_19.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_20"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_20.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_20.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_20.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_20.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_21"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_21.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_21.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_21.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_21.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_22"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_22.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_22.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_22.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_22.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_23"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_23.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_23.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_23.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_23.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_24"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_24.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_24.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_24.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_24.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_25"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_25.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_25.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_25.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_25.inputs:roughness>
+                token outputs:surface
+            }
+        }
+
+        over "Flattened_Prototype_26"
+        {
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </xsting/Library/Flattened_Prototype_26.inputs:diffuseColor>
+                float inputs:metallic.connect = </xsting/Library/Flattened_Prototype_26.inputs:metallic>
+                float inputs:opacity.connect = </xsting/Library/Flattened_Prototype_26.inputs:opacity>
+                float inputs:roughness.connect = </xsting/Library/Flattened_Prototype_26.inputs:roughness>
+                token outputs:surface
+            }
+        }
+    }
+
+    def Xform "finger_l" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0113819, -0.00818156, -0.0002759)
+        float3 physics:diagonalInertia = (0.000007435826, 0.000014763855, 0.00001845339)
+        float physics:mass = 0.0258942
+        quatf physics:principalAxes = (0.6877015, 0.7204457, 0.06030503, 0.06624153)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.42900000000000005, -0.01145000004144788, 0.365222, 1) )
+        double3 xformOp:translate = (0.0995, -0.01145, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "finger_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_0>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_finger_l_1_mat>
+        }
+
+        def Xform "finger_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_1>
+        )
+        {
+        }
+    }
+
+    def Xform "finger_r" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0113819, 0.00818156, 0.0002759)
+        float3 physics:diagonalInertia = (0.000007435826, 0.000014763855, 0.00001845339)
+        float physics:mass = 0.0258942
+        quatf physics:principalAxes = (0.6877015, 0.7204457, -0.06030503, -0.06624153)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.42900000000000005, 0.01144999995855212, 0.365222, 1) )
+        double3 xformOp:translate = (0.0995, 0.01145, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "finger_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_2>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_finger_r_1_mat>
+        }
+
+        def Xform "finger_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_3>
+        )
+        {
+        }
+    }
+
+    def Xform "gripper" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0460346, -0.0000203686, 0.019957)
+        float3 physics:diagonalInertia = (0.00009577364, 0.00013970362, 0.00016284223)
+        float physics:mass = 0.170338
+        quatf physics:principalAxes = (0.70908743, 0.0029852092, -0.70511276, -0.001463833)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.3295, -4.144788000000001e-11, 0.365222, 1) )
+        double3 xformOp:translate = (0.0485, 1.88985e-11, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "arducam"
+        {
+            quatf xformOp:orient = (0.9659258, 2.7783711e-11, 0.2588191, -1.0369023e-10)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.0830322, -1.78364e-11, 0.04695)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "arducam_frame"
+            {
+                quatf xformOp:orient = (-0.5, 0.5, -0.5, 0.5)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+        }
+
+        def Xform "gripper" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_4>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_gripper_link_1_mat>
+        }
+
+        def Xform "gripper_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_5>
+        )
+        {
+        }
+    }
+
+    def Xform "arm_4" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0452884, 4.27714e-12, 0.0117543)
+        float3 physics:diagonalInertia = (0.000022984792, 0.000024693009, 0.000032092)
+        float physics:mass = 0.0919584
+        quatf physics:principalAxes = (-0.52616787, 0.52616787, 0.47238475, 0.47238475)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.281, -6.034638000000001e-11, 0.365222, 1) )
+        double3 xformOp:translate = (0.149, -3.19985e-11, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "link4" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_6>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_link4_1_mat>
+        }
+
+        def Xform "link4_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_7>
+        )
+        {
+        }
+    }
+
+    def Xform "leg2_knee" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (8.9429e-12, 0.0521533, -0.000510524)
+        float3 physics:diagonalInertia = (0.0000048592606, 0.0000276111, 0.00003102887)
+        float physics:mass = 0.0301455
+        quatf physics:principalAxes = (0.013991758, 0.70696837, 0.70696837, -0.013991758)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0.2415, 0.0727219, 1) )
+        double3 xformOp:translate = (0, 0.081, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "tibia_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_8>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_leg_2_mat>
+        }
+
+        def Xform "tibia_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_9>
+        )
+        {
+        }
+    }
+
+    def Xform "leg3_knee" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (8.94299e-12, 0.0521533, -0.000510524)
+        float3 physics:diagonalInertia = (0.0000048592606, 0.0000276111, 0.00003102887)
+        float physics:mass = 0.0301455
+        quatf physics:principalAxes = (0.013991758, 0.70696837, 0.70696837, -0.013991758)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, 0.2415, 0.0727219, 1) )
+        double3 xformOp:translate = (0, 0.081, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "tibia_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_10>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_leg_3_mat>
+        }
+
+        def Xform "tibia_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_11>
+        )
+        {
+        }
+    }
+
+    def Xform "leg1_knee" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (8.95391e-12, 0.0521533, -0.000510524)
+        float3 physics:diagonalInertia = (0.0000048592606, 0.0000276111, 0.00003102887)
+        float physics:mass = 0.0301455
+        quatf physics:principalAxes = (0.013991758, 0.70696837, 0.70696837, -0.013991758)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, 0.2415, 0.0727219, 1) )
+        double3 xformOp:translate = (0, 0.081, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "tibia_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_12>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_leg_1_mat>
+        }
+
+        def Xform "tibia_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_13>
+        )
+        {
+        }
+    }
+
+    def Xform "leg6_knee" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-8.95393e-12, -0.0521533, -0.000510524)
+        float3 physics:diagonalInertia = (0.0000048592606, 0.0000276111, 0.00003102887)
+        float physics:mass = 0.0301455
+        quatf physics:principalAxes = (-0.013991758, 0.70696837, 0.70696837, 0.013991758)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, -0.2415, 0.0727219, 1) )
+        double3 xformOp:translate = (0, -0.081, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "tibia_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_14>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_leg_6_mat>
+        }
+
+        def Xform "tibia_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_15>
+        )
+        {
+        }
+    }
+
+    def Xform "leg5_knee" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-8.94783e-12, -0.0521533, -0.000510524)
+        float3 physics:diagonalInertia = (0.0000048592606, 0.0000276111, 0.00003102887)
+        float physics:mass = 0.0301455
+        quatf physics:principalAxes = (-0.013991758, 0.70696837, 0.70696837, 0.013991758)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, -0.2415, 0.0727219, 1) )
+        double3 xformOp:translate = (0, -0.081, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "tibia_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_16>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_leg_5_mat>
+        }
+
+        def Xform "tibia_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_17>
+        )
+        {
+        }
+    }
+
+    def Xform "leg4_knee" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-8.9429e-12, -0.0521533, -0.000510524)
+        float3 physics:diagonalInertia = (0.0000048592606, 0.0000276111, 0.00003102887)
+        float physics:mass = 0.0301455
+        quatf physics:principalAxes = (-0.013991758, 0.70696837, 0.70696837, 0.013991758)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, -0.2415, 0.0727219, 1) )
+        double3 xformOp:translate = (0, -0.081, 0)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "tibia_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_18>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_leg_4_mat>
+        }
+
+        def Xform "tibia_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_19>
+        )
+        {
+        }
+    }
+
+    def Xform "arm_3" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.111037, 0.000452481, 8.84795e-7)
+        float3 physics:diagonalInertia = (0.000017721202, 0.0001979888, 0.000203549)
+        float physics:mass = 0.109602
+        quatf physics:principalAxes = (0.9999932, -0.0000012513183, 0.000011095098, 0.0036861731)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.132, -2.8347880000000002e-11, 0.365222, 1) )
+        double3 xformOp:translate = (0.024, -5.15428e-12, 0.128)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "link3" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_20>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_link3_1_mat>
+        }
+
+        def Xform "link3_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_21>
+        )
+        {
+        }
+    }
+
+    def Xform "leg2_hip" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0011216, 0.0400439, 0.000201165)
+        float3 physics:diagonalInertia = (0.000048991853, 0.00020465543, 0.00020722662)
+        float physics:mass = 0.216242
+        quatf physics:principalAxes = (-0.019067332, 0.70704037, 0.7068318, -0.010914933)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0.1605, 0.0727219, 1) )
+        double3 xformOp:translate = (0, 0.0605, 0.00025)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "femur_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_22>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/leg_1_hip_motor_2_mat>
+        }
+
+        def Xform "femur_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_23>
+        )
+        {
+        }
+    }
+
+    def Xform "leg3_hip" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0011216, 0.0400439, 0.000201165)
+        float3 physics:diagonalInertia = (0.000048991853, 0.00020465543, 0.00020722662)
+        float physics:mass = 0.216242
+        quatf physics:principalAxes = (-0.019067332, 0.70704037, 0.7068318, -0.010914933)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, 0.1605, 0.0727219, 1) )
+        double3 xformOp:translate = (0, 0.0605, 0.00025)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "femur_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_24>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/leg_1_hip_motor_3_mat>
+        }
+
+        def Xform "femur_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_25>
+        )
+        {
+        }
+    }
+
+    def Xform "leg1_hip" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0011216, 0.0400439, 0.000201165)
+        float3 physics:diagonalInertia = (0.000048991853, 0.00020465543, 0.00020722662)
+        float physics:mass = 0.216242
+        quatf physics:principalAxes = (-0.019067332, 0.70704037, 0.7068318, -0.010914933)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, 0.1605, 0.0727219, 1) )
+        double3 xformOp:translate = (0, 0.0605, 0.00025)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "femur_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_26>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/leg_1_hip_motor_1_mat>
+        }
+
+        def Xform "femur_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_27>
+        )
+        {
+        }
+    }
+
+    def Xform "leg6_hip" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0011216, -0.0400439, 0.000201165)
+        float3 physics:diagonalInertia = (0.000048991853, 0.00020465543, 0.00020722662)
+        float physics:mass = 0.216242
+        quatf physics:principalAxes = (0.019067332, 0.70704037, 0.7068318, 0.010914933)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, -0.1605, 0.0727219, 1) )
+        double3 xformOp:translate = (0, -0.0605, 0.00025)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "femur_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_28>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/leg_1_hip_motor_6_mat>
+        }
+
+        def Xform "femur_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_29>
+        )
+        {
+        }
+    }
+
+    def Xform "leg5_hip" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0011216, -0.0400439, 0.000201165)
+        float3 physics:diagonalInertia = (0.000048991853, 0.00020465543, 0.00020722662)
+        float physics:mass = 0.216242
+        quatf physics:principalAxes = (0.019067332, 0.70704037, 0.7068318, 0.010914933)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, -0.1605, 0.0727219, 1) )
+        double3 xformOp:translate = (0, -0.0605, 0.00025)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "femur_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_30>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/leg_1_hip_motor_5_mat>
+        }
+
+        def Xform "femur_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_31>
+        )
+        {
+        }
+    }
+
+    def Xform "leg4_hip" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0011216, -0.0400439, 0.000201165)
+        float3 physics:diagonalInertia = (0.000048991853, 0.00020465543, 0.00020722662)
+        float physics:mass = 0.216242
+        quatf physics:principalAxes = (0.019067332, 0.70704037, 0.7068318, 0.010914933)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, -0.1605, 0.0727219, 1) )
+        double3 xformOp:translate = (0, -0.0605, 0.00025)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "femur_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_32>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/leg_1_hip_motor_4_mat>
+        }
+
+        def Xform "femur_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_33>
+        )
+        {
+        }
+    }
+
+    def Xform "arm_2" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.00848707, 0.000445324, 0.104997)
+        float3 physics:diagonalInertia = (0.00002761308, 0.00016471064, 0.00016852288)
+        float physics:mass = 0.110882
+        quatf physics:principalAxes = (0.5375406, -0.5357441, -0.46501744, -0.4558367)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.108, -2.31936e-11, 0.237222, 1) )
+        double3 xformOp:translate = (0, -2.31936e-11, 0.0595)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "link2" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_34>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_link2_1_mat>
+        }
+
+        def Xform "link2_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_35>
+        )
+        {
+        }
+    }
+
+    def Xform "leg2_yaw" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-2.33698e-7, 0.0302826, 0.00025)
+        float3 physics:diagonalInertia = (0.00000841804, 0.00000852642, 0.000010525)
+        float physics:mass = 0.0281875
+        quatf physics:principalAxes = (-0.4999958, 0.5000042, 0.4999958, 0.5000042)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0.1, 0.0724719, 1) )
+        double3 xformOp:translate = (0, 0.1, 0.0724719)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "coxa_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_36>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_duo_2_mat>
+        }
+
+        def Xform "coxa_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_37>
+        )
+        {
+        }
+    }
+
+    def Xform "leg3_yaw" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-2.33698e-7, 0.0302826, 0.00025)
+        float3 physics:diagonalInertia = (0.00000841804, 0.00000852642, 0.000010525)
+        float physics:mass = 0.0281875
+        quatf physics:principalAxes = (-0.4999958, 0.5000042, 0.4999958, 0.5000042)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, 0.1, 0.0724719, 1) )
+        double3 xformOp:translate = (-0.11, 0.1, 0.0724719)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "coxa_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_38>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_duo_3_mat>
+        }
+
+        def Xform "coxa_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_39>
+        )
+        {
+        }
+    }
+
+    def Xform "leg1_yaw" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-2.33698e-7, 0.0302826, 0.00025)
+        float3 physics:diagonalInertia = (0.00000841804, 0.00000852642, 0.000010525)
+        float physics:mass = 0.0281875
+        quatf physics:principalAxes = (-0.4999958, 0.5000042, 0.4999958, 0.5000042)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, 0.1, 0.0724719, 1) )
+        double3 xformOp:translate = (0.11, 0.1, 0.0724719)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "coxa_left" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_40>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_duo_1_mat>
+        }
+
+        def Xform "coxa_left_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_41>
+        )
+        {
+        }
+    }
+
+    def Xform "leg6_yaw" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (2.33698e-7, -0.0302826, 0.00025)
+        float3 physics:diagonalInertia = (0.00000841804, 0.00000852642, 0.000010525)
+        float physics:mass = 0.0281875
+        quatf physics:principalAxes = (-0.4999958, 0.5000042, 0.4999958, 0.5000042)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, -0.1, 0.0724719, 1) )
+        double3 xformOp:translate = (-0.11, -0.1, 0.0724719)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "coxa_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_42>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_duo_6_mat>
+        }
+
+        def Xform "coxa_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_43>
+        )
+        {
+        }
+    }
+
+    def Xform "leg5_yaw" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (2.33698e-7, -0.0302826, 0.00025)
+        float3 physics:diagonalInertia = (0.00000841804, 0.00000852642, 0.000010525)
+        float physics:mass = 0.0281875
+        quatf physics:principalAxes = (-0.4999958, 0.5000042, 0.4999958, 0.5000042)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, -0.1, 0.0724719, 1) )
+        double3 xformOp:translate = (0, -0.1, 0.0724719)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "coxa_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_44>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_duo_5_mat>
+        }
+
+        def Xform "coxa_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_45>
+        )
+        {
+        }
+    }
+
+    def Xform "leg4_yaw" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (2.33698e-7, -0.0302826, 0.00025)
+        float3 physics:diagonalInertia = (0.00000841804, 0.00000852642, 0.000010525)
+        float physics:mass = 0.0281875
+        quatf physics:principalAxes = (-0.4999958, 0.5000042, 0.4999958, 0.5000042)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, -0.1, 0.0724719, 1) )
+        double3 xformOp:translate = (0.11, -0.1, 0.0724719)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "coxa_right" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_46>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/XM430_bracket_duo_4_mat>
+        }
+
+        def Xform "coxa_right_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_47>
+        )
+        {
+        }
+    }
+
+    def Xform "arm_1" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0, 0.000668578, 0.0467695)
+        float3 physics:diagonalInertia = (0.000013858292, 0.000022333308, 0.0000257154)
+        float physics:mass = 0.083847
+        quatf physics:principalAxes = (-0.7070973, 0.0036598975, 0.7070973, -0.0036598975)
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.108, 0, 0.177722, 1) )
+        double3 xformOp:translate = (0.108, 0, 0.177722)
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "link1" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_48>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/x53_link1_1_mat>
+        }
+
+        def Xform "link1_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_49>
+        )
+        {
+        }
+    }
+
+    def Xform "base" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsArticulationRootAPI", "PhysicsMassAPI", "PhysxArticulationAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.00623743, -0.00000580284, 0.0923071)
+        float3 physics:diagonalInertia = (0.03201669, 0.034466393, 0.046451516)
+        float physics:mass = 4.22343
+        quatf physics:principalAxes = (0.99570787, -0.003383699, 0.023969073, -0.08933045)
+        bool physxArticulation:enabledSelfCollisions = 0
+        int physxArticulation:solverPositionIterationCount = 8
+        int physxArticulation:solverVelocityIterationCount = 2
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def Xform "camera"
+        {
+            quatf xformOp:orient = (1, 0, 0, 0)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.157793, 0.0175, 0.107498)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "camera_infra1_frame"
+            {
+                quatf xformOp:orient = (-0.5, 0.5, -0.5, 0.5)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "camera_depth_frame"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "camera_infra2_frame"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.05, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "camera_color_frame"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.015, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+        }
+
+        def Xform "left_camera"
+        {
+            quatf xformOp:orient = (0.70710677, 0, 0, 0.70710677)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0175, 0.1198, 0.123722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "left_camera_depth_frame"
+            {
+                quatf xformOp:orient = (-0.5, 0.5, -0.5, 0.5)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "left_camera_color_frame"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.015, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+        }
+
+        def Xform "right_camera"
+        {
+            quatf xformOp:orient = (-0.70710677, 0, 0, 0.70710677)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.0175, -0.1198, 0.123722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "right_camera_depth_frame"
+            {
+                quatf xformOp:orient = (-0.5, 0.5, -0.5, 0.5)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_camera_color_frame"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.015, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+        }
+
+        def Xform "ultrasonic"
+        {
+            quatf xformOp:orient = (1, 0, 0, 0)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.12718, 0, 0.0245219)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "lidar"
+        {
+            quatf xformOp:orient = (-1.03411556e-13, 1, 0, 0)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0.0245)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "imu"
+        {
+            quatf xformOp:orient = (1, 0, 0, 0)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.08014, 0, 0.0579169)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_inner_1"
+        {
+            quatf xformOp:orient = (0.4882133, 0, 0, 0.87272435)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.0609, 0.0767, 0.162722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_inner_2"
+        {
+            quatf xformOp:orient = (0.16901611, 0, 0, 0.9856133)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.0231, 0.03, 0.162722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_inner_3"
+        {
+            quatf xformOp:orient = (-0.16901611, 0, 0, 0.9856133)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.0231, -0.03, 0.162722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_inner_4"
+        {
+            quatf xformOp:orient = (-0.4882133, 0, 0, 0.87272435)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0.0609, -0.0767, 0.162722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_middle_1"
+        {
+            quatf xformOp:orient = (0.28313982, 0, 0, 0.95907867)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0112, 0.0771, 0.172722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_middle_2"
+        {
+            quatf xformOp:orient = (0.09551549, 0, 0, 0.99542797)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0314, 0.027, 0.172722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_middle_3"
+        {
+            quatf xformOp:orient = (-0.09551549, 0, 0, 0.99542797)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0314, -0.027, 0.172722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_middle_4"
+        {
+            quatf xformOp:orient = (-0.28313982, 0, 0, 0.95907867)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0112, -0.0771, 0.172722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_outer_1"
+        {
+            quatf xformOp:orient = (0.21102291, 0, 0, 0.9774811)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.066, 0.0788, 0.184722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_outer_2"
+        {
+            quatf xformOp:orient = (0.070851915, 0, 0, 0.9974868)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0811, 0.027, 0.184722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_outer_3"
+        {
+            quatf xformOp:orient = (-0.070851915, 0, 0, 0.9974868)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.0811, -0.027, 0.184722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "pallet_outer_4"
+        {
+            quatf xformOp:orient = (-0.21102291, 0, 0, 0.9774811)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (-0.066, -0.0788, 0.184722)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
+        def Xform "base_link" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_50>
+        )
+        {
+            custom rel material:binding = </xsting/Materials/base_link_mat>
+        }
+
+        def Xform "base_link_1" (
+            instanceable = true
+            prepend references = @./xsting_meshes.usdc@</Mesh_51>
+        )
+        {
+        }
+    }
+}
+

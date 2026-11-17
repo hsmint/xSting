@@ -1,0 +1,414 @@
+#usda 1.0
+(
+    defaultPrim = "xsting"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "xsting" (
+    prepend references = @./xsting_training.usda@
+)
+{
+    over "finger_l"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.42900000000000005, -0.01145000004144788, 0.40522199999999997, 1) )
+    }
+
+    over "finger_r"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.42900000000000005, 0.01144999995855212, 0.40522199999999997, 1) )
+    }
+
+    over "gripper"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.3295, -4.144788000000001e-11, 0.40522199999999997, 1) )
+
+        def Xform "tool0"
+        {
+            double3 xformOp:translate = (0.0995, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    over "arm_4"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.281, -6.034638000000001e-11, 0.40522199999999997, 1) )
+    }
+
+    over "leg2_knee"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.17364817785942446, -0.9848077529782662, 0), (0, 0.9848077529782662, 0.17364817785942446, 0), (0, 0.23064805770647065, 0.15322190000011934, 1) )
+    }
+
+    over "leg3_knee"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.17364817785942446, -0.9848077529782662, 0), (0, 0.9848077529782662, 0.17364817785942446, 0), (-0.11, 0.23064805770647065, 0.15322190000011934, 1) )
+    }
+
+    over "leg1_knee"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.17364817785942446, -0.9848077529782662, 0), (0, 0.9848077529782662, 0.17364817785942446, 0), (0.11, 0.23064805770647065, 0.15322190000011934, 1) )
+    }
+
+    over "leg6_knee"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.17364817785942446, 0.9848077529782662, 0), (0, -0.9848077529782662, 0.17364817785942446, 0), (-0.11, -0.23064805770647065, 0.15322190000011934, 1) )
+    }
+
+    over "leg5_knee"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.17364817785942446, 0.9848077529782662, 0), (0, -0.9848077529782662, 0.17364817785942446, 0), (0, -0.23064805770647065, 0.15322190000011934, 1) )
+    }
+
+    over "leg4_knee"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.17364817785942446, 0.9848077529782662, 0), (0, -0.9848077529782662, 0.17364817785942446, 0), (0.11, -0.23064805770647065, 0.15322190000011934, 1) )
+    }
+
+    over "arm_3"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.132, -2.8347880000000002e-11, 0.40522199999999997, 1) )
+    }
+
+    over "leg2_hip"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.8660254037835882, 0.5000000000014733, 0), (0, -0.5000000000014733, 0.8660254037835882, 0), (0, 0.1605, 0.11272190000000001, 1) )
+    }
+
+    over "leg3_hip"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.8660254037835882, 0.5000000000014733, 0), (0, -0.5000000000014733, 0.8660254037835882, 0), (-0.11, 0.1605, 0.11272190000000001, 1) )
+    }
+
+    over "leg1_hip"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.8660254037835882, 0.5000000000014733, 0), (0, -0.5000000000014733, 0.8660254037835882, 0), (0.11, 0.1605, 0.11272190000000001, 1) )
+    }
+
+    over "leg6_hip"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.8660254037835882, -0.5000000000014733, 0), (0, 0.5000000000014733, 0.8660254037835882, 0), (-0.11, -0.1605, 0.11272190000000001, 1) )
+    }
+
+    over "leg5_hip"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.8660254037835882, -0.5000000000014733, 0), (0, 0.5000000000014733, 0.8660254037835882, 0), (0, -0.1605, 0.11272190000000001, 1) )
+    }
+
+    over "leg4_hip"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0.8660254037835882, -0.5000000000014733, 0), (0, 0.5000000000014733, 0.8660254037835882, 0), (0.11, -0.1605, 0.11272190000000001, 1) )
+    }
+
+    over "arm_2"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.108, -2.31936e-11, 0.27722199999999997, 1) )
+    }
+
+    over "leg2_yaw"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0.1, 0.11247190000000001, 1) )
+    }
+
+    over "leg3_yaw"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, 0.1, 0.11247190000000001, 1) )
+    }
+
+    over "leg1_yaw"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, 0.1, 0.11247190000000001, 1) )
+    }
+
+    over "leg6_yaw"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-0.11, -0.1, 0.11247190000000001, 1) )
+    }
+
+    over "leg5_yaw"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, -0.1, 0.11247190000000001, 1) )
+    }
+
+    over "leg4_yaw"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.11, -0.1, 0.11247190000000001, 1) )
+    }
+
+    over "arm_1"
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0.108, 0, 0.217722, 1) )
+    }
+
+    over "base" (
+        delete apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+    )
+    {
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0.04, 1) )
+    }
+
+    over "Physics"
+    {
+        def PhysicsFixedJoint "world_anchor" (
+            prepend apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+        )
+        {
+            rel physics:body1 = </xsting/base>
+            point3f physics:localPos0 = (0, 0, 0.04)
+            custom bool physxArticulation:enabledSelfCollisions = 0
+        }
+
+        over "leg1_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0
+        }
+
+        over "leg1_hip" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 30
+            float physics:lowerLimit = 30
+            float physics:upperLimit = 30
+        }
+
+        over "leg1_knee" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = -110
+            float physics:lowerLimit = -110
+            float physics:upperLimit = -110
+        }
+
+        over "leg2_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0
+        }
+
+        over "leg2_hip" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 30
+            float physics:lowerLimit = 30
+            float physics:upperLimit = 30
+        }
+
+        over "leg2_knee" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = -110
+            float physics:lowerLimit = -110
+            float physics:upperLimit = -110
+        }
+
+        over "leg3_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0
+        }
+
+        over "leg3_hip" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 30
+            float physics:lowerLimit = 30
+            float physics:upperLimit = 30
+        }
+
+        over "leg3_knee" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = -110
+            float physics:lowerLimit = -110
+            float physics:upperLimit = -110
+        }
+
+        over "leg4_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0
+        }
+
+        over "leg4_hip" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 30
+            float physics:lowerLimit = 30
+            float physics:upperLimit = 30
+        }
+
+        over "leg4_knee" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = -110
+            float physics:lowerLimit = -110
+            float physics:upperLimit = -110
+        }
+
+        over "leg5_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0
+        }
+
+        over "leg5_hip" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 30
+            float physics:lowerLimit = 30
+            float physics:upperLimit = 30
+        }
+
+        over "leg5_knee" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = -110
+            float physics:lowerLimit = -110
+            float physics:upperLimit = -110
+        }
+
+        over "leg6_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0
+        }
+
+        over "leg6_hip" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 30
+            float physics:lowerLimit = 30
+            float physics:upperLimit = 30
+        }
+
+        over "leg6_knee" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = -110
+            float physics:lowerLimit = -110
+            float physics:upperLimit = -110
+        }
+
+        over "arm_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+        }
+
+        over "arm_shoulder" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+        }
+
+        over "arm_elbow" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+        }
+
+        over "arm_wrist" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+        }
+
+        over "arm_roll" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.034906585
+            float drive:angular:physics:stiffness = 0.5235988
+            float drive:angular:physics:targetPosition = 0
+        }
+
+        over "finger_l" (
+            prepend apiSchemas = ["PhysicsDriveAPI:linear"]
+        )
+        {
+            float drive:linear:physics:damping = 10
+            float drive:linear:physics:stiffness = 300
+            float drive:linear:physics:targetPosition = 0
+        }
+    }
+}
+

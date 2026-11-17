@@ -1,0 +1,58 @@
+/**:
+  ros__parameters:
+    # 전면 camera 에미터 꺼짐 IR 스테레오 입력 (60 fps 교차 → 30 Hz)
+    num_cameras: 2
+    min_num_images: 2
+    camera_optical_frames:
+      - "camera_infra1_frame"
+      - "camera_infra2_frame"
+    rectified_images: true
+    enable_image_denoising: false
+    image_qos: "SENSOR_DATA"
+    imu_qos: "SENSOR_DATA"
+    sync_matching_threshold_ms: 5.0
+    image_jitter_threshold_ms: 35.0
+
+    # 추적 모드 (0: 스테레오 카메라, 1: VIO IMU 융합 — 런치 imu 인자로 제어)
+    tracking_mode: 0
+
+    # IMU 노이즈 파라미터 (Kalibr motion9 설정값, tracking_mode: 1 일 때 사용)
+    imu_frame: "imu"
+    gyro_noise_density: 0.0026
+    gyro_random_walk: 0.00003
+    accel_noise_density: 0.03
+    accel_random_walk: 0.001
+    calibration_frequency: 200.0
+    imu_jitter_threshold_ms: 10.0
+
+    # 좌표계 계층 및 TF 발행 (map → odom → base; lidar:=true 시 odom → base는 lidar_odom이 보정 발행)
+    map_frame: "map"
+    odom_frame: "odom"
+    base_frame: "base"
+    publish_map_to_odom_tf: true
+    publish_odom_to_base_tf: true
+    invert_map_to_odom_tf: false
+    invert_odom_to_base_tf: false
+
+    # SLAM 루프 클로저 및 맵 크기 제한
+    enable_localization_n_mapping: true
+    enable_ground_constraint_in_odometry: true
+    enable_ground_constraint_in_slam: true
+    slam_max_map_size: 300
+    slam_throttling_time_ms: 500
+
+    # 맵 저장·불러오기 (빈 문자열이면 비활성)
+    save_map_folder_path: ""
+    load_map_folder_path: ""
+    localize_on_startup: false
+
+    # 경로·특징점·랜드마크 시각화
+    enable_slam_visualization: true
+    enable_landmarks_view: true
+    enable_observations_view: true
+    path_max_size: 1024
+
+    # 디버그 로그 수준
+    verbosity: 1
+    enable_debug_mode: false
+    debug_dump_path: "/tmp/cuvslam"

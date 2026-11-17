@@ -1,0 +1,491 @@
+{
+  "steps": 720,
+  "dt": 0.004166666666666667,
+  "collider_sha256": "1f0119a4b6a79694923ada10757a4bd7ba8b8db728f0fe40030c6d1bcf0a4748",
+  "results": [
+    {
+      "shape": "square",
+      "slot": "pallet_inner_1",
+      "position": [
+        0.05940486490726471,
+        0.07577972114086151,
+        0.23354126513004303
+      ],
+      "quaternion_wxyz": [
+        0.4882968068122864,
+        -0.014168168133084158,
+        -0.025309342381822284,
+        0.8721954647078125
+      ],
+      "expected_support_z": 0.1637219085991382,
+      "center_height_error_mm": -0.18064346909518747,
+      "source_mesh_max_contact_depth_mm": 0,
+      "tilt_degrees": 3.324213700099352,
+      "xy_drift_mm": 1.755660025205854
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_inner_2",
+      "position": [
+        0.02310001291334629,
+        0.030000101774930954,
+        0.23272189497947693
+      ],
+      "quaternion_wxyz": [
+        0.16901600360870367,
+        -1.5928749847399444e-07,
+        2.666406883573896e-07,
+        0.9856133067912823
+      ],
+      "expected_support_z": 0.1627219085991382,
+      "center_height_error_mm": -1.3619661287656015e-05,
+      "source_mesh_max_contact_depth_mm": 2.0285255490168023e-05,
+      "tilt_degrees": 3.5572763544074224e-05,
+      "xy_drift_mm": 0.00010259089181481753
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_inner_3",
+      "position": [
+        0.023099927231669426,
+        -0.029999904334545135,
+        0.23272188007831573
+      ],
+      "quaternion_wxyz": [
+        -0.16901607811450947,
+        -1.5339243592436143e-07,
+        5.565880243638231e-07,
+        0.9856132940146743
+      ],
+      "expected_support_z": 0.1627219085991382,
+      "center_height_error_mm": -2.852082248150367e-05,
+      "source_mesh_max_contact_depth_mm": 4.0971386184469783e-05,
+      "tilt_degrees": 6.614404351928451e-05,
+      "xy_drift_mm": 0.00012019612801004514
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_inner_4",
+      "position": [
+        0.05940059944987297,
+        -0.07577619701623917,
+        0.23354041576385498
+      ],
+      "quaternion_wxyz": [
+        -0.48800843954086304,
+        -0.01415012081995058,
+        0.0252961043044305,
+        0.8723575208162603
+      ],
+      "expected_support_z": 0.1637219085991382,
+      "center_height_error_mm": -0.1814928352832368,
+      "source_mesh_max_contact_depth_mm": 0.0005983928910410114,
+      "tilt_degrees": 3.32187901777629,
+      "xy_drift_mm": 1.7611399610839207
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_middle_1",
+      "position": [
+        -0.011200027540326118,
+        0.0770999938249588,
+        0.24272188544273376
+      ],
+      "quaternion_wxyz": [
+        0.2831396758556366,
+        -1.2446978616933012e-06,
+        2.0922394464649038e-07,
+        0.9590786849653015
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -2.31564044606003e-05,
+      "source_mesh_max_contact_depth_mm": 5.1265609822191264e-05,
+      "tilt_degrees": 0.00014463338840461917,
+      "xy_drift_mm": 2.82241155139884e-05
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_middle_2",
+      "position": [
+        -0.0313999280333519,
+        0.027000032365322113,
+        0.24272190034389496
+      ],
+      "quaternion_wxyz": [
+        0.09551552683115007,
+        1.1510877995289676e-07,
+        -1.0804680815179348e-06,
+        0.9954279402010913
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -8.255243266752643e-06,
+      "source_mesh_max_contact_depth_mm": 4.562056722586034e-05,
+      "tilt_degrees": 0.00012450759968747567,
+      "xy_drift_mm": 7.890952106133557e-05
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_middle_3",
+      "position": [
+        -0.03140001744031906,
+        -0.02699986658990383,
+        0.24272191524505615
+      ],
+      "quaternion_wxyz": [
+        -0.09551551192998897,
+        1.1043532039182068e-07,
+        1.373659722817699e-06,
+        0.9954279416305597
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": 6.645917927095013e-06,
+      "source_mesh_max_contact_depth_mm": 4.0188651813978126e-05,
+      "tilt_degrees": 0.00015791812425506506,
+      "xy_drift_mm": 0.00013454522841283955
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_middle_4",
+      "position": [
+        -0.01119993906468153,
+        -0.07710001617670059,
+        0.24272188544273376
+      ],
+      "quaternion_wxyz": [
+        -0.28313985466957087,
+        7.591584283997481e-07,
+        1.3014588109144875e-07,
+        0.9590786321762681
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -2.31564044606003e-05,
+      "source_mesh_max_contact_depth_mm": 4.7700202009811284e-05,
+      "tilt_degrees": 8.826962543159004e-05,
+      "xy_drift_mm": 6.304600446507929e-05
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_outer_1",
+      "position": [
+        -0.06599997729063034,
+        0.07880006730556488,
+        0.25472187995910645
+      ],
+      "quaternion_wxyz": [
+        0.21102288365364083,
+        3.134436195339938e-07,
+        -1.5816132670906227e-07,
+        0.9774811213391178
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -2.8640031790594378e-05,
+      "source_mesh_max_contact_depth_mm": 3.4889282568726756e-05,
+      "tilt_degrees": 4.023620613445069e-05,
+      "xy_drift_mm": 7.10334747495991e-05
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_outer_2",
+      "position": [
+        -0.08110000193119049,
+        0.027000034227967262,
+        0.25472187995910645
+      ],
+      "quaternion_wxyz": [
+        0.07085197418928156,
+        -6.540815393488605e-07,
+        -4.360973426649487e-07,
+        0.997486840892081
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -2.8640031790594378e-05,
+      "source_mesh_max_contact_depth_mm": 5.513142462731393e-05,
+      "tilt_degrees": 9.007210809372242e-05,
+      "xy_drift_mm": 3.4282404227509e-05
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_outer_3",
+      "position": [
+        -0.08110004663467407,
+        -0.02699996717274189,
+        0.25472187995910645
+      ],
+      "quaternion_wxyz": [
+        -0.0708518773317338,
+        2.5076602581014217e-07,
+        5.878034236702069e-07,
+        0.9974868477720197
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -2.8640031790594378e-05,
+      "source_mesh_max_contact_depth_mm": 3.814287988902421e-05,
+      "tilt_degrees": 7.323068948857417e-05,
+      "xy_drift_mm": 5.7030007016698516e-05
+    },
+    {
+      "shape": "square",
+      "slot": "pallet_outer_4",
+      "position": [
+        -0.06600005179643631,
+        -0.07879997044801712,
+        0.25472187995910645
+      ],
+      "quaternion_wxyz": [
+        -0.21102283895015725,
+        -3.2792891743238447e-07,
+        5.207918456681235e-07,
+        0.9774811309897686
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -2.8640031790594378e-05,
+      "source_mesh_max_contact_depth_mm": 4.568825799415404e-05,
+      "tilt_degrees": 7.052811135970451e-05,
+      "xy_drift_mm": 5.9633803382816635e-05
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_inner_1",
+      "position": [
+        0.05917847156524658,
+        0.076614610850811,
+        0.2335386425256729
+      ],
+      "quaternion_wxyz": [
+        0.4897956550121306,
+        -0.02495334673405457,
+        -0.014772318324055334,
+        0.8713548791562141
+      ],
+      "expected_support_z": 0.1637219085991382,
+      "center_height_error_mm": -0.18326607346530466,
+      "source_mesh_max_contact_depth_mm": 0.0023381695485243797,
+      "tilt_degrees": 3.3234055391080237,
+      "xy_drift_mm": 1.723644817955191
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_inner_2",
+      "position": [
+        0.02310006693005562,
+        0.030000094324350357,
+        0.23272186517715454
+      ],
+      "quaternion_wxyz": [
+        0.16901665925979614,
+        2.7241188897906623e-07,
+        7.349300037231592e-07,
+        0.9856131943577278
+      ],
+      "expected_support_z": 0.1627219085991382,
+      "center_height_error_mm": -4.342198367535133e-05,
+      "source_mesh_max_contact_depth_mm": 5.163404613600451e-05,
+      "tilt_degrees": 8.981682527114879e-05,
+      "xy_drift_mm": 0.00011565775121318032
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_inner_3",
+      "position": [
+        0.023100033402442932,
+        -0.029999926686286926,
+        0.23272186517715454
+      ],
+      "quaternion_wxyz": [
+        -0.16901604831218717,
+        7.872149681965175e-07,
+        2.733431791523261e-07,
+        0.985613299125087
+      ],
+      "expected_support_z": 0.1627219085991382,
+      "center_height_error_mm": -4.342198367535133e-05,
+      "source_mesh_max_contact_depth_mm": 5.2128323021195885e-05,
+      "tilt_degrees": 9.548533616967661e-05,
+      "xy_drift_mm": 8.056440726769483e-05
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_inner_4",
+      "position": [
+        0.06023791804909706,
+        -0.07487787306308746,
+        0.23362375795841217
+      ],
+      "quaternion_wxyz": [
+        -0.4881070554256441,
+        0.0031542694513573906,
+        0.032734990449403124,
+        0.8721639601750424
+      ],
+      "expected_support_z": 0.1637219085991382,
+      "center_height_error_mm": -0.09815064072604684,
+      "source_mesh_max_contact_depth_mm": 0.05084268922566686,
+      "tilt_degrees": 3.7692073597972615,
+      "xy_drift_mm": 1.9386848851563587
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_middle_1",
+      "position": [
+        -0.01119985245168209,
+        0.0770999938249588,
+        0.24272187054157257
+      ],
+      "quaternion_wxyz": [
+        0.2831402719020844,
+        6.430492030323819e-07,
+        1.1816156101025601e-07,
+        0.9590785090005856
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -3.8057565654447956e-05,
+      "source_mesh_max_contact_depth_mm": 4.9729632013621096e-05,
+      "tilt_degrees": 7.491833340752189e-05,
+      "xy_drift_mm": 0.00014767747713054227
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_middle_2",
+      "position": [
+        -0.03140013664960861,
+        0.02700001187622547,
+        0.24272185564041138
+      ],
+      "quaternion_wxyz": [
+        0.09551569074392322,
+        -6.151822273786129e-07,
+        -5.771871760318226e-07,
+        0.9954279244731884
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -5.295872684829561e-05,
+      "source_mesh_max_contact_depth_mm": 6.944346843573557e-05,
+      "tilt_degrees": 9.666135499534816e-05,
+      "xy_drift_mm": 0.00013716471946535142
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_middle_3",
+      "position": [
+        -0.03139997273683548,
+        -0.02700011059641838,
+        0.24272184073925018
+      ],
+      "quaternion_wxyz": [
+        -0.09551555663347253,
+        4.3086036958369834e-07,
+        -4.7136565287263163e-07,
+        0.99542793734182
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -6.785988804214327e-05,
+      "source_mesh_max_contact_depth_mm": 7.994285299409047e-05,
+      "tilt_degrees": 7.31659606665868e-05,
+      "xy_drift_mm": 0.00011390718984431802
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_middle_4",
+      "position": [
+        -0.011200006119906902,
+        -0.07709987461566925,
+        0.24272188544273376
+      ],
+      "quaternion_wxyz": [
+        -0.2831393182277682,
+        2.4959445046208675e-07,
+        9.380746650296152e-07,
+        0.9590787905446416
+      ],
+      "expected_support_z": 0.17272190859913822,
+      "center_height_error_mm": -2.31564044606003e-05,
+      "source_mesh_max_contact_depth_mm": 4.187744149068006e-05,
+      "tilt_degrees": 0.00011123002907813872,
+      "xy_drift_mm": 0.00012553359573622136
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_outer_1",
+      "position": [
+        -0.06600011140108109,
+        0.07880009710788727,
+        0.25472190976142883
+      ],
+      "quaternion_wxyz": [
+        0.21102301776409144,
+        -1.7148560560758884e-06,
+        9.223586754611471e-07,
+        0.9774810923848833
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": 1.1622905971009345e-06,
+      "source_mesh_max_contact_depth_mm": 2.9821020821442573e-05,
+      "tilt_degrees": 0.00022313076557244532,
+      "xy_drift_mm": 0.00014778410820141994
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_outer_2",
+      "position": [
+        -0.08110000193119049,
+        0.02699989080429077,
+        0.25472182035446167
+      ],
+      "quaternion_wxyz": [
+        0.07085236907005303,
+        7.376802830052907e-07,
+        -1.6448321678862085e-06,
+        0.9974868128421105
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -8.8244676565985e-05,
+      "source_mesh_max_contact_depth_mm": 0.00011727979401038655,
+      "tilt_degrees": 0.0002065673534278914,
+      "xy_drift_mm": 0.00010921278501412912
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_outer_3",
+      "position": [
+        -0.0810999795794487,
+        -0.02699998766183853,
+        0.25472182035446167
+      ],
+      "quaternion_wxyz": [
+        -0.07085191458463692,
+        3.1662057641701567e-07,
+        1.3853422622668108e-08,
+        0.9974868451260853
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -8.8244676565985e-05,
+      "source_mesh_max_contact_depth_mm": 8.759481050998541e-05,
+      "tilt_degrees": 3.631299154864665e-05,
+      "xy_drift_mm": 2.385852350910649e-05
+    },
+    {
+      "shape": "round",
+      "slot": "pallet_outer_4",
+      "position": [
+        -0.06599988043308258,
+        -0.0788000226020813,
+        0.25472182035446167
+      ],
+      "quaternion_wxyz": [
+        -0.21102315187454238,
+        1.681764950181272e-06,
+        -3.0733647686648276e-07,
+        0.9774810634329503
+      ],
+      "expected_support_z": 0.18472190859913823,
+      "center_height_error_mm": -8.8244676565985e-05,
+      "source_mesh_max_contact_depth_mm": 0.00011571852916530397,
+      "tilt_degrees": 0.00019590338170936175,
+      "xy_drift_mm": 0.00012168443541058033
+    }
+  ],
+  "max_source_mesh_contact_depth_mm": 0.05084268922566686,
+  "all_pucks_retained": true,
+  "validation": "PASS: 24 drops, retained; source mesh contact depth <0.1 mm",
+  "limitations": "3 seconds at 240 Hz, fixed base, 5 mm vertical release; not a general error bound or shaking/insertion policy validation"
+}

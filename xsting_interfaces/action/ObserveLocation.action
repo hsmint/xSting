@@ -1,0 +1,10 @@
+# 로봇 팀: 지금 앞의 하차 박스 9칸을 새로 관측한다. 초안: docs/robot_primitives.md (xsting_mission)
+string location_id                           # L1 ~ L3
+builtin_interfaces/Duration timeout
+---
+bool success
+uint16 error_code                            # ErrorCode
+string message
+xsting_interfaces/CellObservation[] cells    # 9칸, cell 0~8 순서
+---
+string phase

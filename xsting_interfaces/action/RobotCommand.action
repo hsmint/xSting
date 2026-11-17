@@ -1,0 +1,10 @@
+# Goal: 노트북(llm_commander)이 보내는 명령 하나
+string name          # "go_to", "pick", "place", ...
+string args_json     # {"place": "BOX_3"}
+---
+# Result: 동작이 끝나면 한 번 돌려주는 결과
+bool success
+string result_json   # {"success": true, "at": "BOX_3", ...}
+---
+# Feedback: 동작 중간 진행 상황
+string phase         # "moving", "aligning", "grasping", ...

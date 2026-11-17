@@ -1,0 +1,486 @@
+{
+  "halt": "SCRIPT_END",
+  "state": {
+    "meta": {
+      "seq": 25,
+      "stamp": "2026-11-10T03:17:37Z"
+    },
+    "phase": "UNLOAD",
+    "robot": {
+      "status": "OK",
+      "error": null,
+      "here": "HOME",
+      "pose": {
+        "x": 734,
+        "y": 950,
+        "yaw": 180
+      },
+      "localization": "ok",
+      "arm_stowed": true,
+      "gripper": "empty",
+      "home_stopped": true,
+      "storage": [
+        {
+          "slot": 0,
+          "state": "occupied",
+          "puck_id": 8,
+          "color": "G",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 1,
+          "state": "occupied",
+          "puck_id": 1,
+          "color": "R",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 2,
+          "state": "occupied",
+          "puck_id": 7,
+          "color": "R",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 3,
+          "state": "occupied",
+          "puck_id": 6,
+          "color": "R",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 4,
+          "state": "occupied",
+          "puck_id": 5,
+          "color": "R",
+          "shape": "box"
+        },
+        {
+          "slot": 5,
+          "state": "occupied",
+          "puck_id": 9,
+          "color": "R",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 6,
+          "state": "occupied",
+          "puck_id": 3,
+          "color": "G",
+          "shape": "box"
+        },
+        {
+          "slot": 7,
+          "state": "occupied",
+          "puck_id": 10,
+          "color": "G",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 8,
+          "state": "occupied",
+          "puck_id": 2,
+          "color": "G",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 9,
+          "state": "occupied",
+          "puck_id": 11,
+          "color": "G",
+          "shape": "cylinder"
+        },
+        {
+          "slot": 10,
+          "state": "occupied",
+          "puck_id": 0,
+          "color": "R",
+          "shape": "box"
+        },
+        {
+          "slot": 11,
+          "state": "occupied",
+          "puck_id": 4,
+          "color": "R",
+          "shape": "cylinder"
+        }
+      ]
+    },
+    "world": {
+      "barcode": {
+        "code": "P2-04",
+        "order": "desc",
+        "valid": true
+      },
+      "signal": {
+        "sequence": [
+          "R",
+          "R",
+          "R",
+          "Y",
+          "Y",
+          "Y",
+          "R",
+          "G",
+          "Y",
+          "G",
+          "Y",
+          "Y"
+        ],
+        "counts": {
+          "R": 4,
+          "Y": 6,
+          "G": 2
+        },
+        "valid": true,
+        "errors": []
+      },
+      "boxes": {
+        "S1": {
+          "status": "CLEARED",
+          "loaded": [
+            8,
+            1
+          ]
+        },
+        "S2": {
+          "status": "CLEARED",
+          "loaded": [
+            7,
+            6
+          ]
+        },
+        "S3": {
+          "status": "CLEARED",
+          "loaded": [
+            3,
+            10
+          ]
+        },
+        "S4": {
+          "status": "CLEARED",
+          "loaded": [
+            0,
+            4
+          ]
+        },
+        "S5": {
+          "status": "CLEARED",
+          "loaded": [
+            2,
+            11
+          ]
+        },
+        "S6": {
+          "status": "CLEARED",
+          "loaded": [
+            5,
+            9
+          ]
+        }
+      },
+      "pucks": [
+        {
+          "id": 0,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.98,
+          "origin": "S4",
+          "where": "storage",
+          "slot": 10,
+          "placed": null
+        },
+        {
+          "id": 1,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.89,
+          "origin": "S1",
+          "where": "storage",
+          "slot": 1,
+          "placed": null
+        },
+        {
+          "id": 2,
+          "color": "G",
+          "shape": "cylinder",
+          "conf": 0.95,
+          "origin": "S5",
+          "where": "storage",
+          "slot": 8,
+          "placed": null
+        },
+        {
+          "id": 3,
+          "color": "G",
+          "shape": "box",
+          "conf": 0.88,
+          "origin": "S3",
+          "where": "storage",
+          "slot": 6,
+          "placed": null
+        },
+        {
+          "id": 4,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.93,
+          "origin": "S4",
+          "where": "storage",
+          "slot": 11,
+          "placed": null
+        },
+        {
+          "id": 5,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.96,
+          "origin": "S6",
+          "where": "storage",
+          "slot": 4,
+          "placed": null
+        },
+        {
+          "id": 6,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.89,
+          "origin": "S2",
+          "where": "storage",
+          "slot": 3,
+          "placed": null
+        },
+        {
+          "id": 7,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.94,
+          "origin": "S2",
+          "where": "storage",
+          "slot": 2,
+          "placed": null
+        },
+        {
+          "id": 8,
+          "color": "G",
+          "shape": "cylinder",
+          "conf": 0.91,
+          "origin": "S1",
+          "where": "storage",
+          "slot": 0,
+          "placed": null
+        },
+        {
+          "id": 9,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.93,
+          "origin": "S6",
+          "where": "storage",
+          "slot": 5,
+          "placed": null
+        },
+        {
+          "id": 10,
+          "color": "G",
+          "shape": "cylinder",
+          "conf": 0.88,
+          "origin": "S3",
+          "where": "storage",
+          "slot": 7,
+          "placed": null
+        },
+        {
+          "id": 11,
+          "color": "G",
+          "shape": "cylinder",
+          "conf": 0.89,
+          "origin": "S5",
+          "where": "storage",
+          "slot": 9,
+          "placed": null
+        }
+      ],
+      "locations": {
+        "L1": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "empty",
+              "puck_id": null
+            }
+          ],
+          "verified": null
+        },
+        "L2": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "empty",
+              "puck_id": null
+            }
+          ],
+          "verified": null
+        },
+        "L3": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "empty",
+              "puck_id": null
+            }
+          ],
+          "verified": null
+        }
+      }
+    },
+    "last_action": {
+      "name": "GOTO",
+      "args": {
+        "t": "HOME"
+      },
+      "success": true,
+      "error": null,
+      "retries": 0,
+      "result": {
+        "success": true,
+        "dist_to_target_mm": 0,
+        "in_zone": true,
+        "stopped_s": 3.0,
+        "robot": {
+          "status": "OK",
+          "error": null,
+          "here": "HOME",
+          "pose": {
+            "x": 734,
+            "y": 950,
+            "yaw": 180
+          },
+          "localization": "ok",
+          "arm_stowed": true,
+          "gripper": "empty"
+        }
+      }
+    }
+  }
+}

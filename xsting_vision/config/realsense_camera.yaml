@@ -1,0 +1,42 @@
+/**:
+  ros__parameters:
+    # 구동 카메라 목록 (전면 D435 단독 구동)
+    camera_names: ["camera"]
+
+    # 전면 D435
+    camera:
+      # 빈 문자열("")이면 연결된 D435 자동 탐색
+      serial_number: ""
+      color_width: 640
+      color_height: 480
+      color_fps: 60
+      # depth·IR 60 fps → realsense_splitter 분리 후 에미터 on/off 각 30 Hz
+      depth_width: 640
+      depth_height: 480
+      depth_fps: 60
+      enable_infra: true
+      compressed_fps: 10.0
+      jpeg_quality: 75
+
+      # Depth 센서 옵션 (실행 중 변경 가능, 값은 반드시 소수점 표기)
+      depth:
+        enable_auto_exposure: 1.0
+        # 에미터를 켜고 프레임마다 on/off 교차 (off → cuVSLAM, on → nvblox · depth_pca)
+        emitter_enabled: 1.0
+        emitter_on_off: 1.0
+        laser_power: 150.0
+        inter_cam_sync_mode: 0.0
+        # exposure: 8500.0
+        # gain: 16.0
+
+      # Color 센서 옵션 (실행 중 변경 가능, 값은 반드시 소수점 표기)
+      color:
+        enable_auto_exposure: 1.0
+        enable_auto_white_balance: 1.0
+        # exposure: 156.0
+        # gain: 64.0
+        # white_balance: 4600.0
+        # brightness: 0.0
+        # contrast: 50.0
+        # saturation: 64.0
+        # sharpness: 50.0

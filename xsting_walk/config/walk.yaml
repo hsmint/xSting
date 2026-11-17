@@ -1,0 +1,38 @@
+/**:
+  ros__parameters:
+    # 74D 보행 강화학습 정책 가중치 및 실측 보정 파일 경로
+    walk_model: "models/walk_policy_74d.bin"
+    calib_file: "config/calibration.yaml"
+
+    # 텔레옵 속도·모드·게임패드 토픽
+    cmd_vel_topic: "/cmd_vel"
+    cmd_vel_stamped_topic: "/cmd_vel_stamped"
+    mode_topic: "/walk/mode"
+    joy_topic: "/joy"
+
+    # xsting_hardware 다리·팔·관절·IMU 및 xsting_bringup cuVSLAM 오도메트리 토픽
+    leg_cmd_topic: "/leg_controller/commands"
+    arm_cmd_topic: "/arm_controller/commands"
+    joint_topic: "/joint_states"
+    imu_topic: "/imu_broadcaster/imu"
+    odom_topic: "/visual_slam/tracking/odometry"
+
+    # 데드맨 타임아웃(s) 및 안전 설정
+    cmd_timeout: 0.50
+    mode_hold_sec: 5.0
+    odom_timeout: 0.25
+    hold_arm_walking: true
+    stand_when_idle: true
+    auto_enable: true
+    dry_run: false
+
+    # 게임패드(/joy) 매핑 (기본: 좌스틱 전후/좌우, 우스틱 회전, RB 터보, B 정지)
+    use_joy: true
+    joy_axis_vx: 1
+    joy_axis_vy: 0
+    joy_axis_wz: 3
+    joy_enable_button: -1
+    joy_turbo_button: 5
+    joy_stop_button: 1
+    joy_normal_ratio: 0.65
+    joy_deadzone: 0.08

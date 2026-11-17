@@ -1,0 +1,141 @@
+{"t": 1794280595.8378034, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "reading_barcode"}}
+{"t": 1794280596.1801972, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 1/12 R"}}
+{"t": 1794280596.8646128, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 2/12 R"}}
+{"t": 1794280597.5500321, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 3/12 R"}}
+{"t": 1794280598.2328298, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 4/12 Y"}}
+{"t": 1794280598.9176233, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 5/12 Y"}}
+{"t": 1794280599.603702, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 6/12 Y"}}
+{"t": 1794280600.2900915, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 7/12 R"}}
+{"t": 1794280600.975665, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 8/12 G"}}
+{"t": 1794280601.6622765, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 9/12 Y"}}
+{"t": 1794280602.3484442, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 10/12 G"}}
+{"t": 1794280603.034283, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 11/12 Y"}}
+{"t": 1794280603.7207491, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "blink 12/12 Y"}}
+{"t": 1794280604.4060838, "turn": 1, "kind": "feedback", "data": {"name": "READ_MISSION_INPUT", "phase": "end_dark_3s"}}
+{"t": 1794280605.9198334, "turn": 1, "kind": "tool", "data": {"name": "READ_MISSION_INPUT", "args": {}, "result": {"success": true, "barcode": "P2-04", "signal": ["R", "R", "R", "Y", "Y", "Y", "R", "G", "Y", "G", "Y", "Y"], "end_seen": true, "robot": {"status": "OK", "error": null, "here": "HOME", "pose": {"x": 734, "y": 950, "yaw": 180.0}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280606.6147242, "turn": 2, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.67 m left"}}
+{"t": 1794280606.9175231, "turn": 2, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.52 m left"}}
+{"t": 1794280607.5230193, "turn": 2, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.08 m left"}}
+{"t": 1794280607.6441078, "turn": 2, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280607.7679706, "turn": 2, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "S1"}, "result": {"success": true, "dist_to_target_mm": 491, "robot": {"status": "OK", "error": null, "here": "S1", "pose": {"x": 1493, "y": 460, "yaw": 92.9}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280607.7736018, "turn": 3, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280608.2780757, "turn": 3, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280608.782955, "turn": 3, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280609.287278, "turn": 3, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280609.5506358, "turn": 3, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 0, "puck": {"id": 8, "color": "G", "shape": "cylinder", "conf": 0.91}, "box_remaining": 1, "robot": {"status": "OK", "error": null, "here": "S1", "pose": {"x": 1493, "y": 460, "yaw": 92.9}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280609.6302352, "turn": 4, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280610.134619, "turn": 4, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280610.639799, "turn": 4, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280611.1436958, "turn": 4, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280611.4095364, "turn": 4, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 1, "puck": {"id": 1, "color": "R", "shape": "cylinder", "conf": 0.89}, "box_remaining": 0, "robot": {"status": "OK", "error": null, "here": "S1", "pose": {"x": 1493, "y": 460, "yaw": 92.9}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280612.0549526, "turn": 5, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 2.80 m left"}}
+{"t": 1794280613.2859528, "turn": 5, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.77 m left"}}
+{"t": 1794280614.6384914, "turn": 5, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.02 m left"}}
+{"t": 1794280614.9404528, "turn": 5, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.85 m left"}}
+{"t": 1794280615.9490783, "turn": 5, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280615.9522033, "turn": 5, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "S2"}, "result": {"success": true, "dist_to_target_mm": 383, "robot": {"status": "OK", "error": null, "here": "S2", "pose": {"x": 3684, "y": 2769, "yaw": 92.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280615.9578454, "turn": 6, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280616.4615498, "turn": 6, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280616.966241, "turn": 6, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280617.4699142, "turn": 6, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280617.7355728, "turn": 6, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 2, "puck": {"id": 7, "color": "R", "shape": "cylinder", "conf": 0.94}, "box_remaining": 1, "robot": {"status": "OK", "error": null, "here": "S2", "pose": {"x": 3684, "y": 2769, "yaw": 92.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280617.7424567, "turn": 7, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280618.24656, "turn": 7, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280618.7513082, "turn": 7, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280619.2552445, "turn": 7, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280619.5212379, "turn": 7, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 3, "puck": {"id": 6, "color": "R", "shape": "cylinder", "conf": 0.89}, "box_remaining": 0, "robot": {"status": "OK", "error": null, "here": "S2", "pose": {"x": 3684, "y": 2769, "yaw": 92.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280620.866445, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.91 m left"}}
+{"t": 1794280621.169789, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.99 m left"}}
+{"t": 1794280622.3603349, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 2.13 m left"}}
+{"t": 1794280622.7235096, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 2.01 m left"}}
+{"t": 1794280623.8736198, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.19 m left"}}
+{"t": 1794280625.2060392, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.10 m left"}}
+{"t": 1794280625.4281564, "turn": 8, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280625.4718432, "turn": 8, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "S6"}, "result": {"success": true, "dist_to_target_mm": 464, "robot": {"status": "OK", "error": null, "here": "S6", "pose": {"x": 3226, "y": 3750, "yaw": 17.0}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280625.4776282, "turn": 9, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280625.9822814, "turn": 9, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280626.4869142, "turn": 9, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280626.9913704, "turn": 9, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280627.257791, "turn": 9, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 4, "puck": {"id": 5, "color": "R", "shape": "box", "conf": 0.96}, "box_remaining": 1, "robot": {"status": "OK", "error": null, "here": "S6", "pose": {"x": 3226, "y": 3750, "yaw": 17.0}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280627.2635868, "turn": 10, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280627.7675736, "turn": 10, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280628.2727647, "turn": 10, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280628.77712, "turn": 10, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280629.0431516, "turn": 10, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 5, "puck": {"id": 9, "color": "R", "shape": "cylinder", "conf": 0.93}, "box_remaining": 0, "robot": {"status": "OK", "error": null, "here": "S6", "pose": {"x": 3226, "y": 3750, "yaw": 17.0}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280629.788843, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.62 m left"}}
+{"t": 1794280630.1118517, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.37 m left"}}
+{"t": 1794280630.9576964, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.25 m left"}}
+{"t": 1794280631.5826046, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.39 m left"}}
+{"t": 1794280632.0671365, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.30 m left"}}
+{"t": 1794280632.4098723, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.15 m left"}}
+{"t": 1794280633.1774168, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.63 m left"}}
+{"t": 1794280633.6827426, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.28 m left"}}
+{"t": 1794280634.0867262, "turn": 11, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280634.1920376, "turn": 11, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "S3"}, "result": {"success": true, "dist_to_target_mm": 439, "robot": {"status": "OK", "error": null, "here": "S3", "pose": {"x": 2826, "y": 5779, "yaw": -75.5}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280634.1987376, "turn": 12, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280634.7023277, "turn": 12, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280635.205533, "turn": 12, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280635.714575, "turn": 12, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": false, "error": "GRASP_FAILED", "robot": {"status": "OK", "error": null, "here": "S3", "pose": {"x": 2826, "y": 5779, "yaw": -75.5}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280635.7211654, "turn": 13, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280636.225587, "turn": 13, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280636.7297773, "turn": 13, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280637.2343004, "turn": 13, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280637.501654, "turn": 13, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 6, "puck": {"id": 3, "color": "G", "shape": "box", "conf": 0.88}, "box_remaining": 1, "robot": {"status": "OK", "error": null, "here": "S3", "pose": {"x": 2826, "y": 5779, "yaw": -75.5}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280637.5115626, "turn": 14, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280638.0165007, "turn": 14, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280638.52057, "turn": 14, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280639.025324, "turn": 14, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280639.292463, "turn": 14, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 7, "puck": {"id": 10, "color": "G", "shape": "cylinder", "conf": 0.88}, "box_remaining": 0, "robot": {"status": "OK", "error": null, "here": "S3", "pose": {"x": 2826, "y": 5779, "yaw": -75.5}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280639.8077414, "turn": 15, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.00 m left"}}
+{"t": 1794280640.291958, "turn": 15, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.77 m left"}}
+{"t": 1794280641.2219179, "turn": 15, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.05 m left"}}
+{"t": 1794280641.3626523, "turn": 15, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280641.4681504, "turn": 15, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "S5"}, "result": {"success": true, "dist_to_target_mm": 433, "robot": {"status": "OK", "error": null, "here": "S5", "pose": {"x": 1866, "y": 5627, "yaw": -39.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280641.4791615, "turn": 16, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280641.9829218, "turn": 16, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280642.4874513, "turn": 16, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280642.970965, "turn": 16, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280643.1174982, "turn": 16, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 8, "puck": {"id": 2, "color": "G", "shape": "cylinder", "conf": 0.95}, "box_remaining": 1, "robot": {"status": "OK", "error": null, "here": "S5", "pose": {"x": 1866, "y": 5627, "yaw": -39.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280643.1273763, "turn": 17, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280643.3890953, "turn": 17, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280643.651298, "turn": 17, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280643.9134476, "turn": 17, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280644.060199, "turn": 17, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 9, "puck": {"id": 11, "color": "G", "shape": "cylinder", "conf": 0.89}, "box_remaining": 0, "robot": {"status": "OK", "error": null, "here": "S5", "pose": {"x": 1866, "y": 5627, "yaw": -39.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280644.758221, "turn": 18, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.03 m left"}}
+{"t": 1794280645.1816182, "turn": 18, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.44 m left"}}
+{"t": 1794280645.4638476, "turn": 18, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280645.550838, "turn": 18, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "S4"}, "result": {"success": true, "dist_to_target_mm": 500, "robot": {"status": "OK", "error": null, "here": "S4", "pose": {"x": 311, "y": 5087, "yaw": 32.3}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280645.5586405, "turn": 19, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280645.8212552, "turn": 19, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280646.0833817, "turn": 19, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280646.3462589, "turn": 19, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280646.4935477, "turn": 19, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 10, "puck": {"id": 0, "color": "R", "shape": "box", "conf": 0.98}, "box_remaining": 1, "robot": {"status": "OK", "error": null, "here": "S4", "pose": {"x": 311, "y": 5087, "yaw": 32.3}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "LOAD"}}
+{"t": 1794280646.5726047, "turn": 20, "kind": "feedback", "data": {"name": "LOAD", "phase": "aligning"}}
+{"t": 1794280646.835336, "turn": 20, "kind": "feedback", "data": {"name": "LOAD", "phase": "grasping"}}
+{"t": 1794280647.0980022, "turn": 20, "kind": "feedback", "data": {"name": "LOAD", "phase": "lifting"}}
+{"t": 1794280647.3601127, "turn": 20, "kind": "feedback", "data": {"name": "LOAD", "phase": "stowing"}}
+{"t": 1794280647.5080342, "turn": 20, "kind": "tool", "data": {"name": "LOAD", "args": {}, "result": {"success": true, "slot": 11, "puck": {"id": 4, "color": "R", "shape": "cylinder", "conf": 0.93}, "box_remaining": 0, "robot": {"status": "OK", "error": null, "here": "S4", "pose": {"x": 311, "y": 5087, "yaw": 32.3}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "UNLOAD"}}
+{"t": 1794280648.2747204, "turn": 21, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.23 m left"}}
+{"t": 1794280648.9615786, "turn": 21, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.11 m left"}}
+{"t": 1794280649.0827765, "turn": 21, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280649.1495383, "turn": 21, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "L2"}, "result": {"success": true, "dist_to_target_mm": 415, "robot": {"status": "OK", "error": null, "here": "L2", "pose": {"x": 1980, "y": 3349, "yaw": 57.7}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "UNLOAD"}}
+{"t": 1794280649.4965484, "turn": 22, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 2.45 m left"}}
+{"t": 1794280649.6577787, "turn": 22, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 2.24 m left"}}
+{"t": 1794280650.3029528, "turn": 22, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.22 m left"}}
+{"t": 1794280650.444465, "turn": 22, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.06 m left"}}
+{"t": 1794280651.0485861, "turn": 22, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280651.1566572, "turn": 22, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "L3"}, "result": {"success": true, "dist_to_target_mm": 519, "robot": {"status": "OK", "error": null, "here": "L3", "pose": {"x": 4120, "y": 5095, "yaw": 150.1}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "UNLOAD"}}
+{"t": 1794280651.9488506, "turn": 23, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 3.44 m left"}}
+{"t": 1794280653.361462, "turn": 23, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 1.44 m left"}}
+{"t": 1794280653.8658614, "turn": 23, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.97 m left"}}
+{"t": 1794280654.0880136, "turn": 23, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.70 m left"}}
+{"t": 1794280654.512336, "turn": 23, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280654.5195644, "turn": 23, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "L1"}, "result": {"success": true, "dist_to_target_mm": 447, "robot": {"status": "OK", "error": null, "here": "L1", "pose": {"x": 3225, "y": 988, "yaw": -4.9}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "UNLOAD"}}
+{"t": 1794280655.655761, "turn": 24, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.97 m left"}}
+{"t": 1794280655.9388087, "turn": 24, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.72 m left"}}
+{"t": 1794280656.0802035, "turn": 24, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.62 m left"}}
+{"t": 1794280656.241899, "turn": 24, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.43 m left"}}
+{"t": 1794280656.5244012, "turn": 24, "kind": "feedback", "data": {"name": "GOTO", "phase": "moving 0.00 m left"}}
+{"t": 1794280656.5849752, "turn": 24, "kind": "feedback", "data": {"name": "GOTO", "phase": "holding_3s"}}
+{"t": 1794280657.3589056, "turn": 24, "kind": "tool", "data": {"name": "GOTO", "args": {"t": "HOME"}, "result": {"success": true, "dist_to_target_mm": 0, "in_zone": true, "stopped_s": 3.0, "robot": {"status": "OK", "error": null, "here": "HOME", "pose": {"x": 734, "y": 950, "yaw": 180}, "localization": "ok", "arm_stowed": true, "gripper": "empty"}}, "phase": "UNLOAD"}}
+{"t": 1794280657.3595672, "turn": 25, "kind": "halt", "data": {"reason": "SCRIPT_END"}}

@@ -1,0 +1,12 @@
+# 로봇 팀: 지금 앞의 시작 박스 위 퍽을 인식하고 모두 집어 적재함 빈 슬롯에 싣는다
+# 초안: docs/robot_primitives.md (xsting_mission)
+string place_id                              # S1 ~ S6
+builtin_interfaces/Duration timeout
+---
+bool success
+uint16 error_code                            # ErrorCode (실패해도 실은 퍽은 pucks에 싣는다)
+string message
+xsting_interfaces/LoadedPuck[] pucks         # 실은 퍽
+int32 box_remaining                          # 박스에 남은 퍽 수, 모르면 -1
+---
+string phase

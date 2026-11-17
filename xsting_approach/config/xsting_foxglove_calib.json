@@ -1,0 +1,216 @@
+{
+  "configById": {
+    "3D!calib_3d": {
+      "foxglovePanelTitle": "실측 보정 3D 검증 (URDF · 바닥평면 · 녹색기준상자 · 주황PCA · 초음파 · IMU)",
+      "fixedFrame": "base",
+      "followTf": "base",
+      "followMode": "follow-pose",
+      "layers": {
+        "44444444-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "44444444-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 2,
+          "divisions": 20,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [0, 0, -0.0213],
+          "rotation": [0, 0, 0],
+          "order": 1
+        },
+        "44444444-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "44444444-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": true,
+        "distance": 1.15,
+        "phi": 58,
+        "thetaOffset": -52,
+        "targetOffset": [0.24, 0, 0.06],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#1e2229",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": false,
+          "axisSize": 0.08,
+          "lineWidth": 1
+        }
+      },
+      "transforms": {
+        "base": { "visible": true },
+        "camera_depth_frame": { "visible": true },
+        "ultrasonic": { "visible": true },
+        "imu": { "visible": true }
+      },
+      "topics": {
+        "/approach/markers": {
+          "visible": true
+        },
+        "/approach/points": {
+          "visible": true,
+          "pointSize": 6,
+          "colorMode": "rgb",
+          "rgbByteOrder": "bgra"
+        },
+        "/detections_3d/points": {
+          "visible": false,
+          "pointSize": 5,
+          "colorMode": "rgb",
+          "rgbByteOrder": "bgra"
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Image!depth_roi": {
+      "foxglovePanelTitle": "전면 D435 깊이 + 검출 ROI (/approach/depth_preview)",
+      "imageMode": {
+        "imageTopic": "/approach/depth_preview",
+        "rectifyImage": false
+      },
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {}
+    },
+    "Plot!calib_err": {
+      "foxglovePanelTitle": "실측 오차 실시간 Plot (mm / deg)",
+      "paths": [
+        {
+          "value": "/approach/metrics.data[0]",
+          "label": "PCA X 오차 (mm)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ff5252",
+          "lineSize": 1.8,
+          "showLine": true
+        },
+        {
+          "value": "/approach/metrics.data[1]",
+          "label": "PCA Y 오차 (mm)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4ade80",
+          "lineSize": 1.8,
+          "showLine": true
+        },
+        {
+          "value": "/approach/metrics.data[2]",
+          "label": "PCA Yaw 오차 (deg)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#facc15",
+          "lineSize": 1.8,
+          "showLine": true
+        },
+        {
+          "value": "/approach/metrics.data[3]",
+          "label": "초음파 전방 간격 (mm)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#38bdf8",
+          "lineSize": 1.5,
+          "showLine": true
+        },
+        {
+          "value": "/approach/metrics.data[4]",
+          "label": "초음파 간격 오차 (mm)",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#c084fc",
+          "lineSize": 1.5,
+          "showLine": true
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "timeWindowMode": "sliding",
+      "followingViewWidth": 20,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "floatingLegendPosition": "top-left",
+      "showPlotValuesInLegend": true,
+      "showYAxisGridLines": true
+    },
+    "CallService!calib_cam": {
+      "foxglovePanelTitle": "바닥·상자·초음파 일괄 보정 저장 (/calib/cam)",
+      "requestPayload": "{}",
+      "serviceName": "/calib/cam",
+      "timeoutSeconds": 10
+    },
+    "CallService!calib_imu": {
+      "foxglovePanelTitle": "IMU 수평·자이로 보정 저장 (/calib/imu)",
+      "requestPayload": "{}",
+      "serviceName": "/calib/imu",
+      "timeoutSeconds": 10
+    },
+    "RosOut!calib_log": {
+      "foxglovePanelTitle": "보정 · 정밀 접근 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {}
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "column",
+    "first": {
+      "direction": "row",
+      "first": "3D!calib_3d",
+      "second": {
+        "direction": "column",
+        "first": "Image!depth_roi",
+        "second": "Plot!calib_err",
+        "splitPercentage": 50
+      },
+      "splitPercentage": 60
+    },
+    "second": {
+      "direction": "row",
+      "first": {
+        "direction": "row",
+        "first": "CallService!calib_imu",
+        "second": "CallService!calib_cam",
+        "splitPercentage": 50
+      },
+      "second": "RosOut!calib_log",
+      "splitPercentage": 45
+    },
+    "splitPercentage": 70
+  }
+}

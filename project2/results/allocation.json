@@ -1,0 +1,477 @@
+{
+  "meta": {
+    "test_id": "T-SIM-06",
+    "run_id": "20261116_102220",
+    "stamp_utc": "2026-11-16T01:24:45Z",
+    "stamp_kst": "2026-11-16T10:24:45+09:00",
+    "environment_type": "모의입력(Fake경기장)",
+    "backend": "fake_backend",
+    "decider": "llm (gpt-6-luna, effort=low, guard=true)",
+    "real_hardware_verified": false,
+    "real_hardware_status": "미확인 (T-REAL-09 현장 실물 12퍽 배치 및 ArduCam 재검증 예정)",
+    "puck_pool_summary": "해당 회차 출제 풀(problem.json): 빨강 5개(원기둥 2: ID [1,2], 직육면체 3: ID [5,8,11]) + 초록 7개(원기둥 3: ID [0,9,10], 직육면체 4: ID [3,4,6,7])",
+    "raw_log_links": [
+      "/home/pa03/xsting_logs/run_20261116_102220/allocation.json",
+      "/home/pa03/xsting_logs/run_20261116_102220/verification.json",
+      "/home/pa03/xsting_logs/run_20261116_102220/problem.json"
+    ],
+    "code_commit_version": "https://github.com/hsmint/xSting/commit/9a8c23b"
+  },
+  "phase": "DONE",
+  "barcode": {
+    "code": "P2-01",
+    "order": "asc",
+    "valid": true
+  },
+  "signal": {
+    "sequence": [
+      "R",
+      "G",
+      "R",
+      "R",
+      "G",
+      "R",
+      "G",
+      "G",
+      "Y",
+      "G",
+      "Y",
+      "G"
+    ],
+    "counts": {
+      "R": 4,
+      "Y": 2,
+      "G": 6
+    },
+    "valid": true,
+    "errors": []
+  },
+  "group_order": {
+    "L1": "Y",
+    "L2": "R",
+    "L3": "G"
+  },
+  "applied_rules": {
+    "sorting_rule": "barcode P2-01 -> 오름차순(asc), 동률 시 R->Y->G 우선순위 유지: Y(2) < R(4) < G(6) => L1=Y(2), L2=R(4), L3=G(6)",
+    "location_constraints": {
+      "L1": {
+        "group": "Y",
+        "required_count": 2,
+        "dice_eye": 2,
+        "target_cells": [0, 8],
+        "color_condition": "색상 혼합 허용 (R/G 잉여 퍽: 빨강 1개 + 초록 1개)",
+        "shape_condition": "단일 모양 통일 필수 -> 직육면체(box) 단일 형상으로 통일 (puck_id [5, 6])",
+        "box_center_map_mm": [3670, 950, 70]
+      },
+      "L2": {
+        "group": "R",
+        "required_count": 4,
+        "dice_eye": 4,
+        "target_cells": [0, 2, 6, 8],
+        "color_condition": "빨강(R) 전용",
+        "shape_condition": "모양 무관 (cylinder 2개: [1, 2], box 2개: [8, 11])",
+        "box_center_map_mm": [2202, 3700, 70]
+      },
+      "L3": {
+        "group": "G",
+        "required_count": 6,
+        "dice_eye": 6,
+        "target_cells": [0, 2, 3, 5, 6, 8],
+        "color_condition": "초록(G) 전용",
+        "shape_condition": "모양 무관 (cylinder 3개: [0, 9, 10], box 3개: [3, 4, 7])",
+        "box_center_map_mm": [3670, 5354, 70]
+      }
+    },
+    "dice_grid_rule": "지도 +Y 상단 고정, 셀 간격 60mm, 목표 바닥 높이 Z=70mm, 중심 오차 허용치 <= 10.0mm"
+  },
+  "pucks": [
+    {
+      "id": 0,
+      "color": "G",
+      "shape": "cylinder",
+      "conf": 0.88,
+      "origin": "S3",
+      "origin_box_center_map_mm": [2936, 5354, 70],
+      "assigned_location": "L3",
+      "assigned_group": "G",
+      "cell": 0,
+      "target_map_mm": [3610.0, 5414.0, 70.0],
+      "offset_mm": [2.3, -3.3],
+      "verified_map_mm": [3612.3, 5410.7, 70.0],
+      "euclidean_error_mm": 4.02
+    },
+    {
+      "id": 1,
+      "color": "R",
+      "shape": "cylinder",
+      "conf": 0.96,
+      "origin": "S6",
+      "origin_box_center_map_mm": [3670, 3886, 70],
+      "assigned_location": "L2",
+      "assigned_group": "R",
+      "cell": 0,
+      "target_map_mm": [2142.0, 3760.0, 70.0],
+      "offset_mm": [-1.0, 3.8],
+      "verified_map_mm": [2141.0, 3763.8, 70.0],
+      "euclidean_error_mm": 3.93
+    },
+    {
+      "id": 2,
+      "color": "R",
+      "shape": "cylinder",
+      "conf": 0.89,
+      "origin": "S1",
+      "origin_box_center_map_mm": [1468, 950, 70],
+      "assigned_location": "L2",
+      "assigned_group": "R",
+      "cell": 2,
+      "target_map_mm": [2262.0, 3760.0, 70.0],
+      "offset_mm": [-3.7, -3.8],
+      "verified_map_mm": [2258.3, 3756.2, 70.0],
+      "euclidean_error_mm": 5.3
+    },
+    {
+      "id": 3,
+      "color": "G",
+      "shape": "box",
+      "conf": 0.89,
+      "origin": "S2",
+      "origin_box_center_map_mm": [3670, 3152, 70],
+      "assigned_location": "L3",
+      "assigned_group": "G",
+      "cell": 3,
+      "target_map_mm": [3610.0, 5354.0, 70.0],
+      "offset_mm": [0.9, -0.1],
+      "verified_map_mm": [3610.9, 5353.9, 70.0],
+      "euclidean_error_mm": 0.91
+    },
+    {
+      "id": 4,
+      "color": "G",
+      "shape": "box",
+      "conf": 0.88,
+      "origin": "S3",
+      "origin_box_center_map_mm": [2936, 5354, 70],
+      "assigned_location": "L3",
+      "assigned_group": "G",
+      "cell": 6,
+      "target_map_mm": [3610.0, 5294.0, 70.0],
+      "offset_mm": [1.0, 2.8],
+      "verified_map_mm": [3611.0, 5296.8, 70.0],
+      "euclidean_error_mm": 2.97
+    },
+    {
+      "id": 5,
+      "color": "R",
+      "shape": "box",
+      "conf": 0.91,
+      "origin": "S1",
+      "origin_box_center_map_mm": [1468, 950, 70],
+      "assigned_location": "L1",
+      "assigned_group": "Y",
+      "cell": 0,
+      "target_map_mm": [3610.0, 1010.0, 70.0],
+      "offset_mm": [1.4, -3.8],
+      "verified_map_mm": [3611.4, 1006.2, 70.0],
+      "euclidean_error_mm": 4.05
+    },
+    {
+      "id": 6,
+      "color": "G",
+      "shape": "box",
+      "conf": 0.93,
+      "origin": "S4",
+      "origin_box_center_map_mm": [734, 5354, 70],
+      "assigned_location": "L1",
+      "assigned_group": "Y",
+      "cell": 8,
+      "target_map_mm": [3730.0, 890.0, 70.0],
+      "offset_mm": [1.1, 0.9],
+      "verified_map_mm": [3731.1, 890.9, 70.0],
+      "euclidean_error_mm": 1.42
+    },
+    {
+      "id": 7,
+      "color": "G",
+      "shape": "box",
+      "conf": 0.93,
+      "origin": "S6",
+      "origin_box_center_map_mm": [3670, 3886, 70],
+      "assigned_location": "L3",
+      "assigned_group": "G",
+      "cell": 2,
+      "target_map_mm": [3730.0, 5414.0, 70.0],
+      "offset_mm": [-2.1, 1.9],
+      "verified_map_mm": [3727.9, 5415.9, 70.0],
+      "euclidean_error_mm": 2.83
+    },
+    {
+      "id": 8,
+      "color": "R",
+      "shape": "box",
+      "conf": 0.98,
+      "origin": "S4",
+      "origin_box_center_map_mm": [734, 5354, 70],
+      "assigned_location": "L2",
+      "assigned_group": "R",
+      "cell": 6,
+      "target_map_mm": [2142.0, 3640.0, 70.0],
+      "offset_mm": [3.7, -2.5],
+      "verified_map_mm": [2145.7, 3637.5, 70.0],
+      "euclidean_error_mm": 4.47
+    },
+    {
+      "id": 9,
+      "color": "G",
+      "shape": "cylinder",
+      "conf": 0.94,
+      "origin": "S2",
+      "origin_box_center_map_mm": [3670, 3152, 70],
+      "assigned_location": "L3",
+      "assigned_group": "G",
+      "cell": 5,
+      "target_map_mm": [3730.0, 5354.0, 70.0],
+      "offset_mm": [-3.1, -2.2],
+      "verified_map_mm": [3726.9, 5351.8, 70.0],
+      "euclidean_error_mm": 3.8
+    },
+    {
+      "id": 10,
+      "color": "G",
+      "shape": "cylinder",
+      "conf": 0.95,
+      "origin": "S5",
+      "origin_box_center_map_mm": [2202, 5354, 70],
+      "assigned_location": "L3",
+      "assigned_group": "G",
+      "cell": 8,
+      "target_map_mm": [3730.0, 5294.0, 70.0],
+      "offset_mm": [2.4, -1.3],
+      "verified_map_mm": [3732.4, 5292.7, 70.0],
+      "euclidean_error_mm": 2.73
+    },
+    {
+      "id": 11,
+      "color": "R",
+      "shape": "box",
+      "conf": 0.89,
+      "origin": "S5",
+      "origin_box_center_map_mm": [2202, 5354, 70],
+      "assigned_location": "L2",
+      "assigned_group": "R",
+      "cell": 8,
+      "target_map_mm": [2262.0, 3640.0, 70.0],
+      "offset_mm": [-3.0, -2.3],
+      "verified_map_mm": [2259.0, 3637.7, 70.0],
+      "euclidean_error_mm": 3.78
+    }
+  ],
+  "active_allocation": {
+    "decider": "llm (gpt-6-luna)",
+    "y_shape": "box",
+    "groups": {
+      "Y": [5, 6],
+      "R": [1, 2, 8, 11],
+      "G": [0, 3, 4, 7, 9, 10]
+    },
+    "locations": {
+      "L1": [
+        {
+          "puck_id": 5,
+          "color": "R",
+          "shape": "box",
+          "cell": 0,
+          "target_map_mm": [3610.0, 1010.0, 70.0],
+          "verified_map_mm": [3611.4, 1006.2, 70.0],
+          "offset_mm": [1.4, -3.8],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 6,
+          "color": "G",
+          "shape": "box",
+          "cell": 8,
+          "target_map_mm": [3730.0, 890.0, 70.0],
+          "verified_map_mm": [3731.1, 890.9, 70.0],
+          "offset_mm": [1.1, 0.9],
+          "within_10mm": true
+        }
+      ],
+      "L2": [
+        {
+          "puck_id": 1,
+          "color": "R",
+          "shape": "cylinder",
+          "cell": 0,
+          "target_map_mm": [2142.0, 3760.0, 70.0],
+          "verified_map_mm": [2141.0, 3763.8, 70.0],
+          "offset_mm": [-1.0, 3.8],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 2,
+          "color": "R",
+          "shape": "cylinder",
+          "cell": 2,
+          "target_map_mm": [2262.0, 3760.0, 70.0],
+          "verified_map_mm": [2258.3, 3756.2, 70.0],
+          "offset_mm": [-3.7, -3.8],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 8,
+          "color": "R",
+          "shape": "box",
+          "cell": 6,
+          "target_map_mm": [2142.0, 3640.0, 70.0],
+          "verified_map_mm": [2145.7, 3637.5, 70.0],
+          "offset_mm": [3.7, -2.5],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 11,
+          "color": "R",
+          "shape": "box",
+          "cell": 8,
+          "target_map_mm": [2262.0, 3640.0, 70.0],
+          "verified_map_mm": [2259.0, 3637.7, 70.0],
+          "offset_mm": [-3.0, -2.3],
+          "within_10mm": true
+        }
+      ],
+      "L3": [
+        {
+          "puck_id": 0,
+          "color": "G",
+          "shape": "cylinder",
+          "cell": 0,
+          "target_map_mm": [3610.0, 5414.0, 70.0],
+          "verified_map_mm": [3612.3, 5410.7, 70.0],
+          "offset_mm": [2.3, -3.3],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 7,
+          "color": "G",
+          "shape": "box",
+          "cell": 2,
+          "target_map_mm": [3730.0, 5414.0, 70.0],
+          "verified_map_mm": [3727.9, 5415.9, 70.0],
+          "offset_mm": [-2.1, 1.9],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 3,
+          "color": "G",
+          "shape": "box",
+          "cell": 3,
+          "target_map_mm": [3610.0, 5354.0, 70.0],
+          "verified_map_mm": [3610.9, 5353.9, 70.0],
+          "offset_mm": [0.9, -0.1],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 9,
+          "color": "G",
+          "shape": "cylinder",
+          "cell": 5,
+          "target_map_mm": [3730.0, 5354.0, 70.0],
+          "verified_map_mm": [3726.9, 5351.8, 70.0],
+          "offset_mm": [-3.1, -2.2],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 4,
+          "color": "G",
+          "shape": "box",
+          "cell": 6,
+          "target_map_mm": [3610.0, 5294.0, 70.0],
+          "verified_map_mm": [3611.0, 5296.8, 70.0],
+          "offset_mm": [1.0, 2.8],
+          "within_10mm": true
+        },
+        {
+          "puck_id": 10,
+          "color": "G",
+          "shape": "cylinder",
+          "cell": 8,
+          "target_map_mm": [3730.0, 5294.0, 70.0],
+          "verified_map_mm": [3732.4, 5292.7, 70.0],
+          "offset_mm": [2.4, -1.3],
+          "within_10mm": true
+        }
+      ]
+    }
+  },
+  "planned": {
+    "note": "planner.assign 규칙 기반 대안 해 (cylinder 우선 탐색 시 유효 해)",
+    "valid": true,
+    "y_shape": "cylinder",
+    "groups": {
+      "Y": [0, 1],
+      "R": [2, 5, 8, 11],
+      "G": [3, 4, 6, 7, 9, 10]
+    },
+    "locations": {
+      "L1": [
+        {"puck_id": 0, "cell": 0},
+        {"puck_id": 1, "cell": 8}
+      ],
+      "L2": [
+        {"puck_id": 2, "cell": 0},
+        {"puck_id": 5, "cell": 2},
+        {"puck_id": 8, "cell": 6},
+        {"puck_id": 11, "cell": 8}
+      ],
+      "L3": [
+        {"puck_id": 3, "cell": 0},
+        {"puck_id": 4, "cell": 3},
+        {"puck_id": 6, "cell": 6},
+        {"puck_id": 7, "cell": 2},
+        {"puck_id": 9, "cell": 5},
+        {"puck_id": 10, "cell": 8}
+      ]
+    },
+    "error": null
+  },
+  "placed": {
+    "consistency": {
+      "placed_puck_ids": [5, 6, 1, 2, 8, 11, 0, 7, 3, 9, 4, 10],
+      "unique_count": 12,
+      "duplicate_ids": [],
+      "missing_ids": [],
+      "y_shape_unified": true,
+      "y_unified_shape": "box",
+      "r_group_all_red": true,
+      "g_group_all_green": true,
+      "group_counts_match": true,
+      "all_cells_within_10mm": true,
+      "max_euclidean_error_mm": 5.3,
+      "all_locations_newly_verified": true,
+      "complete": true
+    }
+  },
+  "q1_placement_csv_reference": {
+    "note": "docs/submission/placement.csv (빨강 6개 + 초록 6개 공개 예제 풀) 기준 정규 할당표",
+    "group_order": {"L1": "Y", "L2": "R", "L3": "G"},
+    "y_shape": "cylinder",
+    "L1": [
+      {"puck_id": 0, "color": "R", "shape": "cylinder", "origin": "S1", "cell": 0, "target_map_mm": [3610.0, 1010.0, 70.0]},
+      {"puck_id": 5, "color": "R", "shape": "cylinder", "origin": "S3", "cell": 8, "target_map_mm": [3730.0, 890.0, 70.0]}
+    ],
+    "L2": [
+      {"puck_id": 2, "color": "R", "shape": "box", "origin": "S2", "cell": 0, "target_map_mm": [2142.0, 3760.0, 70.0]},
+      {"puck_id": 4, "color": "R", "shape": "box", "origin": "S3", "cell": 2, "target_map_mm": [2262.0, 3760.0, 70.0]},
+      {"puck_id": 8, "color": "R", "shape": "cylinder", "origin": "S5", "cell": 6, "target_map_mm": [2142.0, 3640.0, 70.0]},
+      {"puck_id": 10, "color": "R", "shape": "box", "origin": "S6", "cell": 8, "target_map_mm": [2262.0, 3640.0, 70.0]}
+    ],
+    "L3": [
+      {"puck_id": 1, "color": "G", "shape": "box", "origin": "S1", "cell": 0, "target_map_mm": [3610.0, 5414.0, 70.0]},
+      {"puck_id": 3, "color": "G", "shape": "cylinder", "origin": "S2", "cell": 3, "target_map_mm": [3610.0, 5354.0, 70.0]},
+      {"puck_id": 6, "color": "G", "shape": "cylinder", "origin": "S4", "cell": 6, "target_map_mm": [3610.0, 5294.0, 70.0]},
+      {"puck_id": 7, "color": "G", "shape": "box", "origin": "S4", "cell": 2, "target_map_mm": [3730.0, 5414.0, 70.0]},
+      {"puck_id": 9, "color": "G", "shape": "cylinder", "origin": "S5", "cell": 5, "target_map_mm": [3730.0, 5354.0, 70.0]},
+      {"puck_id": 11, "color": "G", "shape": "box", "origin": "S6", "cell": 8, "target_map_mm": [3730.0, 5294.0, 70.0]}
+    ]
+  }
+}

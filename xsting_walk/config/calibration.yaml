@@ -1,0 +1,54 @@
+# xSting 전방향 보행(xsting_walk) 실측 보정 설정 (q_hw = direction * q_sim + offset_rad)
+output_leg_order: [leg1_yaw, leg1_hip, leg1_knee, leg2_yaw, leg2_hip, leg2_knee, leg3_yaw, leg3_hip, leg3_knee, leg4_yaw, leg4_hip, leg4_knee, leg5_yaw, leg5_hip, leg5_knee, leg6_yaw, leg6_hip, leg6_knee]
+
+leg_joints:
+  leg1_yaw:  {ros_name: leg1_yaw,  direction: 1.0, offset_rad: 0.000000, lower_rad: -0.436332, upper_rad: 1.570800, stand_rad: 0.523599}
+  leg1_hip:  {ros_name: leg1_hip,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.261799}
+  leg1_knee: {ros_name: leg1_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.570796}
+  leg2_yaw:  {ros_name: leg2_yaw,  direction: 1.0, offset_rad: 0.000000, lower_rad: -0.436332, upper_rad: 0.750492, stand_rad: 0.000000}
+  leg2_hip:  {ros_name: leg2_hip,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.261799}
+  leg2_knee: {ros_name: leg2_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.570796}
+  leg3_yaw:  {ros_name: leg3_yaw,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.570800, upper_rad: 0.436332, stand_rad: -0.523599}
+  leg3_hip:  {ros_name: leg3_hip,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.261799}
+  leg3_knee: {ros_name: leg3_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.570796}
+  leg4_yaw:  {ros_name: leg4_yaw,  direction: 1.0, offset_rad: 0.000000, lower_rad: -0.436332, upper_rad: 1.570800, stand_rad: 0.523599}
+  leg4_hip:  {ros_name: leg4_hip,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.261799}
+  leg4_knee: {ros_name: leg4_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.570796}
+  leg5_yaw:  {ros_name: leg5_yaw,  direction: 1.0, offset_rad: 0.000000, lower_rad: -0.750492, upper_rad: 0.436332, stand_rad: 0.000000}
+  leg5_hip:  {ros_name: leg5_hip,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.261799}
+  leg5_knee: {ros_name: leg5_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.570796}
+  leg6_yaw:  {ros_name: leg6_yaw,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.570800, upper_rad: 0.436332, stand_rad: -0.523599}
+  leg6_hip:  {ros_name: leg6_hip,  direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658060, upper_rad: 1.658060, stand_rad: 0.261799}
+  leg6_knee: {ros_name: leg6_knee, direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007130, upper_rad: 1.745330, stand_rad: -1.570796}
+
+arm_joints:
+  arm_yaw:      {ros_name: arm_yaw,      direction: 1.0, offset_rad: 0.000000, lower_rad: -3.141590, upper_rad: 3.141590, stand_rad: 0.000000}
+  arm_shoulder: {ros_name: arm_shoulder, direction: 1.0, offset_rad: 0.000000, lower_rad: -1.658063, upper_rad: 1.919862, stand_rad: -1.296263}
+  arm_elbow:    {ros_name: arm_elbow,    direction: 1.0, offset_rad: 0.000000, lower_rad: -2.007129, upper_rad: 1.570796, stand_rad: 1.296263}
+  arm_wrist:    {ros_name: arm_wrist,    direction: 1.0, offset_rad: 0.000000, lower_rad: -1.832600, upper_rad: 2.181660, stand_rad: 0.000000}
+  arm_roll:     {ros_name: arm_roll,     direction: 1.0, offset_rad: 0.000000, lower_rad: -3.141590, upper_rad: 3.141590, stand_rad: 0.000000}
+  finger_l:     {ros_name: finger_l,     direction: 1.0, offset_rad: 0.000000, lower_rad: -0.001860, upper_rad: 0.025000, stand_rad: 0.000000}
+
+imu:
+  mount_quat_xyzw: [0.000000, 0.000000, 0.000000, 1.000000]
+  gyro_bias_rad_s: [0.000000, 0.000000, 0.000000]
+  acc_bias_m_s2: [0.000000, 0.000000, 0.000000]
+
+walk_gait:
+  action_scale: 0.280000
+  action_ema: 0.550000
+  gait_freq_hz: 3.500000
+  stride_gain_xy: [1.080000, 1.240000]
+  stride_gain_yaw: 1.040000
+  swing_clearance_m: 0.032000
+  stance_press_m: 0.003000
+  soft_limit_factor: 0.950000
+  max_speed: [0.380000, 0.320000, 1.400000]
+  cmd_vel_scale: [1.000000, 1.000000, 1.000000]
+  cmd_vel_trim: [0.000000, 0.000000, 0.000000]
+  drift_vy_per_vx: 0.000000
+  drift_wz_per_vx: 0.000000
+  cmd_accel_lim: [1.200000, 1.000000, 3.500000]
+  max_leg_step_rad: 0.075000
+  use_odom_vel: true
+  dry_run: false

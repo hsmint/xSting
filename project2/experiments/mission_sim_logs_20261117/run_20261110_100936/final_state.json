@@ -1,0 +1,469 @@
+{
+  "halt": "CTRL_C",
+  "state": {
+    "meta": {
+      "seq": 11,
+      "stamp": "2026-11-10T01:10:23Z"
+    },
+    "phase": "LOAD",
+    "robot": {
+      "status": "OK",
+      "error": null,
+      "here": "S3",
+      "localization": "ok",
+      "arm_stowed": true,
+      "gripper": "empty",
+      "home_stopped": false,
+      "storage": [
+        {
+          "slot": 0,
+          "state": "occupied",
+          "puck_id": 1,
+          "color": "G",
+          "shape": "box"
+        },
+        {
+          "slot": 1,
+          "state": "occupied",
+          "puck_id": 8,
+          "color": "G",
+          "shape": "box"
+        },
+        {
+          "slot": 2,
+          "state": "occupied",
+          "puck_id": 9,
+          "color": "R",
+          "shape": "box"
+        },
+        {
+          "slot": 3,
+          "state": "occupied",
+          "puck_id": 11,
+          "color": "R",
+          "shape": "box"
+        },
+        {
+          "slot": 4,
+          "state": "occupied",
+          "puck_id": 5,
+          "color": "R",
+          "shape": "box"
+        },
+        {
+          "slot": 5,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 6,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 7,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 8,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 9,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 10,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 11,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        }
+      ]
+    },
+    "world": {
+      "barcode": {
+        "code": "P2-01",
+        "order": "asc",
+        "valid": true
+      },
+      "signal": {
+        "sequence": [
+          "R",
+          "R",
+          "Y",
+          "R",
+          "Y",
+          "Y",
+          "Y",
+          "G",
+          "G",
+          "G",
+          "G",
+          "Y"
+        ],
+        "counts": {
+          "R": 3,
+          "Y": 5,
+          "G": 4
+        },
+        "valid": true,
+        "errors": []
+      },
+      "boxes": {
+        "S1": {
+          "status": "CLEARED",
+          "loaded": [
+            1,
+            8
+          ]
+        },
+        "S2": {
+          "status": "CLEARED",
+          "loaded": [
+            9,
+            11
+          ]
+        },
+        "S3": {
+          "status": "VISITED",
+          "loaded": [
+            5
+          ]
+        },
+        "S4": {
+          "status": "UNVISITED",
+          "loaded": []
+        },
+        "S5": {
+          "status": "UNVISITED",
+          "loaded": []
+        },
+        "S6": {
+          "status": "UNVISITED",
+          "loaded": []
+        }
+      },
+      "pucks": [
+        {
+          "id": 0,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 1,
+          "color": "G",
+          "shape": "box",
+          "conf": 0.96,
+          "origin": "S1",
+          "where": "storage",
+          "slot": 0,
+          "placed": null
+        },
+        {
+          "id": 2,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 3,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 4,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 5,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.89,
+          "origin": "S3",
+          "where": "storage",
+          "slot": 4,
+          "placed": null
+        },
+        {
+          "id": 6,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 7,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 8,
+          "color": "G",
+          "shape": "box",
+          "conf": 0.91,
+          "origin": "S1",
+          "where": "storage",
+          "slot": 1,
+          "placed": null
+        },
+        {
+          "id": 9,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.92,
+          "origin": "S2",
+          "where": "storage",
+          "slot": 2,
+          "placed": null
+        },
+        {
+          "id": 10,
+          "color": null,
+          "shape": null,
+          "conf": null,
+          "origin": null,
+          "where": "unknown",
+          "slot": null,
+          "placed": null
+        },
+        {
+          "id": 11,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.91,
+          "origin": "S2",
+          "where": "storage",
+          "slot": 3,
+          "placed": null
+        }
+      ],
+      "locations": {
+        "L1": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "empty",
+              "puck_id": null
+            }
+          ],
+          "verified": null
+        },
+        "L2": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "empty",
+              "puck_id": null
+            }
+          ],
+          "verified": null
+        },
+        "L3": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "empty",
+              "puck_id": null
+            }
+          ],
+          "verified": null
+        }
+      }
+    },
+    "last_action": {
+      "name": "LOAD",
+      "args": {},
+      "success": true,
+      "error": null,
+      "retries": 0,
+      "result": {
+        "success": true,
+        "slot": 4,
+        "puck": {
+          "id": 5,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.89
+        },
+        "box_remaining": 1,
+        "robot": {
+          "status": "OK",
+          "error": null,
+          "here": "S3",
+          "localization": "ok",
+          "arm_stowed": true,
+          "gripper": "empty"
+        }
+      }
+    }
+  }
+}

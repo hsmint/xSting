@@ -63,3 +63,12 @@ Temporary Items
 build
 install
 log
+
+__pycache__/
+.pytest_cache/
+*.pyc
+training/runs/
+
+# DOPE weights (distributed via GitHub Release)
+dope/model/
+dope/**/*.pth

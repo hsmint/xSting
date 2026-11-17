@@ -1,0 +1,2 @@
+Namespace(data=['/home/pa10/xsting_ws/vision/sim_dope/run02/train', '/home/pa10/xsting_ws/vision/sim_dope/run03/train'], use_s3=False, train_buckets=[], endpoint=None, object=['red_square', 'green_square'], workers=8, batchsize=8, imagesize=448, lr=0.0001, net_path=None, namefile='epoch', manualseed=None, epochs=60, loginterval=100, outf='/home/pa10/xsting_ws/dope/out_square_v2', nb_checkpoints=0, save_every=5, sigma=4, local_rank=0, save=False)
+seed: 6928

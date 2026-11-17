@@ -1,0 +1,24 @@
+/**:
+  ros__parameters:
+    # Action 서버 이름 및 신호등 검출·바코드 영상 구독 토픽
+    action_name: "read_sign_barcode"
+    det_topic: "sign_yolo/detections"
+    barcode_img_topic: "camera/color/image_raw"
+
+    # 신호등 YOLO 최소 신뢰도, 목표 점멸 횟수 및 실패 시 재시도 횟수
+    conf_thres: 0.5
+    expected_flashes: 12
+    max_retries: 3
+
+    # 점등·소등 확정 시간, 시작·종료 소등 시간(3초), 전체 제한 시간(초)
+    min_on_sec: 0.25
+    min_off_sec: 0.25
+    start_off_sec: 3.0
+    end_off_sec: 3.0
+    timeout_sec: 160.0
+
+    # 1회 성공 후 언로드할 컨테이너 이름 및 대상 컴포넌트 목록
+    container_name: "/vision"
+    unload_nodes: ["/sign_yolo/yolov8_decoder",
+                   "/sign_yolo/tensor_rt",
+                   "/sign_barcode"]

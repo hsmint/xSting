@@ -1,0 +1,46 @@
+# xSting 관절 순서, 영점, 기본 서기·접힘 자세 및 가동 범위 정의
+# 보드 구성: 앞다리 OpenCR(ID 200: leg1, leg2, leg4), 뒷다리 OpenCR(ID 201: leg3, leg5, leg6), 팔 OpenCR(ID 202)
+robot: xsting
+units: {angle: rad, length: m}
+zero_pose: "모든 관절 0 = 다리 좌우 수평 전개, 팔 ㄱ자 L-pose (arm_shoulder +Z 수직, arm_elbow +X 90 deg 전방), 그리퍼 닫힘"
+default_pose:
+  legs_deg: {yaw: 0, hip: 30, knee: -110}
+  arm_deg: {yaw: 0, shoulder: -74.270422, elbow: 74.270422, wrist: 0, roll: 0}
+  finger_m: 0
+sign_convention:
+  yaw: "+ = foot forward"
+  hip: "+ = thigh up"
+  knee: "+ = leg tip up"
+  arm_shoulder_wrist: "+ = forward/down"
+  fingers: "+ = open"
+
+leg_joints:   # 보행 정책 순서: indices 0-17
+  - {index: 0,  name: leg1_yaw,  leg: 1, position: front_left,   type: revolute, default: 0.0,          lower: -0.436332, upper: 1.5708,   board_id: 200, dynamixel_id: 1}
+  - {index: 1,  name: leg1_hip,  leg: 1, position: front_left,   type: revolute, default: 0.5235987756, lower: -1.65806,  upper: 1.65806,  board_id: 200, dynamixel_id: 2}
+  - {index: 2,  name: leg1_knee, leg: 1, position: front_left,   type: revolute, default: -1.919862177, lower: -2.00713,  upper: 1.74533,  board_id: 200, dynamixel_id: 3}
+  - {index: 3,  name: leg2_yaw,  leg: 2, position: middle_left,  type: revolute, default: 0.0,          lower: -0.436332, upper: 0.750492, board_id: 200, dynamixel_id: 4}
+  - {index: 4,  name: leg2_hip,  leg: 2, position: middle_left,  type: revolute, default: 0.5235987756, lower: -1.65806,  upper: 1.65806,  board_id: 200, dynamixel_id: 5}
+  - {index: 5,  name: leg2_knee, leg: 2, position: middle_left,  type: revolute, default: -1.919862177, lower: -2.00713,  upper: 1.74533,  board_id: 200, dynamixel_id: 6}
+  - {index: 6,  name: leg3_yaw,  leg: 3, position: rear_left,    type: revolute, default: 0.0,          lower: -1.5708,   upper: 0.436332, board_id: 201, dynamixel_id: 7}
+  - {index: 7,  name: leg3_hip,  leg: 3, position: rear_left,    type: revolute, default: 0.5235987756, lower: -1.65806,  upper: 1.65806,  board_id: 201, dynamixel_id: 8}
+  - {index: 8,  name: leg3_knee, leg: 3, position: rear_left,    type: revolute, default: -1.919862177, lower: -2.00713,  upper: 1.74533,  board_id: 201, dynamixel_id: 9}
+  - {index: 9,  name: leg4_yaw,  leg: 4, position: front_right,  type: revolute, default: 0.0,          lower: -0.436332, upper: 1.5708,   board_id: 200, dynamixel_id: 10}
+  - {index: 10, name: leg4_hip,  leg: 4, position: front_right,  type: revolute, default: 0.5235987756, lower: -1.65806,  upper: 1.65806,  board_id: 200, dynamixel_id: 11}
+  - {index: 11, name: leg4_knee, leg: 4, position: front_right,  type: revolute, default: -1.919862177, lower: -2.00713,  upper: 1.74533,  board_id: 200, dynamixel_id: 12}
+  - {index: 12, name: leg5_yaw,  leg: 5, position: middle_right, type: revolute, default: 0.0,          lower: -0.750492, upper: 0.436332, board_id: 201, dynamixel_id: 13}
+  - {index: 13, name: leg5_hip,  leg: 5, position: middle_right, type: revolute, default: 0.5235987756, lower: -1.65806,  upper: 1.65806,  board_id: 201, dynamixel_id: 14}
+  - {index: 14, name: leg5_knee, leg: 5, position: middle_right, type: revolute, default: -1.919862177, lower: -2.00713,  upper: 1.74533,  board_id: 201, dynamixel_id: 15}
+  - {index: 15, name: leg6_yaw,  leg: 6, position: rear_right,   type: revolute, default: 0.0,          lower: -1.5708,   upper: 0.436332, board_id: 201, dynamixel_id: 16}
+  - {index: 16, name: leg6_hip,  leg: 6, position: rear_right,   type: revolute, default: 0.5235987756, lower: -1.65806,  upper: 1.65806,  board_id: 201, dynamixel_id: 17}
+  - {index: 17, name: leg6_knee, leg: 6, position: rear_right,   type: revolute, default: -1.919862177, lower: -2.00713,  upper: 1.74533,  board_id: 201, dynamixel_id: 18}
+
+arm_joints:   # 팔·그리퍼 관절: indices 18-23
+  - {index: 18, name: arm_yaw,      type: revolute,  default: 0.0,           lower: -3.14159, upper: 3.14159, board_id: 202, dynamixel_id: 11}
+  - {index: 19, name: arm_shoulder, type: revolute,  default: -1.2962634016, lower: -1.65806, upper: 1.91986, board_id: 202, dynamixel_id: 12}
+  - {index: 20, name: arm_elbow,    type: revolute,  default: 1.2962634016,  lower: -2.00713, upper: 1.5708,  board_id: 202, dynamixel_id: 13}
+  - {index: 21, name: arm_wrist,    type: revolute,  default: 0.0,           lower: -1.8326,  upper: 2.18166, board_id: 202, dynamixel_id: 14}
+  - {index: 22, name: arm_roll,     type: revolute,  default: 0.0,           lower: -3.14159, upper: 3.14159, board_id: 202, dynamixel_id: 15}
+  - {index: 23, name: finger_l,     type: prismatic, default: 0.0,           lower: -0.00186, upper: 0.025,   board_id: 202, dynamixel_id: 16}
+
+not_in_action:   # 수동 종동(mimic) 관절
+  - {name: finger_r, mimic: finger_l, multiplier: 1, offset: 0}

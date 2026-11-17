@@ -1,0 +1,13 @@
+# 로봇 팀: 적재함의 퍽을 지금 앞의 하차 박스 cell에 items 순서대로 놓는다 (각 2초 안정 확인)
+# 실패하면 그 항목에서 멈춘다. 초안: docs/robot_primitives.md (xsting_mission)
+string location_id                           # L1 ~ L3
+xsting_interfaces/PlaceItem[] items
+builtin_interfaces/Duration timeout
+---
+bool success
+uint16 error_code                            # ErrorCode
+string message
+xsting_interfaces/PlacedItem[] items         # 시도한 항목까지 (실패 항목 포함)
+int32 stopped_at                             # 멈춘 항목 번호(0부터), 끝까지 했으면 -1
+---
+string phase

@@ -1,0 +1,33 @@
+# backend:=fake 시나리오. 경기장 초기화(화면 버튼)할 때마다 새로 만든다.
+# random이면 미션지 출제 규칙대로 "풀 수 있는 조합이 하나 이상"인 문제만 낸다.
+#   barcode: P2-01 ~ P2-04 또는 random (오름차순 01·03, 내림차순 02·04)
+#   signal:  12자리 문자열(예: RGRRGRGGYGYG) 또는 random
+#   boxes:   아래 예시처럼 고정 배치 또는 random (퍽 12개의 색·모양과 박스 배치를 무작위로)
+barcode: random
+signal: random
+seed: 0
+fail_once: []
+# 시험용 실패 (웹 "실패 주입" 카드와 같은 형식, 코드별 뜻은 docs/error_codes.md). 초기화할 때마다 다시 걸린다
+#   action: READ_MISSION_INPUT | GOTO | LOAD | UNLOAD | VERIFY_LOCATION
+#   code:   GOTO는 OBSTACLE_BLOCKED, NO_PROGRESS, NAV_FAILED, LOCALIZATION_LOST, NO_PATH
+#           LOAD는 GRASP_FAILED, PERCEPTION_FAILED / UNLOAD는 PLACE_FAILED / VERIFY는 PERCEPTION_FAILED
+#           READ는 PERCEPTION_FAILED(신호등 못 찾음), SIGNAL_INCOMPLETE(신호를 option번 덜 읽음, 3번 이상이면 실패)
+#           어느 행동이든 ROBOT_FAULT, INTERNAL_ERROR, BAD_RESULT
+#   target: 그 장소에서만 (GOTO는 목적지, LOAD·UNLOAD·VERIFY는 지금 장소). 없으면 아무 곳
+#   option: GOTO 멈출 지점 % (기본 50), LOAD 실을 개수 (기본 0), UNLOAD 실패할 항목 번호 (기본 2)
+#   times:  몇 번 실패할지 (기본 1)
+faults: []
+# 무작위 인식 실패 (READ·LOAD·VERIFY, 웹에서도 바꿀 수 있음). 처음 인식이 fail_rate %로 실패하면
+# 로봇이 제자리에서 한 바퀴 돌며 다시 찾고, search_success_rate %로 찾는다. 못 찾으면 PERCEPTION_FAILED
+perception: {fail_rate: 0, search_success_rate: 70}
+#   - {action: GOTO, code: OBSTACLE_BLOCKED, target: L3, option: 40}
+#   - {action: UNLOAD, code: PLACE_FAILED, target: L2, option: 2}
+boxes: random
+# 고정 배치 예 (공개 연습 문제 Q1, 빨강 6·초록 6):
+# boxes:
+#   S1: [{id: 0, color: R, shape: cylinder}, {id: 1, color: G, shape: box}]
+#   S2: [{id: 2, color: R, shape: box}, {id: 3, color: G, shape: cylinder}]
+#   S3: [{id: 4, color: R, shape: cylinder}, {id: 5, color: G, shape: box}]
+#   S4: [{id: 6, color: R, shape: box}, {id: 7, color: G, shape: cylinder}]
+#   S5: [{id: 8, color: R, shape: cylinder}, {id: 9, color: G, shape: box}]
+#   S6: [{id: 10, color: R, shape: box}, {id: 11, color: G, shape: cylinder}]

@@ -1,0 +1,213 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Name: Tool Properties
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robot_description
+      Enabled: true
+      Name: RobotModel
+      Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Marker Scale: 0.3
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+    - Class: rviz_common/Group
+      Displays:
+        - Ceiling Height: 2.0
+          Class: nvblox_rviz_plugin/NvbloxVoxelBlockLayer
+          Cut Ceiling: false
+          Enabled: true
+          Name: NvbloxVoxels
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /nvblox_node/color_layer
+        - Ceiling Height: 2.0
+          Class: nvblox_rviz_plugin/NvbloxMesh
+          Cut Ceiling: false
+          Enabled: false
+          Name: NvbloxMesh
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /nvblox_node/mesh
+        - Alpha: 1
+          Autocompute Intensity Bounds: false
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz_default_plugins/PointCloud2
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: true
+          Max Intensity: 1
+          Min Intensity: 0
+          Name: Esdf Slice
+          Position Transformer: XYZ
+          Size (m): 0.03
+          Style: Flat Squares
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /nvblox_node/static_esdf_pointcloud
+          Use Fixed Frame: true
+          Use rainbow: true
+        - Class: rviz_default_plugins/Marker
+          Enabled: false
+          Name: Workspace Bounds
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /nvblox_node/workspace_bounds
+      Enabled: true
+      Name: Nvblox
+    - Alpha: 0.7
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: true
+      Enabled: true
+      Name: 2D Occupancy
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /nvblox_node/static_occupancy_grid
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /nvblox_node/static_occupancy_grid_updates
+    - Class: rviz_common/Group
+      Displays:
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz_default_plugins/Path
+          Color: 25; 255; 0
+          Enabled: true
+          Line Style: Lines
+          Name: SLAM Path
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /visual_slam/tracking/slam_path
+        - Alpha: 1
+          Class: rviz_default_plugins/PointCloud2
+          Color: 255; 0; 255
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: false
+          Name: Landmarks
+          Position Transformer: XYZ
+          Size (m): 0.03
+          Style: Flat Squares
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /visual_slam/vis/landmarks_cloud
+          Use Fixed Frame: true
+      Enabled: true
+      Name: cuVSLAM
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Class: rviz_default_plugins/LaserScan
+      Color: 255; 80; 0
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Name: 2D LiDAR Filtered
+      Position Transformer: XYZ
+      Size (m): 0.03
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /scan_filtered
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Name: Arducam Rect
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /arducam/image_rect
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: odom
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+    - Class: rviz_default_plugins/SetInitialPose
+      Topic:
+        Value: /initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Value: /goal_pose
+    - Class: rviz_default_plugins/PublishPoint
+      Single click: true
+      Topic:
+        Value: /clicked_point
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 4.0
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 0.5
+      Target Frame: base
+      Yaw: 3.14
+Window Geometry:
+  Height: 1000
+  Width: 1600

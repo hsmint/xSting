@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    # 에미터 on/off를 교차하는 전면 카메라 (depth.emitter_on_off: 1.0)
+    camera_names: ["camera"]
+
+    # 이미지·metadata 시간 동기화 큐 크기 (같은 stamp끼리 묶음)
+    sync_queue_size: 10

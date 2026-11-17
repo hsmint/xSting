@@ -1,0 +1,18 @@
+# 제한 시간(초, 0 이하이면 기본값 사용) 및 모터 무출력 점검 여부
+float32 timeout_sec
+bool dry_run
+---
+# 성공 여부, 상태 메시지, 최종 거리·각도 오차 및 초음파 거리
+bool success
+string message
+float32 dist_m
+float32 yaw_deg
+float32 range_m
+---
+# 실시간 위치·각도 오차, 정지 유지 시간(초), 초음파 거리 및 상태 플래그
+float32 dist_m
+float32 yaw_deg
+float32 hold_sec
+float32 range_m
+bool stopped
+bool visible

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xsting_bringup 실행 옵션 가이드 (xsting.launch.py)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-alt: #263349;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --green: #34d399;
+      --green-soft: rgba(52, 211, 153, 0.14);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251, 191, 36, 0.14);
+      --rose: #fb7185;
+      --rose-soft: rgba(251, 113, 133, 0.14);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.14);
+      --code-bg: #0b1120;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-blue { background: var(--accent-soft); color: var(--accent); }
+    .badge-green { background: var(--green-soft); color: var(--green); }
+    .badge-amber { background: var(--amber-soft); color: var(--amber); }
+    .badge-rose { background: var(--rose-soft); color: var(--rose); }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 36px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    code, pre {
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    }
+
+    code {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 0.9em;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* CLI Builder */
+    .builder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .opt-item {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .opt-item label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .opt-item small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .opt-item input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .opt-item input[type="text"],
+    .opt-item select {
+      background: var(--code-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .cmd-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .cmd-box pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: var(--green);
+      font-size: 14px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button.secondary {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .search-input {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 13px;
+      min-width: 220px;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+    }
+
+    th, td {
+      padding: 13px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--panel-alt);
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .val-true {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .val-false {
+      color: var(--rose);
+      font-weight: 700;
+    }
+
+    .val-str {
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    .dep-note {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Detail Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--accent);
+    }
+
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .card li {
+      margin-bottom: 6px;
+    }
+
+    .preset-item {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .preset-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .preset-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .preset-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .preset-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .preset-cmd {
+      background: var(--code-bg);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--green);
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge badge-blue">ROS 2 Launch</span>
+        <span class="badge badge-green">xsting_bringup</span>
+        <span class="badge badge-purple">Single GPU Container (vision)</span>
+      </div>
+      <h1>xSting Bringup 실행 옵션 가이드</h1>
+      <p class="subtitle">
+        기준 파일: <code>xsting_bringup/launch/xsting.launch.py</code> · 불리언 인자는 대소문자 구분 없이
+        <code>true / 1 / yes / on</code>을 활성화로 인식합니다.<br/>
+        실행 순서와 센서·로봇팔·신호등 현장 보정 방법은 <a href="./run_and_calib_guide.html" style="color: var(--accent); font-weight: 600;">실행 및 현장 보정 통합 가이드 (run_and_calib_guide.html)</a>를 참고하세요.
+      </p>
+    </header>
+
+    <!-- 1. 인터랙티브 명령어 빌더 -->
+    <section>
+      <h2>1. 실행 명령어 생성기 (CLI Builder)</h2>
+      <div class="card">
+        <div class="builder-grid" id="builderGrid"></div>
+        <div class="cmd-box">
+          <pre id="generatedCmd">ros2 launch xsting_bringup xsting.launch.py</pre>
+          <div class="btn-group">
+            <button class="secondary" type="button" onclick="resetBuilder()">초기화</button>
+            <button type="button" id="copyBtn" onclick="copyCmd()">명령어 복사</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 전체 실행 옵션 표 -->
+    <section>
+      <h2>2. 전체 실행 옵션 상세 (총 14개)</h2>
+      <div class="filter-bar">
+        <div class="filter-tabs" id="categoryTabs">
+          <button class="tab-btn active" data-cat="all">전체 (14)</button>
+          <button class="tab-btn" data-cat="tf">로봇 모델·TF (2)</button>
+          <button class="tab-btn" data-cat="sensor">카메라·LiDAR 센서 (4)</button>
+          <button class="tab-btn" data-cat="slam">SLAM·매핑 (4)</button>
+          <button class="tab-btn" data-cat="ai">AI 비전 인식 (2)</button>
+          <button class="tab-btn" data-cat="vis">시각화·브리지 (2)</button>
+        </div>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="옵션명, 노드, 역할 검색..."
+          oninput="filterTable()"
+        />
+      </div>
+
+      <div class="table-wrap">
+        <table id="optionsTable">
+          <thead>
+            <tr>
+              <th>인자명</th>
+              <th>분류</th>
+              <th>타입</th>
+              <th>기본값</th>
+              <th>실행·제어 대상 노드</th>
+              <th>역할 및 세부 동작</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-cat="tf">
+              <td><code>urdf</code></td>
+              <td><span class="badge badge-blue">로봇 모델·TF</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>robot_state_publisher</code><br/><code>static_odom_tf</code> (조건부)</td>
+              <td>
+                <code>xsting.urdf</code>를 로드하여 로봇의 정적·관절 TF를 발행합니다.<br/>
+                <span class="dep-note">• <code>slam:=false</code>일 때 <code>urdf:=true</code>이면 RViz 좌표계 유지를 위해 <code>odom → base</code> 정적 TF도 자동 발행합니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="tf">
+              <td><code>joint_states</code></td>
+              <td><span class="badge badge-blue">로봇 모델·TF</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>joint_state_publisher</code></td>
+              <td>
+                외부 하드웨어의 관절 상태 입력 없이도 <code>joint_order.yaml</code>의 기본 서기·팔 접힘 자세로 6족 다리·팔·Arducam TF를 완성합니다.<br/>
+                <span class="dep-note">• 전제 조건: <code>urdf:=true</code>일 때만 동작합니다. 실기체 하드웨어 노드가 <code>/joint_states</code>를 발행할 때는 <code>false</code>로 끕니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="sensor">
+              <td><code>realsense</code></td>
+              <td><span class="badge badge-green">카메라·LiDAR 센서</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>realsense_camera</code><br/><code>realsense_splitter</code></td>
+              <td>
+                전면(<code>camera</code>) RealSense 드라이버를 구동하고, IR 에미터 On/Off 프레임을 분리해 SLAM(에미터 Off)과 Depth 매핑·PCA(에미터 On)으로 공급합니다.
+              </td>
+            </tr>
+            <tr data-cat="sensor">
+              <td><code>arducam</code></td>
+              <td><span class="badge badge-green">카메라·LiDAR 센서</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>arducam_camera</code></td>
+              <td>
+                로봇팔에 장착된 Arducam 카메라 영상의 GPU 디코딩 및 렌즈 왜곡 보정 노드를 실행합니다.
+              </td>
+            </tr>
+            <tr data-cat="sensor">
+              <td><code>lidar</code></td>
+              <td><span class="badge badge-green">카메라·LiDAR 센서</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>coin_d4_lidar</code><br/><code>lidar_odom</code></td>
+              <td>
+                1층 중앙 천장형(<code>Roll = 180°</code>) 2D LiDAR 드라이버(<code>coin_d4_driver</code>)와 본체·6족 다리 실시간 마스킹·근접 벽 2D ICP 오도메트리 보정·<code>nvblox</code> 점군 변환 노드를 함께 실행합니다.
+              </td>
+            </tr>
+            <tr data-cat="sensor">
+              <td><code>lidar_port</code></td>
+              <td><span class="badge badge-green">카메라·LiDAR 센서</span></td>
+              <td>string</td>
+              <td><span class="val-str">/dev/lidar</span></td>
+              <td><code>coin_d4_lidar</code></td>
+              <td>
+                COIN-D4(LDS-03) 2D LiDAR 시리얼 포트 경로를 지정합니다 (<code>99-lidar.rules</code> udev 심볼릭 링크 기본값 <code>/dev/lidar</code>).<br/>
+                <span class="dep-note">• 전제 조건: <code>lidar:=true</code>일 때 적용됩니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="slam">
+              <td><code>slam</code></td>
+              <td><span class="badge badge-amber">SLAM·매핑</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>visual_slam_node</code><br/><code>nvblox_node</code></td>
+              <td>
+                전면 <code>camera</code> 기반 cuVSLAM(위치 추정)과 nvblox(카메라 + 2D LiDAR TSDF/ESDF 장애물 매핑) 노드를 함께 실행합니다.<br/>
+                <span class="dep-note">• 비활성화(<code>false</code>) 시 <code>urdf:=true</code>이면 <code>odom → base</code> 정적 TF로 대체됩니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="slam">
+              <td><code>imu</code></td>
+              <td><span class="badge badge-amber">SLAM·매핑</span></td>
+              <td>bool</td>
+              <td><span class="val-false">false</span></td>
+              <td><code>visual_slam_node</code></td>
+              <td>
+                cuVSLAM의 추적 모드(<code>tracking_mode</code>)를 전환합니다.<br/>
+                • <code>false</code>: 스테레오 카메라 단독 추적 (<code>tracking_mode: 0</code>)<br/>
+                • <code>true</code>: VIO 카메라 + IMU 융합 추적 (<code>tracking_mode: 1</code>)<br/>
+                <span class="dep-note">• 전제 조건: <code>slam:=true</code>일 때 적용됩니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="slam">
+              <td><code>imu_topic</code></td>
+              <td><span class="badge badge-amber">SLAM·매핑</span></td>
+              <td>string</td>
+              <td><span class="val-str">/imu</span></td>
+              <td><code>visual_slam_node</code></td>
+              <td>
+                <code>visual_slam/imu</code> 입력을 리매핑할 IMU 토픽 이름을 지정합니다.<br/>
+                <span class="dep-note">• 전제 조건: <code>slam:=true</code> 및 <code>imu:=true</code> 사용 시 실질적으로 활용됩니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="slam">
+              <td><code>map_3d</code></td>
+              <td><span class="badge badge-amber">SLAM·매핑</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td><code>nvblox_node</code></td>
+              <td>
+                nvblox의 3D 메시·복셀 레이어 연산 여부를 제어합니다.<br/>
+                • <code>true</code>: 2D ESDF(<code>10 Hz</code>) + 3D 메시(<code>5 Hz</code>) + 레이어(<code>1 Hz</code>), 최대 높이 <code>2.0 m</code><br/>
+                • <code>false</code>: 메시·레이어 주기를 <code>0.0 Hz</code>로 끄고 최대 높이를 <code>0.6 m</code>로 제한해 주행용 2D ESDF 슬라이스(<code>0.01~0.5 m</code>)만 경량 계산합니다.<br/>
+                <span class="dep-note">• 전제 조건: <code>slam:=true</code>일 때 적용됩니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="ai">
+              <td><code>yolo</code></td>
+              <td><span class="badge badge-purple">AI 비전 인식</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td>
+                <code>camera</code> 전처리 인코더<br/>
+                <code>tensor_rt</code> · <code>yolov8_decoder</code><br/>
+                <code>depth_pca</code>
+              </td>
+              <td>
+                전면 <code>camera</code>에 대해 TensorRT(<code>rg_nano_batch1_640_fp16</code>, 5클래스) 추론·디코딩(<code>/camera/color/detections</code>)과 3D 위치·주축 추정 노드(<code>depth_pca</code>)를 실행합니다.
+              </td>
+            </tr>
+            <tr data-cat="ai">
+              <td><code>sign</code></td>
+              <td><span class="badge badge-purple">AI 비전 인식</span></td>
+              <td>bool</td>
+              <td><span class="val-true">true</span></td>
+              <td>
+                <code>sign_yolo/tensor_rt</code><br/>
+                <code>sign_yolo/yolov8_decoder</code><br/>
+                <code>sign_barcode</code>
+              </td>
+              <td>
+                신호등·표지판 전용 TensorRT(<code>sign_nano_batch1_640_fp16</code>, 4클래스, <code>/sign_yolo/detections</code>)와 바코드 Action 노드(<code>sign_barcode</code>)를 실행합니다.<br/>
+                <span class="dep-note">• <code>yolo:=false</code>여도 <code>sign:=true</code>이면 전면 <code>camera</code> 전처리 인코더를 자동 생성합니다.</span>
+              </td>
+            </tr>
+            <tr data-cat="vis">
+              <td><code>foxglove</code></td>
+              <td><span class="badge badge-rose">시각화·브리지</span></td>
+              <td>bool</td>
+              <td><span class="val-false">false</span></td>
+              <td><code>foxglove_bridge</code></td>
+              <td>
+                비전 컨테이너와 분리된 독립 프로세스로 Foxglove WebSocket 브리지(포트 <code>8765</code>)를 실행합니다. 화이트리스트 정규식으로 비압축 원본 영상·내부 텐서·대용량 nvblox 맵 토픽을 자동 제외하여 대역폭을 보호합니다.
+              </td>
+            </tr>
+            <tr data-cat="vis">
+              <td><code>rviz</code></td>
+              <td><span class="badge badge-rose">시각화·브리지</span></td>
+              <td>bool</td>
+              <td><span class="val-false">false</span></td>
+              <td><code>rviz2</code></td>
+              <td>
+                <code>xsting_bringup/config/xsting.rviz</code> 레이아웃 설정으로 로컬 RViz2 시각화 창을 실행합니다.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. 아키텍처 및 조건부 관계 -->
+    <section>
+      <h2>3. 프로세스 구조 및 주요 의존성</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>컨테이너 vs 독립 프로세스 배치</h3>
+          <ul>
+            <li>
+              <strong>단일 GPU 컴포넌트 컨테이너 (<code>vision</code>)</strong>:
+              <code>realsense</code>, <code>arducam</code>, <code>slam</code>(cuVSLAM·nvblox),
+              <code>yolo</code>, <code>sign</code> 관련 모든 노드가 멀티스레드 컨테이너 하나에 적재되며
+              <code>use_intra_process_comms: True</code> 제로카피 통신으로 동작합니다.
+            </li>
+            <li>
+              <strong>독립 프로세스 노드</strong>:
+              <code>robot_state_publisher</code>, <code>joint_state_publisher</code>,
+              <code>static_odom_tf</code>, <code>foxglove_bridge</code>, <code>rviz2</code>는
+              비전 파이프라인 지연 방지를 위해 별도 프로세스로 실행됩니다.
+            </li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>알아두면 좋은 옵션 간 연계 규칙</h3>
+          <ul>
+            <li>
+              <strong><code>slam</code> 하위 옵션</strong>:
+              <code>imu</code>, <code>imu_topic</code>, <code>map_3d</code>는 모두 <code>slam:=true</code>일 때만 효력이 있습니다.
+            </li>
+            <li>
+              <strong><code>yolo</code>와 <code>sign</code>의 텐서 공유</strong>:
+              <code>yolo:=true</code>이면 이미 생성된 <code>camera</code> 전처리 텐서를 <code>sign_yolo</code>가 그대로 구독해 GPU 중복 연산을 피합니다.
+            </li>
+            <li>
+              <strong>CPU 아키텍처 자동 분기</strong>:
+              TensorRT 엔진 파일은 실행 환경에 따라 <code>model/arm64/</code> 또는 <code>model/x86_64/</code> 경로가 자동 선택됩니다.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 자주 쓰는 실행 프리셋 -->
+    <section>
+      <h2>4. 상황별 추천 실행 예시</h2>
+      <div class="card">
+        <div class="preset-item">
+          <div class="preset-header">
+            <span class="preset-title">① 실주행 최적화 + 원격 Foxglove 모니터링</span>
+            <span class="badge badge-green">추천 (실기체 주행)</span>
+          </div>
+          <div class="preset-desc">
+            3D 메시 생성을 꺼서 GPU 부하를 줄이고(<code>map_3d:=false</code>), 하드웨어 관절 상태 충돌을 막기 위해 가상 <code>joint_states</code>를 끄며 원격 관제용 Foxglove 브리지를 켭니다.
+          </div>
+          <pre class="preset-cmd">ros2 launch xsting_bringup xsting.launch.py map_3d:=false joint_states:=false foxglove:=true</pre>
+        </div>
+
+        <div class="preset-item">
+          <div class="preset-header">
+            <span class="preset-title">② 로컬 디버깅 및 3D 공간 매핑 확인</span>
+            <span class="badge badge-blue">디버깅·시각화</span>
+          </div>
+          <div class="preset-desc">
+            기본 옵션(3D 맵 <code>map_3d:=true</code> 포함)을 모두 켠 상태에서 로컬 RViz2를 함께 실행합니다.
+          </div>
+          <pre class="preset-cmd">ros2 launch xsting_bringup xsting.launch.py rviz:=true</pre>
+        </div>
+
+        <div class="preset-item">
+          <div class="preset-header">
+            <span class="preset-title">③ IMU 융합(VIO) SLAM 활성화</span>
+            <span class="badge badge-amber">VIO 모드</span>
+          </div>
+          <div class="preset-desc">
+            빠른 회전이나 특징점이 적은 구간에서 cuVSLAM 안정성을 높이기 위해 IMU 토픽을 융합합니다.
+          </div>
+          <pre class="preset-cmd">ros2 launch xsting_bringup xsting.launch.py imu:=true imu_topic:=/imu</pre>
+        </div>
+
+        <div class="preset-item">
+          <div class="preset-header">
+            <span class="preset-title">④ SLAM 제외 비전(카메라 + YOLO + 표지판) 단독 테스트</span>
+            <span class="badge badge-purple">비전 단독</span>
+          </div>
+          <div class="preset-desc">
+            SLAM/nvblox 없이 객체·표지판 인식만 검증합니다. <code>urdf:=true</code>이므로 <code>odom → base</code> 정적 TF가 자동 유지됩니다.
+          </div>
+          <pre class="preset-cmd">ros2 launch xsting_bringup xsting.launch.py slam:=false rviz:=true</pre>
+        </div>
+
+        <div class="preset-item">
+          <div class="preset-header">
+            <span class="preset-title">⑤ 신호등 · 바코드 단독 테스트 (Foxglove 전용 레이아웃)</span>
+            <span class="badge badge-rose">신호등·바코드</span>
+          </div>
+          <div class="preset-desc">
+            전면 RealSense + 신호등 YOLO + 바코드 Action만 띄우고 Foxglove(<code>xsting_foxglove_sign.json</code>)로 실시간 확인합니다.
+          </div>
+          <pre class="preset-cmd">ros2 launch xsting_bringup xsting.launch.py realsense:=true sign:=true foxglove:=true arducam:=false lidar:=false slam:=false yolo:=false</pre>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>패키지: <code>xsting_bringup</code></span>
+      <span>문서 위치: <code>xsting_bringup/launch_options.html</code></span>
+    </footer>
+  </div>
+
+  <script>
+    const OPTIONS = [
+      { name: 'urdf', type: 'bool', def: true, note: 'URDF 로봇 TF 발행' },
+      { name: 'joint_states', type: 'bool', def: true, note: '가상 관절 상태 발행' },
+      { name: 'realsense', type: 'bool', def: true, note: '전면 RealSense + 에미터 분리' },
+      { name: 'arducam', type: 'bool', def: true, note: '로봇팔 Arducam 카메라' },
+      { name: 'lidar', type: 'bool', def: true, note: '1층 중앙 2D LiDAR + ICP 보정' },
+      { name: 'lidar_port', type: 'text', def: '/dev/lidar', note: '2D LiDAR 시리얼 포트' },
+      { name: 'slam', type: 'bool', def: true, note: 'cuVSLAM + nvblox 실행' },
+      { name: 'imu', type: 'bool', def: false, note: 'cuVSLAM VIO IMU 융합' },
+      { name: 'imu_topic', type: 'text', def: '/imu', note: 'IMU 입력 토픽명' },
+      { name: 'map_3d', type: 'bool', def: true, note: 'nvblox 3D 메시·레이어 생성' },
+      { name: 'yolo', type: 'bool', def: true, note: '전면 카메라 YOLO + PCA' },
+      { name: 'sign', type: 'bool', def: true, note: '신호등 YOLO + 바코드' },
+      { name: 'foxglove', type: 'bool', def: false, note: 'Foxglove 브리지 (8765)' },
+      { name: 'rviz', type: 'bool', def: false, note: 'RViz2 시각화 실행' }
+    ];
+
+    function renderBuilder() {
+      const grid = document.getElementById('builderGrid');
+      grid.innerHTML = '';
+      OPTIONS.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'opt-item';
+        if (opt.type === 'bool') {
+          div.innerHTML = `
+            <label>
+              <span><code>${opt.name}</code></span>
+              <input type="checkbox" id="opt_${opt.name}" ${opt.def ? 'checked' : ''} onchange="updateCmd()" />
+            </label>
+            <small>${opt.note} (기본: ${opt.def})</small>
+          `;
+        } else if (opt.type === 'select') {
+          const optsHtml = opt.choices
+            .map(c => `<option value="${c}" ${c === opt.def ? 'selected' : ''}>${c}</option>`)
+            .join('');
+          div.innerHTML = `
+            <label><span><code>${opt.name}</code></span></label>
+            <select id="opt_${opt.name}" onchange="updateCmd()">${optsHtml}</select>
+            <small>${opt.note}</small>
+          `;
+        } else {
+          div.innerHTML = `
+            <label><span><code>${opt.name}</code></span></label>
+            <input type="text" id="opt_${opt.name}" value="${opt.def}" oninput="updateCmd()" />
+            <small>${opt.note}</small>
+          `;
+        }
+        grid.appendChild(div);
+      });
+      updateCmd();
+    }
+
+    function updateCmd() {
+      const diffs = [];
+      OPTIONS.forEach(opt => {
+        const el = document.getElementById(`opt_${opt.name}`);
+        if (opt.type === 'bool') {
+          if (el.checked !== opt.def) {
+            diffs.push(`${opt.name}:=${el.checked}`);
+          }
+        } else {
+          const val = el.value.trim();
+          if (val && val !== opt.def) {
+            diffs.push(`${opt.name}:=${val}`);
+          }
+        }
+      });
+      const base = 'ros2 launch xsting_bringup xsting.launch.py';
+      document.getElementById('generatedCmd').textContent =
+        diffs.length > 0 ? `${base} ${diffs.join(' ')}` : base;
+    }
+
+    function resetBuilder() {
+      renderBuilder();
+    }
+
+    function copyCmd() {
+      const text = document.getElementById('generatedCmd').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const prev = btn.textContent;
+        btn.textContent = '복사 완료!';
+        setTimeout(() => { btn.textContent = prev; }, 1400);
+      });
+    }
+
+    let currentCat = 'all';
+    document.querySelectorAll('#categoryTabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#categoryTabs .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCat = btn.dataset.cat;
+        filterTable();
+      });
+    });
+
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const rows = document.querySelectorAll('#optionsTable tbody tr');
+      rows.forEach(row => {
+        const matchCat = currentCat === 'all' || row.dataset.cat === currentCat;
+        const matchText = !q || row.textContent.toLowerCase().includes(q);
+        row.style.display = matchCat && matchText ? '' : 'none';
+      });
+    }
+
+    renderBuilder();
+  </script>
+</body>
+</html>

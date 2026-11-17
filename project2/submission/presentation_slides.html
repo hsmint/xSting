@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xSting MK2 — 주사위 기억 로봇 최종 발표 슬라이드</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #141e30;
+      --panel-alt: #1e2b42;
+      --text: #f3f6ff;
+      --muted: #bac7d9;
+      --accent: #7dd3fc;
+      --accent-green: #6ee7b7;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --border: #2c3b52;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(ellipse at top right, #222942 0, transparent 55%), var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      height: 100dvh;
+      width: 100vw;
+    }
+    .deck {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 64px);
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: clamp(24px, 3.4vw, 54px) clamp(24px, 4.5vw, 72px);
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 24px;
+      overflow-y: auto;
+    }
+    .slide.active { display: flex; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      width: fit-content;
+    }
+    h1 { font-size: clamp(2.4rem, 4.6vw, 4.6rem); line-height: 1.15; letter-spacing: -0.045em; }
+    h2 { font-size: clamp(1.55rem, 2.5vw, 2.3rem); line-height: 1.35; color: #ffffff; border-left: 4px solid var(--accent-green); padding-left: 18px; letter-spacing: -0.03em; }
+    h3 { font-size: 1.15rem; color: var(--accent); margin-bottom: 8px; }
+    p, li { font-size: 1.02rem; line-height: 1.58; color: var(--muted); }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 6px; }
+    strong { color: var(--text); }
+    code {
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      background: #0b1220;
+      color: #7dd3fc;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+    }
+    .card.highlight { border-color: #477d7b; background: linear-gradient(135deg, #183637 0%, #172438 100%); }
+    .flow-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .flow-step {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+    .flow-step .num {
+      font-weight: 800;
+      color: var(--accent-green);
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.93rem;
+      background: var(--panel);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 12px;
+      text-align: left;
+    }
+    th { background: var(--panel-alt); color: #fff; font-weight: 700; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tag-ok { color: var(--accent-green); font-weight: 700; }
+    .tag-warn { color: var(--accent-amber); font-weight: 700; }
+    .tag-err { color: var(--accent-red); font-weight: 700; }
+    .footer {
+      height: 64px;
+      background: #0b1120;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(16px, 3vw, 48px);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .nav-btns button {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: 6px;
+    }
+    .nav-btns button:hover { border-color: var(--accent); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    :focus-visible { outline: 2px solid var(--accent-green); outline-offset: 5px; }
+    .cover-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
+    .cover-heading img { width: 180px; height: 180px; }
+    .eyebrow { color: var(--accent-green); font-size: .8rem; letter-spacing: .2em; font-weight: 700; margin-bottom: 16px; }
+    .cover-subtitle { font-size: clamp(1rem, 1.6vw, 1.45rem); color: #c4b5fd; margin-top: 18px; }
+    .cover-note { padding: 12px 18px; border-left: 3px solid var(--accent-amber); background: #282517; font-size: .9rem; }
+    .table-wrap { overflow-x: auto; flex-shrink: 0; border-radius: 12px; }
+    .table-wrap table { min-width: 720px; }
+    td { line-height: 1.5; vertical-align: top; }
+    tbody tr:nth-child(even) { background: #182337; }
+    .card, .flow-step, .grid-2, .grid-3, .grid-4 { min-width: 0; }
+    code { overflow-wrap: anywhere; }
+    .nav-btns { display: flex; align-items: center; gap: 6px; }
+    .nav-btns button { margin: 0; min-height: 36px; }
+    #slideIndicator { font-variant-numeric: tabular-nums; color: var(--accent-green); white-space: nowrap; }
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .cover-heading img { width: 140px; height: 140px; }
+    }
+    @media (max-width: 700px) {
+      .slide { padding: 26px 20px; gap: 20px; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr); }
+      .flow-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cover-heading { grid-template-columns: minmax(0, 1fr); }
+      .cover-heading img { display: none; }
+      .footer .footer-brand { display: none; }
+      .footer { gap: 8px; }
+      p, li { font-size: 1rem; }
+      .card { padding: 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .progress { transition: none; } }
+    .progress {
+      position: fixed;
+      top: 0; left: 0; height: 4px;
+      background: var(--accent);
+      transition: width 0.2s ease;
+      z-index: 20;
+    }
+    @media print {
+      body { overflow: visible; height: auto; background: #fff; color: #0f172a; }
+      .deck { height: auto; }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        height: auto;
+        min-height: 92vh;
+        background: #0f172a;
+        color: #f8fafc;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .footer, .progress { display: none; }
+      .table-wrap { overflow: visible; }
+      .table-wrap table { min-width: 0; }
+      .slide:last-child { page-break-after: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progressBar"></div>
+
+  <main class="deck">
+    <!-- Slide 1 -->
+    <section class="slide active">
+      <div class="cover-heading">
+        <div>
+          <p class="eyebrow">XSTING MK2 / PROJECT 02 / 발제 v5</p>
+          <h1>주사위 기억 로봇</h1>
+          <p class="cover-subtitle">18축 6족 보행 + 5축 팔·그리퍼 자율 시스템</p>
+        </div>
+        <img src="../assets/dice-mark.svg" alt="주사위 눈과 6족 로봇을 조합한 xSting 심벌">
+      </div>
+      <p style="font-size:1.12rem; max-width:980px;">
+        신호등 12회 점멸 기억 · 바코드 해석 · 전역 최적 퍽 할당 · 전방향 RL 보행 및 LiDAR-ESDF 연속 정합 ·
+        Eye-in-Hand ArduCam 탑뷰 파지/기립 및 새 관측 기반 9칸 재검증까지 전 과정 무개입 통합 스택
+      </p>
+      <p class="cover-note">개발·시뮬레이션 검증 자료 · 실물 경기장 전체 미션 미확인 · 공식 1·2회차 결과는 작성 대기</p>
+      <div class="grid-3" style="margin-top:12px;">
+        <div class="card highlight">
+          <h3>하드웨어 플랫폼</h3>
+          <ul>
+            <li><strong>구동부</strong>: 6족 18축 + 6축 팔 (24-DOF Dynamixel)</li>
+            <li><strong>제어기</strong>: OpenCR 1.0 × 3보드 (<code>ID 200·201·202</code>)</li>
+            <li><strong>적재함</strong>: 상판 12슬롯 전용 바스켓 탑재</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>멀티모달 센서 구성</h3>
+          <ul>
+            <li><strong>전면</strong>: Intel RealSense D435 (신호·바코드·VSLAM)</li>
+            <li><strong>팔 끝</strong>: ArduCam 광각 (<code>+300mm</code> 직상방 탑뷰)</li>
+            <li><strong>측위·안전</strong>: COIN-D4 2D LiDAR + 9축 IMU + 초음파</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>핵심 소프트웨어 환경</h3>
+          <ul>
+            <li>Ubuntu <code>26.04.1 LTS</code> · ROS 2 <code>Lyrical</code></li>
+            <li>CUDA <code>13.2</code> · TensorRT FP16 · cuVSLAM / nvblox <code>5.0</code></li>
+            <li>MoveIt 2 (<code>2.15.2</code>) + cuMotion + 41D RL Policy</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 2 -->
+    <section class="slide">
+      <h2>1. 전체 ROS 2 시스템 아키텍처 및 데이터 흐름</h2>
+      <div class="grid-4">
+        <div class="card">
+          <h3>① 인지 · SLAM 계층</h3>
+          <p><code>xsting_vision</code> / <code>bringup</code></p>
+          <ul>
+            <li>제로카피 <code>vision</code> 컨테이너</li>
+            <li>D435 → cuVSLAM + nvblox ESDF</li>
+            <li>YOLOv8 TensorRT + 3D PCA (<code>/detections_3d</code>)</li>
+            <li>ZXing 바코드 + 12회 신호 FSM (<code>/read_sign_barcode</code>)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>② 상위 지능 · 가드 계층</h3>
+          <p><code>xsting_mission</code></p>
+          <ul>
+            <li><code>llm_commander</code>: 전역 12개 할당 및 자가 복구</li>
+            <li><code>robot_command_server</code>: 행동 계약 가드 (오배정·부분 하역 사전 차단)</li>
+            <li><code>mission_bridge</code>: 슬롯·격자 좌표 변환</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>③ 주행 · 정밀접근 계층</h3>
+          <p><code>xsting_nav</code> / <code>approach</code></p>
+          <ul>
+            <li>41D RL 정책(20Hz) + 100Hz 삼각보행 IK</li>
+            <li>2D LiDAR ↔ 정적 ESDF 초기·연속 위치 정합</li>
+            <li>10초 사람 대기 후 Dijkstra 우회</li>
+            <li><code>/approach_box</code>: 상자 전면 <code>2cm</code> 도킹</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>④ 매니퓰레이션 · 하드웨어</h3>
+          <p><code>xsting_pick_place</code> / <code>hardware</code></p>
+          <ul>
+            <li>MoveIt 2 + cuMotion GPU 플래너</li>
+            <li>ArduCam 탑뷰 파지 + 누운 사각 퍽 기립</li>
+            <li>지도 <code>+Y</code> 기준 주사위 3×3 하역 (<code>2s</code> 안정)</li>
+            <li>하차 후 신규 프레임 탑뷰 재검증</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="margin-top:4px;">
+        <h3>단일 소유권 & 무충돌 통합 런치 (<code>auto_drive.launch.py</code> / <code>full_system.launch.py</code>)</h3>
+        <p>
+          <code>xsting_hardware</code>가 <code>robot_state_publisher</code>와 <code>/joint_states</code>를 단일 소유하고,
+          주행(<code>xsting_nav</code>) ↔ 도킹(<code>xsting_approach</code>) 간 다리 제어권 양보 및 팔 조작 중 <code>map→odom</code> TF 동결로 제어 충돌을 원천 제거했습니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- Slide 3 -->
+    <section class="slide">
+      <h2>2. 엔드투엔드 자율 미션 수행 흐름 (7단계)</h2>
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="num">STEP 1</div>
+          <strong>기동 · 정합</strong>
+          <p>4.5s 수직 기립, 팔 홈 복귀, 2D LiDAR-ESDF 초기 정합</p>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP 2</div>
+          <strong>신호 · 바코드</strong>
+          <p><code>HOME</code>에서 Code128 및 12회 점멸·종료소등 관측 (<code>signal.json</code>)</p>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP 3</div>
+          <strong>S1~S6 적재</strong>
+          <p>6개 시작 상자 순회, 2cm 도킹, 기립 후 12슬롯 전량 수거</p>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP 4</div>
+          <strong>전역 할당</strong>
+          <p><code>Y</code> 단일 모양 통일 보장 + <code>R/G</code> 매칭 계획 (<code>allocation.json</code>)</p>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP 5</div>
+          <strong>주사위 하역</strong>
+          <p><code>L1·L2·L3</code> 각 3×3 정위치 일괄 하역 (오차 <code>≤10mm</code>, <code>2s</code> 안정)</p>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP 6</div>
+          <strong>새 관측 재검증</strong>
+          <p>ArduCam <code>+300mm</code> 신규 프레임 9칸 실측 (<code>verification.json</code>)</p>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP 7</div>
+          <strong>HOME 복귀</strong>
+          <p>출발 구역 내부 진입 후 <code>3.0s</code> 이상 완전 정지 (<code>DONE</code>)</p>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:8px;">
+        <div class="card">
+          <h3>핵심 알고리즘 ①: 전역 12개 퍽 최적 할당 (<code>planner.assign</code>)</h3>
+          <ul>
+            <li>순차 선택 시 먼저 쓴 빨간/초록 퍽 때문에 <code>Y</code> 그룹 단일 형상 구성이 막히는 데드락 예방</li>
+            <li>전체 12개 인식 풀에서 <code>cylinder</code> 전용 vs <code>box</code> 전용 <code>Y</code> 후보를 모두 검증 후 남은 퍽이 <code>R·G</code> 횟수를 정확히 만족하는 해만 확정</li>
+            <li>동률 규칙(<code>R → Y → G</code>) 및 불가능 입력 시 즉시 명시적 에러 정지</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>핵심 알고리즘 ②: Eye-in-Hand 탑뷰 정렬 & 새 관측 재검증</h3>
+          <ul>
+            <li>전면 D435의 근거리 사각지대(~15cm) 및 주사위 5·6 눈 뒷열 가림(Occlusion) 한계 극복</li>
+            <li>팔 끝 ArduCam이 상자 상공 <code>+300mm</code> 직상방에서 9칸 전체를 조망하여 신규 타임스탬프(<code>stamp</code>) 기준 실측 ID·중심 오프셋(<code>offset_mm</code>) 기록</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4 -->
+    <section class="slide">
+      <h2>3. 실제 수행 결과 및 회차별 100점 판정표 (1·2회차 분리)</h2>
+      <p>공식 1회차와 2회차의 결과는 섞지 않고 각각 기록하며, 두 회차 중 높은 단일 회차 전체 점수만 최종 반영합니다.</p>
+      <div class="table-wrap"><table>
+        <thead>
+          <tr>
+            <th>채점 항목 (판정 기준 요약)</th>
+            <th class="num">배점</th>
+            <th class="num">공식 1회차</th>
+            <th class="num">공식 2회차</th>
+            <th>검증 로그 근거 및 실패 사유 요약</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. 신호 순서 기억 (12개 시점별 색상 일치 각 1점)</td>
+            <td class="num">12</td>
+            <td class="num"><code>__ / 12</code></td>
+            <td class="num"><code>__ / 12</code></td>
+            <td>각 회차 <code>signal.json</code> (<code>sequence</code>) 및 전면 영상 대조</td>
+          </tr>
+          <tr>
+            <td>2. 색상별 횟수 (R·Y·G 정답 횟수 각 3점)</td>
+            <td class="num">9</td>
+            <td class="num"><code>__ / 9</code></td>
+            <td class="num"><code>__ / 9</code></td>
+            <td>각 회차 <code>signal.json</code> (<code>counts</code>)</td>
+          </tr>
+          <tr>
+            <td>3. 바코드 해석 (실물 코드 + 정렬 방향 일치)</td>
+            <td class="num">4</td>
+            <td class="num"><code>__ / 4</code></td>
+            <td class="num"><code>__ / 4</code></td>
+            <td>각 회차 <code>signal.json</code> (<code>barcode</code>)</td>
+          </tr>
+          <tr>
+            <td>4. 장소 그룹 배정 (L1~L3 정답 그룹 각 3점)</td>
+            <td class="num">9</td>
+            <td class="num"><code>__ / 9</code></td>
+            <td class="num"><code>__ / 9</code></td>
+            <td>각 회차 <code>allocation.json</code> (동률 <code>R→Y→G</code> 반영)</td>
+          </tr>
+          <tr>
+            <td>5. 색상·모양 선택 (개수 + R/G 색상·Y 단일 모양 각 6점)</td>
+            <td class="num">18</td>
+            <td class="num"><code>__ / 18</code></td>
+            <td class="num"><code>__ / 18</code></td>
+            <td>각 회차 <code>allocation.json</code> (<code>y_shape_unified</code>)</td>
+          </tr>
+          <tr>
+            <td>6. 주사위 눈 배치 (정답 눈·오차 ≤10mm·2초 안정 각 10점)</td>
+            <td class="num">30</td>
+            <td class="num"><code>__ / 30</code></td>
+            <td class="num"><code>__ / 30</code></td>
+            <td>현장 실측 및 <code>media/images/*_UNLOAD_after.jpg</code></td>
+          </tr>
+          <tr>
+            <td>7. 이동 후 검증 (새 관측 ID·위치 6점 + 중복/누락 2점)</td>
+            <td class="num">8</td>
+            <td class="num"><code>__ / 8</code></td>
+            <td class="num"><code>__ / 8</code></td>
+            <td>각 회차 <code>verification.json</code> (신규 프레임 <code>stamp</code>·<code>offset_mm</code>)</td>
+          </tr>
+          <tr>
+            <td>8. 출발 구역 복귀 (차체 전체 진입 + 3초 정지)</td>
+            <td class="num">10</td>
+            <td class="num"><code>__ / 10</code></td>
+            <td class="num"><code>__ / 10</code></td>
+            <td>외경 영상 종료 구간 및 <code>final_state.json</code></td>
+          </tr>
+          <tr style="background:rgba(56,189,248,0.12); font-weight:700;">
+            <td>총점 (100점) / 자율 완주 여부 / 통합 환산(25점)</td>
+            <td class="num">100</td>
+            <td class="num"><code>___ 점</code></td>
+            <td class="num"><code>___ 점</code></td>
+            <td>최종 반영: <code>max(1회차, 2회차) × 0.20 + 완주(5/0) = __._ / 25점</code></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- Slide 5 -->
+    <section class="slide">
+      <h2>4. 주요 실패 원인 분석 및 엔지니어링 개선 과정</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3 class="tag-warn">① 파지 중 퍽 낙하 · 처짐 오차</h3>
+          <p><strong>원인</strong>: 위치 제어 시 그리퍼 <code>+1.5mm</code> 벌어짐 및 팔 신장 시 자중 처짐 발생</p>
+          <p><strong>개선</strong>: <code>-0.5mm</code> 내측 예압 + Mode 5 전류 제한 도입, 팔 처짐 계수(<code>droop_k=0.022</code>) 실측 보정</p>
+        </div>
+        <div class="card">
+          <h3 class="tag-warn">② 장거리 보행 누적 드리프트</h3>
+          <p><strong>원인</strong>: 카펫 바닥 발끝 슬립으로 경기장 후반부 VSLAM/보행 오도메트리 수~십수 cm 이탈</p>
+          <p><strong>개선</strong>: 360° 2D LiDAR ↔ 정적 경기장 ESDF 연속 정합(0.8s 주기) 및 팔 조작 시 TF 자동 동결</p>
+        </div>
+        <div class="card">
+          <h3 class="tag-warn">③ 주사위 5·6 눈 뒷열 가림</h3>
+          <p><strong>원인</strong>: 전면 D435 사각지대(~15cm) 및 경사 시야각으로 앞열 퍽이 뒷열 퍽을 가림</p>
+          <p><strong>개선</strong>: 팔 끝 Eye-in-Hand ArduCam 장착, 상자 상공 <code>+300mm</code> 직상방 탑뷰 정렬·재검증 구현</p>
+        </div>
+        <div class="card">
+          <h3 class="tag-warn">④ 누운 직육면체 퍽 적재 불가</h3>
+          <p><strong>원인</strong>: 전도된 사각 퍽을 그대로 파지하면 바스켓 슬롯 삽입 및 수직 배치 불가능</p>
+          <p><strong>개선</strong>: 원거리 견인(<code>PullFarLyingPuck</code>) 후 손목 회전 + 미세 이완(<code>grip_loosen</code>) 재파지 기립 시퀀스 도입</p>
+        </div>
+        <div class="card">
+          <h3 class="tag-warn">⑤ 상위 LLM의 간헐적 배정 착오</h3>
+          <p><strong>원인</strong>: 장기 추론 중 목적지 그룹 개수를 혼동한 <code>UNLOAD</code> 명령 생성 가능성</p>
+          <p><strong>개선</strong>: <code>robot_command_server</code> 결정론적 계약 가드가 물리 실행 전 <code>REJECTED</code> 차단 후 즉시 자가 교정</p>
+        </div>
+        <div class="card">
+          <h3 class="tag-warn">⑥ 회차 간 재시작 시 신호 무응답</h3>
+          <p><strong>원인</strong>: 1회 성공 후 GPU 절약을 위해 <code>sign_barcode</code> 컴포넌트가 자동 언로드됨</p>
+          <p><strong>개선</strong>: 회차 간 표준 런치 재기동 초기화 절차 문서화 및 회차별 아카이빙 스크립트 분리</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 6 -->
+    <section class="slide">
+      <h2>5. 시스템의 현재 한계 및 재현성 보장 체계</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>현재 시스템의 기술적 한계 및 향후 과제</h3>
+          <ul>
+            <li><strong>강한 역광·반사 조명 민감도</strong>: 직사광선이 신호등 발광면에 반사될 때 색상 포화 가능성 → 시작 전 1초 히스토그램 기반 D435 자동 노출 스텝 튜닝으로 고도화 예정</li>
+            <li><strong>안정성 우선 보수적 속도 제한</strong>: 12개 무낙하 운반 및 <code>≤10mm</code> 정밀도를 위해 보폭(<code>4.2cm</code>)과 팔 속도(<code>vel_scale=0.30</code>)를 제한하여 완주 시간 다소 소요 → 적재량 연동 가변 속도 프로파일 적용 가능</li>
+            <li><strong>비마커 환경 동종 퍽 개체 추적</strong>: 동일 색상·모양 퍽이 외력으로 동시에 뒤섞일 경우 위치 기반 매칭에 의존 → 슬롯 1:1 좌표 이력 바인딩 및 상면 태그 융합으로 보완</li>
+          </ul>
+        </div>
+        <div class="card highlight">
+          <h3>팀원 동일 재현성 & 보안 검증 완료 항목</h3>
+          <ul>
+            <li><strong>원클릭 통합 실행</strong>: <code>ros2 launch xsting_bringup auto_drive.launch.py</code> (실기 / <code>sim_fake:=true</code> 모두 지원)</li>
+            <li><strong>재현 환경 자동 채취</strong>: <code>submission/scripts/collect_repro_info.sh</code>로 OS·CUDA·ROS·커밋·단위테스트 자동 기록</li>
+            <li><strong>회차별 로그 격리 & 비밀키 차단</strong>: <code>archive_official_run.sh</code>가 <code>round_1</code>/<code>round_2</code> 분리 및 <code>sk-...</code> 토큰 혼입 자동 검사</li>
+            <li><strong>비상정지 4단계 완비</strong>: <code>/mission/pause</code> · <code>/mission/stop</code> · <code>/nav/estop</code> · 물리 전원 스위치 + 과기울기(<code>&gt;38°</code>) 자동 차단</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand"><a href="../README.md">xSting MK2</a> &nbsp; / &nbsp; PROJECT 02</div>
+    <div id="slideIndicator" role="status" aria-live="polite">1 / 6</div>
+    <div class="nav-btns">
+      <button type="button" onclick="window.print()">PDF / 인쇄</button>
+      <button type="button" onclick="prevSlide()">◀ 이전</button>
+      <button type="button" onclick="nextSlide()">다음 ▶</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const indicator = document.getElementById('slideIndicator');
+    const progressBar = document.getElementById('progressBar');
+    let idx = 0;
+
+    function render() {
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      indicator.textContent = `${idx + 1} / ${slides.length}`;
+      progressBar.style.width = `${((idx + 1) / slides.length) * 100}%`;
+    }
+    function nextSlide() { if (idx < slides.length - 1) { idx++; render(); } }
+    function prevSlide() { if (idx > 0) { idx--; render(); } }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); nextSlide(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prevSlide(); }
+      else if (e.key === 'Home') { idx = 0; render(); }
+      else if (e.key === 'End') { idx = slides.length - 1; render(); }
+    });
+    render();
+  </script>
+</body>
+</html>

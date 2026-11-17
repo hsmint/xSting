@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="220" viewBox="0 0 1280 220" role="img" aria-labelledby="title desc">
+<title id="title">Measure. Compare. Improve.</title><desc id="desc">Collision geometry, calibration and mission trials.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#20243e"/></linearGradient><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#b9c4e8" opacity=".12"/></pattern></defs>
+<rect width="1280" height="220" rx="20" fill="url(#bg)"/><rect width="1280" height="220" rx="20" fill="url(#dots)"/>
+<rect x="56" y="45" width="30" height="3" rx="1" fill="#6ee7b7"/>
+<g font-family="DejaVu Sans, Arial, sans-serif"><text x="101" y="51" fill="#6ee7b7" font-size="13" letter-spacing="3">XSTING MK2 / EXPERIMENTS</text>
+<text x="52" y="117" fill="#f3f6ff" font-size="42" font-weight="700" letter-spacing="-2">Measure. Compare. Improve.</text>
+<text x="56" y="161" fill="#b3bed1" font-size="18">Collision geometry, calibration and mission trials.</text>
+<text x="1218" y="185" text-anchor="end" fill="#6ee7b7" opacity=".15" font-size="156" font-weight="700">02</text></g>
+</svg>

@@ -1,0 +1,7 @@
+<library path="xsting_hardware">
+  <class name="xsting_hardware/XstingSystem"
+         type="xsting_hardware::XstingSystem"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>xSting 다리, 팔 OpenCR용 ros2_control 하드웨어</description>
+  </class>
+</library>

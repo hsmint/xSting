@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="xsting">
+  <group name="arm">
+    <chain base_link="base" tip_link="tool0" />
+  </group>
+  <group name="gripper">
+    <joint name="finger_l" />
+    <joint name="finger_r" />
+  </group>
+  <end_effector name="hand" parent_link="gripper" group="gripper" parent_group="arm" />
+  <group_state name="home" group="arm">
+    <joint name="arm_yaw" value="0.0" />
+    <joint name="arm_shoulder" value="0.0" />
+    <joint name="arm_elbow" value="0.0" />
+    <joint name="arm_wrist" value="0.0" />
+    <joint name="arm_roll" value="0.0" />
+  </group_state>
+  <group_state name="zero" group="arm">
+    <joint name="arm_yaw" value="0.0" />
+    <joint name="arm_shoulder" value="0.0" />
+    <joint name="arm_elbow" value="0.0" />
+    <joint name="arm_wrist" value="0.0" />
+    <joint name="arm_roll" value="0.0" />
+  </group_state>
+  <group_state name="open" group="gripper">
+    <joint name="finger_l" value="0.025" />
+  </group_state>
+  <group_state name="closed" group="gripper">
+    <joint name="finger_l" value="0.0" />
+  </group_state>
+  <disable_collisions link1="arm_1" link2="arm_2" reason="Adjacent" />
+  <disable_collisions link1="arm_1" link2="base" reason="Adjacent" />
+  <disable_collisions link1="arm_2" link2="arm_3" reason="Adjacent" />
+  <disable_collisions link1="arm_3" link2="arm_4" reason="Adjacent" />
+  <disable_collisions link1="arm_4" link2="finger_l" reason="Adjacent" />
+  <disable_collisions link1="arm_4" link2="finger_r" reason="Adjacent" />
+  <disable_collisions link1="arm_4" link2="gripper" reason="Adjacent" />
+  <disable_collisions link1="base" link2="leg1_hip" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg1_knee" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg1_yaw" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg2_hip" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg2_knee" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg2_yaw" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="base" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="finger_l" link2="finger_r" reason="Adjacent" />
+  <disable_collisions link1="finger_l" link2="gripper" reason="Adjacent" />
+  <disable_collisions link1="finger_r" link2="gripper" reason="Adjacent" />
+  <disable_collisions link1="leg1_hip" link2="leg1_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg1_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg2_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg2_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg2_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_hip" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg1_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg2_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg2_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg2_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_knee" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg2_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg2_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg2_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg1_yaw" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg2_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg2_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_hip" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg2_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_knee" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg3_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg2_yaw" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg3_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_hip" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg3_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_knee" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg4_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg3_yaw" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg4_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_hip" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg4_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_knee" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_yaw" link2="leg5_hip" reason="Fixed" />
+  <disable_collisions link1="leg4_yaw" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_yaw" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg4_yaw" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg4_yaw" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg4_yaw" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg5_hip" link2="leg5_knee" reason="Fixed" />
+  <disable_collisions link1="leg5_hip" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg5_hip" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg5_hip" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg5_hip" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg5_knee" link2="leg5_yaw" reason="Fixed" />
+  <disable_collisions link1="leg5_knee" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg5_knee" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg5_knee" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg5_yaw" link2="leg6_hip" reason="Fixed" />
+  <disable_collisions link1="leg5_yaw" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg5_yaw" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg6_hip" link2="leg6_knee" reason="Fixed" />
+  <disable_collisions link1="leg6_hip" link2="leg6_yaw" reason="Fixed" />
+  <disable_collisions link1="leg6_knee" link2="leg6_yaw" reason="Fixed" />
+</robot>

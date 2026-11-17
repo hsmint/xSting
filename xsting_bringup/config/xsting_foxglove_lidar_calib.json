@@ -1,0 +1,140 @@
+{
+  "configById": {
+    "3D!lidar_calib_3d": {
+      "foxglovePanelTitle": "2D LiDAR TF 실측 보정 검증 (녹색: 카메라 벽면 · 하늘색: 보정 스캔 · 노란색: 현재 TF 스캔)",
+      "fixedFrame": "base",
+      "followTf": "base",
+      "followMode": "follow-pose",
+      "layers": {
+        "55555555-26bc-40b3-8161-8ab60af40001": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid (base)",
+          "instanceId": "55555555-26bc-40b3-8161-8ab60af40001",
+          "layerId": "foxglove.Grid",
+          "size": 4,
+          "divisions": 40,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "order": 1
+        },
+        "55555555-6774-4d6f-9c83-3b27e90a0002": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "xSting URDF (/robot_description)",
+          "instanceId": "55555555-6774-4d6f-9c83-3b27e90a0002",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/robot_description",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "cameraState": {
+        "perspective": false,
+        "distance": 2.6,
+        "phi": 0.1,
+        "thetaOffset": -90,
+        "targetOffset": [0.55, 0, 0],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      },
+      "scene": {
+        "backgroundColor": "#1e2229",
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "visible": true,
+          "showLabel": true,
+          "labelSize": 0.06,
+          "axisSize": 0.12,
+          "lineWidth": 1.5
+        }
+      },
+      "transforms": {
+        "base": { "visible": true },
+        "lidar": { "visible": true },
+        "camera_depth_frame": { "visible": true }
+      },
+      "topics": {
+        "/lidar_calib/ref_cloud": {
+          "visible": true,
+          "pointSize": 8,
+          "colorMode": "flat",
+          "flatColor": "#34d399ff"
+        },
+        "/lidar_calib/scan_cloud": {
+          "visible": true,
+          "pointSize": 6,
+          "colorMode": "flat",
+          "flatColor": "#38bdf8ff"
+        },
+        "/scan_filtered": {
+          "visible": true,
+          "pointSize": 4,
+          "colorMode": "flat",
+          "flatColor": "#fbbf24cc"
+        },
+        "/scan": {
+          "visible": false,
+          "pointSize": 3,
+          "colorMode": "flat",
+          "flatColor": "#fb7185aa"
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/goal_pose",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Image!front_cam": {
+      "foxglovePanelTitle": "전면 RealSense 카메라 시야 확인 (/camera/color/image_raw/compressed)",
+      "imageMode": {
+        "imageTopic": "/camera/color/image_raw/compressed",
+        "rectifyImage": false
+      },
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {}
+    },
+    "RosOut!lidar_calib_log": {
+      "foxglovePanelTitle": "LiDAR 보정 진행률 및 URDF 결과 로그 (/rosout)",
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": ["lidar_calib"],
+      "nameFilter": {}
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": "3D!lidar_calib_3d",
+    "second": {
+      "direction": "column",
+      "first": "Image!front_cam",
+      "second": "RosOut!lidar_calib_log",
+      "splitPercentage": 52
+    },
+    "splitPercentage": 62
+  }
+}

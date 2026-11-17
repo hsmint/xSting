@@ -1,0 +1,110 @@
+# XSting Real-Robot Calibration File (auto-loaded by xsting_nav::nav_node)
+# Joint order [0..17]: leg1..leg6_{yaw, hip, knee} == joint1..joint18 (motor IDs 1..18)
+hardware_profile: "xsting"
+last_calibrated_utc: "2026-11-15T11:34:01Z"
+
+imu:
+  # Coarse yaw of IMU relative to base (+X forward, +Y left, +Z up)
+  board_yaw_deg: 0.000000
+  gyro_bias_xyz: [-0.002903, 0.004759, 0.000000]
+  level_quat_wxyz: [0.999981, -0.002680, -0.005511, 0.000000]
+
+joints:
+  leg_sign:
+    - 1.000000  # leg1_yaw (ID 1)
+    - 1.000000  # leg1_hip (ID 2)
+    - 1.000000  # leg1_knee (ID 3)
+    - 1.000000  # leg2_yaw (ID 4)
+    - 1.000000  # leg2_hip (ID 5)
+    - 1.000000  # leg2_knee (ID 6)
+    - 1.000000  # leg3_yaw (ID 7)
+    - 1.000000  # leg3_hip (ID 8)
+    - 1.000000  # leg3_knee (ID 9)
+    - 1.000000  # leg4_yaw (ID 10)
+    - 1.000000  # leg4_hip (ID 11)
+    - 1.000000  # leg4_knee (ID 12)
+    - 1.000000  # leg5_yaw (ID 13)
+    - 1.000000  # leg5_hip (ID 14)
+    - 1.000000  # leg5_knee (ID 15)
+    - 1.000000  # leg6_yaw (ID 16)
+    - 1.000000  # leg6_hip (ID 17)
+    - 1.000000  # leg6_knee (ID 18)
+  leg_offset_rad:
+    - 0.000000  # leg1_yaw (ID 1)
+    - 0.000000  # leg1_hip (ID 2)
+    - 0.000000  # leg1_knee (ID 3)
+    - 0.000000  # leg2_yaw (ID 4)
+    - 0.000000  # leg2_hip (ID 5)
+    - 0.000000  # leg2_knee (ID 6)
+    - 0.000000  # leg3_yaw (ID 7)
+    - 0.000000  # leg3_hip (ID 8)
+    - 0.000000  # leg3_knee (ID 9)
+    - 0.000000  # leg4_yaw (ID 10)
+    - 0.000000  # leg4_hip (ID 11)
+    - 0.000000  # leg4_knee (ID 12)
+    - 0.000000  # leg5_yaw (ID 13)
+    - 0.000000  # leg5_hip (ID 14)
+    - 0.000000  # leg5_knee (ID 15)
+    - 0.000000  # leg6_yaw (ID 16)
+    - 0.000000  # leg6_hip (ID 17)
+    - 0.000000  # leg6_knee (ID 18)
+  leg_hw_min_rad:
+    - -0.436300  # leg1_yaw (ID 1)
+    - -1.658000  # leg1_hip (ID 2)
+    - -2.007100  # leg1_knee (ID 3)
+    - -0.436300  # leg2_yaw (ID 4)
+    - -1.658000  # leg2_hip (ID 5)
+    - -2.007100  # leg2_knee (ID 6)
+    - -1.570800  # leg3_yaw (ID 7)
+    - -1.658000  # leg3_hip (ID 8)
+    - -2.007100  # leg3_knee (ID 9)
+    - -0.436300  # leg4_yaw (ID 10)
+    - -1.658000  # leg4_hip (ID 11)
+    - -2.007100  # leg4_knee (ID 12)
+    - -0.750500  # leg5_yaw (ID 13)
+    - -1.658000  # leg5_hip (ID 14)
+    - -2.007100  # leg5_knee (ID 15)
+    - -1.570800  # leg6_yaw (ID 16)
+    - -1.658000  # leg6_hip (ID 17)
+    - -2.007100  # leg6_knee (ID 18)
+  leg_hw_max_rad:
+    - 1.570800  # leg1_yaw (ID 1)
+    - 1.658000  # leg1_hip (ID 2)
+    - 1.745300  # leg1_knee (ID 3)
+    - 0.750500  # leg2_yaw (ID 4)
+    - 1.658000  # leg2_hip (ID 5)
+    - 1.745300  # leg2_knee (ID 6)
+    - 0.436300  # leg3_yaw (ID 7)
+    - 1.658000  # leg3_hip (ID 8)
+    - 1.745300  # leg3_knee (ID 9)
+    - 1.570800  # leg4_yaw (ID 10)
+    - 1.658000  # leg4_hip (ID 11)
+    - 1.745300  # leg4_knee (ID 12)
+    - 0.436300  # leg5_yaw (ID 13)
+    - 1.658000  # leg5_hip (ID 14)
+    - 1.745300  # leg5_knee (ID 15)
+    - 0.436300  # leg6_yaw (ID 16)
+    - 1.658000  # leg6_hip (ID 17)
+    - 1.745300  # leg6_knee (ID 18)
+  arm_sign: [1.000000, 1.000000, 1.000000, 1.000000, 1.000000, 1.000000]
+  arm_offset_rad: [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000]
+  max_joint_slew_rad_s: 7.000000
+  soft_start_duration_s: 2.000000
+
+odom_gait:
+  init_pose_arena: [0.734000, 0.950000, 3.141593]
+  odom_pos_scale: [1.000000, 1.000000]
+  odom_yaw_offset_rad: 0.000000
+  cmd_vel_scale: [1.000000, 1.000000, 1.000000]
+  cmd_vel_trim: [0.000000, 0.000000, 0.000000]
+
+perception:
+  esdf_frame_mode: "odom"
+  esdf_dist_offset_m: 0.000000
+  yolo_cloud_frame: "base"
+  cam_pos_base_xyz: [0.157793, 0.017500, 0.107498]
+  cam_rpy_base_rad: [0.000000, 0.000000, 0.000000]
+  lidar_pos_base_xyz: [0.000000, 0.000000, 0.024500]
+  lidar_roll_rad: 3.141593
+  lidar_yaw_offset_rad: 0.000000
+  ultrasonic_pos_base_xyz: [0.127180, 0.000000, 0.024522]

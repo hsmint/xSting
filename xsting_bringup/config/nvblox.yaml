@@ -1,0 +1,58 @@
+/**:
+  ros__parameters:
+    # 전면 camera 에미터 켜짐 깊이(30 Hz)·컬러 및 1층 중앙 2D LiDAR 점군 입력
+    num_cameras: 1
+    use_depth: true
+    use_color: true
+    use_lidar: false
+    lidar_width: 720
+    lidar_height: 2
+    lidar_vertical_fov_rad: 0.04
+    lidar_min_valid_range_m: 0.12
+    use_lidar_motion_compensation: false
+    input_qos: "SENSOR_DATA"
+    integrate_depth_rate_hz: 40.0
+    integrate_color_rate_hz: 5.0
+    integrate_lidar_rate_hz: 15.0
+    maximum_input_queue_length: 10
+
+    # 좌표계 및 TF 설정 (cuVSLAM의 odom → base + URDF 카메라 TF 사용)
+    global_frame: "odom"
+    pose_frame: "base"
+    use_tf_transforms: true
+    use_topic_transforms: false
+    map_clearing_frame_id: "base"
+    esdf_slice_bounds_visualization_attachment_frame_id: "base"
+    workspace_height_bounds_visualization_attachment_frame_id: "base"
+
+    # 맵 종류와 복셀 해상도 (5 cm)
+    mapping_type: "static_tsdf"
+    voxel_size: 0.05
+    esdf_mode: "2d"
+    map_clearing_radius_m: 5.0
+
+    # 정적 매퍼 장애물 슬라이스 높이 및 적분 거리 제한 (하단 와플판 base 기준 지면 ≈ -0.021 m, LiDAR ≈ +0.0245 m)
+    static_mapper:
+      esdf_slice_min_height: 0.01
+      esdf_slice_max_height: 0.54
+      esdf_slice_height: 0.09
+      do_depth_preprocessing: false
+      projective_integrator_max_integration_distance_m: 3.0
+      lidar_projective_integrator_max_integration_distance_m: 5.0
+      esdf_integrator_max_distance_m: 2.0
+      workspace_bounds_type: "height_bounds"
+      workspace_bounds_min_height_m: -0.1
+      workspace_bounds_max_height_m: 2.0
+
+    # 2D ESDF 및 3D 메시·레이어 갱신 주기 (map_3d:=false 시 3D는 0.0)
+    update_esdf_rate_hz: 10.0
+    update_mesh_rate_hz: 5.0
+    publish_layer_rate_hz: 1.0
+    publish_debug_vis_rate_hz: 1.0
+    publish_esdf_distance_slice: true
+    output_pessimistic_distance_map: false
+
+    # 콘솔 디버그 출력 설정
+    print_rates_to_console: false
+    print_timings_to_console: false
+    print_queue_drops_to_console: false

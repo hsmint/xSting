@@ -1,0 +1,20 @@
+# 전체 제한 시간(초, 0 이하이면 노드 기본값 사용)
+float32 timeout_sec
+---
+# 성공 여부 및 오류 사유
+bool success
+string error_msg
+
+# 12회 신호 순서(예: "RGRRGRGGYGYG")와 색상별 횟수
+string sequence
+int32 r_count
+int32 y_count
+int32 g_count
+
+# 해독된 바코드(P2-01~04) 및 오름차순 여부
+string barcode
+bool ascending
+---
+# 실시간 진행 상태(현재까지 기록된 신호 순서와 바코드)
+string sequence
+string barcode

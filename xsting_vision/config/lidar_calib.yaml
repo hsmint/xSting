@@ -1,0 +1,29 @@
+/**:
+  ros__parameters:
+    # 보정 모드(camera: RealSense 깊이 정합, wall: 벽면 직선 피팅) 및 토픽
+    mode: "camera"
+    scan_topic: "/scan"
+    depth_topic: "/camera/depth/image_emitter_on"
+    base_frame: "base"
+    lidar_frame: "lidar"
+
+    # 유효 거리(본체·6족 다리 반경 0.38m 제외) 및 깊이 벽면 높이 구간(m)
+    min_range: 0.38
+    max_range: 2.50
+    depth_min_z: 0.04
+    depth_max_z: 0.28
+
+    # 수집 프레임 수, 최소 수집 간격(s) 및 센서 동기 허용 시간차(s)
+    num_samples: 30
+    sample_interval: 0.10
+    max_sync_diff: 0.08
+
+    # 실측 높이(음수면 현재 TF z 유지) 및 wall 모드 실측 벽 수직 거리(m)
+    lidar_z: -1.0
+    front_wall_dist: 0.0
+    left_wall_dist: 0.0
+    right_wall_dist: 0.0
+
+    # 보정 완료 시 URDF 파일(lidar_joint) 자동 갱신 여부 및 대상 경로
+    apply_urdf: false
+    urdf_path: "src/xsting_description/urdf/xsting.urdf"
