@@ -1,0 +1,47 @@
+4a5
+> import cv2
+174c175
+<         extensions=["png"],
+---
+>         extensions=["png", "jpg"],  # xsting: jpg 데이터도 읽기
+322a324,342
+>         # xsting: 큰 사진(1280x720)은 아래 400x400 무작위 자르기로는 물체를 거의 놓침
+>         # -> 무작위로 줄인 뒤(작게 보이는 물체도 학습), 90% 는 관심 물체 하나가 들어가도록 자를 위치를 고름
+>         H0, W0 = img.shape[:2]
+>         if min(H0, W0) > 400:
+>             s = np.random.uniform(400.0 / min(H0, W0) * 1.02, 1.0)
+>             if s < 1.0:
+>                 img = cv2.resize(img, (int(W0 * s), int(H0 * s)), interpolation=cv2.INTER_AREA)
+>                 flatten_projected_cuboid = [[p[0] * s, p[1] * s] for p in flatten_projected_cuboid]
+>             H1, W1 = img.shape[:2]
+>             centers = [(o[8][0] * s, o[8][1] * s) for o in all_projected_cuboid_keypoints if o[8][0] > -50]
+>             if centers and np.random.rand() < 0.9:
+>                 cx_, cy_ = centers[np.random.randint(len(centers))]
+>                 x0 = int(np.clip(cx_ - np.random.uniform(60, 340), 0, W1 - 400))
+>                 y0 = int(np.clip(cy_ - np.random.uniform(60, 340), 0, H1 - 400))
+>             else:
+>                 x0, y0 = np.random.randint(0, W1 - 399), np.random.randint(0, H1 - 399)
+>             img = np.ascontiguousarray(img[y0:y0 + 400, x0:x0 + 400])
+>             flatten_projected_cuboid = [[p[0] - x0, p[1] - y0] for p in flatten_projected_cuboid]
+> 
+334c354
+<             img_to_save.save(f"debug/{img_name.replace('.png','_original.png')}")
+---
+>             img_to_save.save(f"debug/{os.path.splitext(img_name)[0] + '_original.png'}")
+345c365,366
+<                 A.GaussNoise(p=1),
+---
+>                 # xsting: albumentations 2.x 기본 노이즈(std 0.2~0.44)는 너무 셈 -> 원래 버전(1.2.1, var 10~50) 세기로
+>                 A.GaussNoise(std_range=(0.012, 0.028), p=1),
+388c409
+<                 f"debug/{img_name.replace('.png','_transformed.png')}"
+---
+>                 f"debug/{os.path.splitext(img_name)[0] + '_transformed.png'}"
+440c461
+<                 f"debug/{img_name.replace('.png','_beliefs.png')}",
+---
+>                 f"debug/{os.path.splitext(img_name)[0] + '_beliefs.png'}",
+449c470
+<                 f"debug/{img_name.replace('.png','_affinities.png')}",
+---
+>                 f"debug/{os.path.splitext(img_name)[0] + '_affinities.png'}",
