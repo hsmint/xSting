@@ -1,0 +1,29 @@
+/**:
+  ros__parameters:
+    # YOLO 2D 검출 토픽과 1:1 매칭되는 깊이 영상 토픽 목록
+    detection_topics: ["camera/color/detections"]
+    depth_topics: ["camera/depth/image_emitter_on"]
+
+    # 통합 기준 좌표계 및 통합 3D 검출 발행 토픽
+    target_frame: "base"
+    output_topic: "/detections_3d"
+
+    # 분리 학습된 퍽·박스 5개 클래스 이름 (class_id 0~4 순서)
+    class_names: ["red_square", "green_square",
+                  "red_cylinder", "green_cylinder", "paper_box"]
+
+    # 스테레오 컬러 오프셋(m) 및 전경 점군 추출·표면 보정 파라미터
+    color_offset_x: -0.015
+    min_depth: 0.08
+    max_depth: 2.50
+    roi_scale: 0.90
+    depth_tol: 0.08
+    puck_depth_tol: 0.035
+    box_top_z: 0.0487
+    support_margin: 0.004
+    min_points: 20
+    max_points: 400
+
+    # 두 카메라 YOLO 검출 점군 통합 최대 거리(m) 및 유효 시간차(s)
+    merge_dist: 0.10
+    merge_timeout: 0.10

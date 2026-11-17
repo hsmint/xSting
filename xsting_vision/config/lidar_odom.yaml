@@ -1,0 +1,41 @@
+/**:
+  ros__parameters:
+    # 좌표계 및 입출력 토픽 설정
+    odom_frame: "odom"
+    base_frame: "base"
+    lidar_frame: "lidar"
+    scan_in_topic: "/scan"
+    scan_out_topic: "/scan_filtered"
+    pointcloud_out_topic: "/lidar/pointcloud"
+    vo_odom_in_topic: "/visual_slam/tracking/vo_odometry"
+    slam_status_topic: "/visual_slam/status"
+    fused_odom_out_topic: "/visual_slam/tracking/odometry"
+
+    # 최하단 와플판 중앙 천장형 장착(0, 0, 0.0245, roll=π) 기준 본체·6족 다리 필터
+    lidar_z_in_base: 0.0245
+    lidar_roll_in_base: 3.14159265359
+    min_range_m: 0.12
+    max_range_m: 12.0
+    body_half_x_m: 0.145
+    body_half_y_m: 0.145
+    leg_mask_radius_m: 0.048
+    tibia_length_m: 0.135
+    fallback_leg_half_x_m: 0.18
+    fallback_leg_max_y_m: 0.31
+
+    # 2D Point-to-Line ICP 스캔 매칭 + 근접 벽 cuVSLAM odom 튐 방지 설정
+    enable_odom_fusion: true
+    publish_odom_tf: true
+    publish_pointcloud: true
+    near_wall_dist_m: 0.35
+    max_vo_speed_mps: 1.2
+    max_vo_yaw_rate_rps: 2.5
+    vo_icp_max_pos_diff_m: 0.06
+    vo_icp_max_yaw_diff_rad: 0.12
+    min_icp_inliers: 20
+    max_icp_points: 240
+    keyframe_dist_m: 0.15
+    keyframe_angle_rad: 0.18
+
+    # nvblox 2행 elevation 점군 반각 (lidar_vertical_fov_rad: 0.04 내부)
+    nvblox_half_elevation_rad: 0.01
