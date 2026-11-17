@@ -1,0 +1,6 @@
+{
+  "model": "gpt-6.1-sol",
+  "effort": "low",
+  "guard": false,
+  "note": "ROS 로그(~/.ros/log)의 시작 줄에서 나중에 채움"
+}

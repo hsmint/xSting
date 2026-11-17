@@ -1,0 +1,7 @@
+{
+  "decider": "llm",
+  "model": "gpt-6-luna",
+  "effort": "low",
+  "guard": false,
+  "reasoning_summary": "auto"
+}

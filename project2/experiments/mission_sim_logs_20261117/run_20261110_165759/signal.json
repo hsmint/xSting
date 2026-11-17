@@ -1,0 +1,30 @@
+{
+  "barcode": {
+    "code": "P2-04",
+    "order": "desc",
+    "valid": true
+  },
+  "signal": {
+    "sequence": [
+      "G",
+      "R",
+      "Y",
+      "R",
+      "Y",
+      "G",
+      "G",
+      "G",
+      "Y",
+      "G",
+      "Y",
+      "R"
+    ],
+    "counts": {
+      "R": 3,
+      "Y": 4,
+      "G": 5
+    },
+    "valid": true,
+    "errors": []
+  }
+}

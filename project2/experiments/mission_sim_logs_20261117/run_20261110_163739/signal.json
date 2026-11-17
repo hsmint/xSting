@@ -1,0 +1,30 @@
+{
+  "barcode": {
+    "code": "P2-03",
+    "order": "asc",
+    "valid": true
+  },
+  "signal": {
+    "sequence": [
+      "G",
+      "G",
+      "G",
+      "R",
+      "Y",
+      "R",
+      "G",
+      "R",
+      "R",
+      "G",
+      "R",
+      "R"
+    ],
+    "counts": {
+      "R": 6,
+      "Y": 1,
+      "G": 5
+    },
+    "valid": true,
+    "errors": []
+  }
+}

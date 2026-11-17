@@ -1,0 +1,7 @@
+{
+  "decider": "script",
+  "model": "script",
+  "effort": null,
+  "guard": false,
+  "reasoning_summary": "auto"
+}

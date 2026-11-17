@@ -1,0 +1,38 @@
+[INFO] [1794130338.308956418] [image_test_subscriber]: ---------------------------------------------
+[INFO] [1794130338.309001156] [image_test_subscriber]: front_camera/color/image_raw    30 Hz   79.1 MB/s  latency avg   1.44 max   2.13 ms  backend=cuda  1280x720 rgb8  center=90
+[INFO] [1794130338.309032009] [image_test_subscriber]: front_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.85 max   1.00 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794130338.309038332] [image_test_subscriber]: front_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.69 max   0.84 ms  backend=cuda  1280x720 mono8  center=24
+[INFO] [1794130338.309043706] [image_test_subscriber]: front_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   1.03 max   1.86 ms  backend=cuda  1280x720 mono8  center=27
+[INFO] [1794130338.309047944] [image_test_subscriber]: rear_camera/color/image_raw     30 Hz   79.1 MB/s  latency avg   1.39 max   1.76 ms  backend=cuda  1280x720 rgb8  center=118
+[INFO] [1794130338.309051845] [image_test_subscriber]: rear_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.59 max   1.03 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794130338.309055844] [image_test_subscriber]: rear_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.77 max   1.41 ms  backend=cuda  1280x720 mono8  center=52
+[INFO] [1794130338.309061601] [image_test_subscriber]: rear_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.89 max   1.40 ms  backend=cuda  1280x720 mono8  center=53
+
+[INFO] [1794131144.714444168] [image_test_subscriber]: front_camera/color/image_raw    30 Hz   79.1 MB/s  latency avg   1.44 max   2.15 ms  backend=cuda  1280x720 rgb8  center=78
+[INFO] [1794131144.714453827] [image_test_subscriber]: front_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.68 max   1.24 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794131144.714458510] [image_test_subscriber]: front_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.96 max   1.62 ms  backend=cuda  1280x720 mono8  center=30
+[INFO] [1794131144.714462793] [image_test_subscriber]: front_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.93 max   1.31 ms  backend=cuda  1280x720 mono8  center=28
+[INFO] [1794131144.714466669] [image_test_subscriber]: rear_camera/color/image_raw     30 Hz   79.1 MB/s  latency avg   1.80 max   2.22 ms  backend=cuda  1280x720 rgb8  center=125
+[INFO] [1794131144.714488906] [image_test_subscriber]: rear_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.51 max   0.65 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794131144.714493679] [image_test_subscriber]: rear_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   1.00 max   2.13 ms  backend=cuda  1280x720 mono8  center=53
+[INFO] [1794131144.714497754] [image_test_subscriber]: rear_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   1.26 max   2.01 ms  backend=cuda  1280x720 mono8  center=54
+
+
+[INFO] [1794131235.580320054] [image_test_subscriber]: ---------------------------------------------
+[INFO] [1794131235.580340170] [image_test_subscriber]: front_camera/color/image_raw    30 Hz   79.1 MB/s  latency avg   1.33 max   1.67 ms  backend=cuda  1280x720 rgb8  center=76
+[INFO] [1794131235.580350986] [image_test_subscriber]: front_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.65 max   1.58 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794131235.580356465] [image_test_subscriber]: front_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.76 max   1.29 ms  backend=cuda  1280x720 mono8  center=30
+[INFO] [1794131235.580361250] [image_test_subscriber]: front_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.92 max   1.44 ms  backend=cuda  1280x720 mono8  center=28
+[INFO] [1794131235.580366526] [image_test_subscriber]: rear_camera/color/image_raw     30 Hz   79.1 MB/s  latency avg   1.44 max   2.15 ms  backend=cuda  1280x720 rgb8  center=125
+[INFO] [1794131235.580371193] [image_test_subscriber]: rear_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.68 max   2.10 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794131235.580399043] [image_test_subscriber]: rear_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.94 max   1.85 ms  backend=cuda  1280x720 mono8  center=54
+[INFO] [1794131235.580404668] [image_test_subscriber]: rear_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   1.03 max   1.70 ms  backend=cuda  1280x720 mono8  center=55
+
+[INFO] [1794131293.315819754] [image_test_subscriber]: front_camera/color/image_raw    30 Hz   79.1 MB/s  latency avg   1.02 max   1.52 ms  backend=cuda  1280x720 rgb8  center=79
+[INFO] [1794131293.315833089] [image_test_subscriber]: front_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.41 max   0.67 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794131293.315839352] [image_test_subscriber]: front_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.81 max   1.48 ms  backend=cuda  1280x720 mono8  center=29
+[INFO] [1794131293.315844565] [image_test_subscriber]: front_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.75 max   1.09 ms  backend=cuda  1280x720 mono8  center=27
+[INFO] [1794131293.315849800] [image_test_subscriber]: rear_camera/color/image_raw     30 Hz   79.1 MB/s  latency avg   0.96 max   2.06 ms  backend=cuda  1280x720 rgb8  center=122
+[INFO] [1794131293.315854749] [image_test_subscriber]: rear_camera/depth/image_rect_raw  30 Hz   52.7 MB/s  latency avg   0.32 max   0.62 ms  backend=cuda  1280x720 16UC1  center=0
+[INFO] [1794131293.315860255] [image_test_subscriber]: rear_camera/infra1/image_rect_raw  30 Hz   26.4 MB/s  latency avg   1.04 max   2.09 ms  backend=cuda  1280x720 mono8  center=50
+[INFO] [1794131293.315864886] [image_test_subscriber]: rear_camera/infra2/image_rect_raw  30 Hz   26.4 MB/s  latency avg   0.59 max   1.75 ms  backend=cuda  1280x720 mono8  center=50

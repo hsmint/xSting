@@ -1,0 +1,12 @@
+{
+  "decider": "llm",
+  "model": "gpt-6-luna",
+  "effort": "low",
+  "guard": true,
+  "mission_time_s": 1800.0,
+  "repeat_limit": 3,
+  "record_media": false,
+  "reasoning_summary": "auto",
+  "temperature": null,
+  "top_p": null
+}

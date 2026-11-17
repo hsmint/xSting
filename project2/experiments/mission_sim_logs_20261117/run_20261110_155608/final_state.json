@@ -1,0 +1,971 @@
+{
+  "halt": null,
+  "state": {
+    "meta": {
+      "seq": 28,
+      "stamp": "2026-11-10T06:59:52Z"
+    },
+    "phase": "DONE",
+    "robot": {
+      "status": "OK",
+      "error": null,
+      "here": "HOME",
+      "pose": {
+        "x": 734,
+        "y": 950,
+        "yaw": 180
+      },
+      "localization": "ok",
+      "arm_stowed": true,
+      "gripper": "empty",
+      "home_stopped": true,
+      "storage": [
+        {
+          "slot": 0,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 1,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 2,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 3,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 4,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 5,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 6,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 7,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 8,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 9,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 10,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        },
+        {
+          "slot": 11,
+          "state": "empty",
+          "puck_id": null,
+          "color": null,
+          "shape": null
+        }
+      ]
+    },
+    "world": {
+      "barcode": {
+        "code": "P2-03",
+        "order": "asc",
+        "valid": true
+      },
+      "signal": {
+        "sequence": [
+          "R",
+          "G",
+          "G",
+          "R",
+          "Y",
+          "Y",
+          "G",
+          "R",
+          "Y",
+          "R",
+          "G",
+          "G"
+        ],
+        "counts": {
+          "R": 4,
+          "Y": 3,
+          "G": 5
+        },
+        "valid": true,
+        "errors": []
+      },
+      "boxes": {
+        "S1": {
+          "status": "CLEARED",
+          "loaded": [
+            1,
+            6
+          ]
+        },
+        "S2": {
+          "status": "CLEARED",
+          "loaded": [
+            11,
+            5
+          ]
+        },
+        "S3": {
+          "status": "CLEARED",
+          "loaded": [
+            7,
+            3
+          ]
+        },
+        "S4": {
+          "status": "CLEARED",
+          "loaded": [
+            4,
+            9
+          ]
+        },
+        "S5": {
+          "status": "CLEARED",
+          "loaded": [
+            2,
+            0
+          ]
+        },
+        "S6": {
+          "status": "CLEARED",
+          "loaded": [
+            10,
+            8
+          ]
+        }
+      },
+      "pucks": [
+        {
+          "id": 0,
+          "color": "G",
+          "shape": "cylinder",
+          "conf": 0.89,
+          "origin": "S5",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L3",
+            "cell": 4,
+            "offset_mm": [
+              1.0,
+              2.8
+            ]
+          }
+        },
+        {
+          "id": 1,
+          "color": "G",
+          "shape": "box",
+          "conf": 0.91,
+          "origin": "S1",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L3",
+            "cell": 0,
+            "offset_mm": [
+              2.3,
+              -3.3
+            ]
+          }
+        },
+        {
+          "id": 2,
+          "color": "G",
+          "shape": "cylinder",
+          "conf": 0.95,
+          "origin": "S5",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L3",
+            "cell": 6,
+            "offset_mm": [
+              -2.1,
+              1.9
+            ]
+          }
+        },
+        {
+          "id": 3,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.88,
+          "origin": "S3",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L1",
+            "cell": 4,
+            "offset_mm": [
+              0.6,
+              -0.9
+            ]
+          }
+        },
+        {
+          "id": 4,
+          "color": "G",
+          "shape": "box",
+          "conf": 0.98,
+          "origin": "S4",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L3",
+            "cell": 8,
+            "offset_mm": [
+              -3.1,
+              -2.2
+            ]
+          }
+        },
+        {
+          "id": 5,
+          "color": "G",
+          "shape": "box",
+          "conf": 0.89,
+          "origin": "S2",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L3",
+            "cell": 2,
+            "offset_mm": [
+              0.9,
+              -0.1
+            ]
+          }
+        },
+        {
+          "id": 6,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.89,
+          "origin": "S1",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L2",
+            "cell": 0,
+            "offset_mm": [
+              2.5,
+              -3.2
+            ]
+          }
+        },
+        {
+          "id": 7,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.88,
+          "origin": "S3",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L1",
+            "cell": 0,
+            "offset_mm": [
+              1.1,
+              0.9
+            ]
+          }
+        },
+        {
+          "id": 8,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.93,
+          "origin": "S6",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L2",
+            "cell": 8,
+            "offset_mm": [
+              3.3,
+              0.3
+            ]
+          }
+        },
+        {
+          "id": 9,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.93,
+          "origin": "S4",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L1",
+            "cell": 8,
+            "offset_mm": [
+              -1.0,
+              3.8
+            ]
+          }
+        },
+        {
+          "id": 10,
+          "color": "R",
+          "shape": "cylinder",
+          "conf": 0.96,
+          "origin": "S6",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L2",
+            "cell": 6,
+            "offset_mm": [
+              -3.6,
+              0.6
+            ]
+          }
+        },
+        {
+          "id": 11,
+          "color": "R",
+          "shape": "box",
+          "conf": 0.94,
+          "origin": "S2",
+          "where": "placed",
+          "slot": null,
+          "placed": {
+            "t": "L2",
+            "cell": 2,
+            "offset_mm": [
+              -2.8,
+              1.6
+            ]
+          }
+        }
+      ],
+      "locations": {
+        "L1": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "occupied",
+              "puck_id": 7
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "occupied",
+              "puck_id": 3
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "occupied",
+              "puck_id": 9
+            }
+          ],
+          "verified": {
+            "items": [
+              {
+                "puck_id": 7,
+                "cell": 0,
+                "ok": true,
+                "offset_mm": [
+                  1.1,
+                  0.9
+                ],
+                "seen_puck_id": 7
+              },
+              {
+                "puck_id": 3,
+                "cell": 4,
+                "ok": true,
+                "offset_mm": [
+                  0.6,
+                  -0.9
+                ],
+                "seen_puck_id": 3
+              },
+              {
+                "puck_id": 9,
+                "cell": 8,
+                "ok": true,
+                "offset_mm": [
+                  -1.0,
+                  3.8
+                ],
+                "seen_puck_id": 9
+              }
+            ],
+            "extra": [],
+            "cells": [
+              {
+                "cell": 0,
+                "state": "occupied",
+                "puck_id": 7,
+                "color": "R",
+                "shape": "box",
+                "offset_mm": [
+                  1.1,
+                  0.9
+                ]
+              },
+              {
+                "cell": 1,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 2,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 3,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 4,
+                "state": "occupied",
+                "puck_id": 3,
+                "color": "R",
+                "shape": "cylinder",
+                "offset_mm": [
+                  0.6,
+                  -0.9
+                ]
+              },
+              {
+                "cell": 5,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 6,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 7,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 8,
+                "state": "occupied",
+                "puck_id": 9,
+                "color": "R",
+                "shape": "box",
+                "offset_mm": [
+                  -1.0,
+                  3.8
+                ]
+              }
+            ],
+            "stamp": "2026-11-10T06:59:52Z"
+          }
+        },
+        "L2": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "occupied",
+              "puck_id": 6
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "occupied",
+              "puck_id": 11
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "occupied",
+              "puck_id": 10
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "occupied",
+              "puck_id": 8
+            }
+          ],
+          "verified": {
+            "items": [
+              {
+                "puck_id": 6,
+                "cell": 0,
+                "ok": true,
+                "offset_mm": [
+                  2.5,
+                  -3.2
+                ],
+                "seen_puck_id": 6
+              },
+              {
+                "puck_id": 11,
+                "cell": 2,
+                "ok": true,
+                "offset_mm": [
+                  -2.8,
+                  1.6
+                ],
+                "seen_puck_id": 11
+              },
+              {
+                "puck_id": 10,
+                "cell": 6,
+                "ok": true,
+                "offset_mm": [
+                  -3.6,
+                  0.6
+                ],
+                "seen_puck_id": 10
+              },
+              {
+                "puck_id": 8,
+                "cell": 8,
+                "ok": true,
+                "offset_mm": [
+                  3.3,
+                  0.3
+                ],
+                "seen_puck_id": 8
+              }
+            ],
+            "extra": [],
+            "cells": [
+              {
+                "cell": 0,
+                "state": "occupied",
+                "puck_id": 6,
+                "color": "R",
+                "shape": "box",
+                "offset_mm": [
+                  2.5,
+                  -3.2
+                ]
+              },
+              {
+                "cell": 1,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 2,
+                "state": "occupied",
+                "puck_id": 11,
+                "color": "R",
+                "shape": "box",
+                "offset_mm": [
+                  -2.8,
+                  1.6
+                ]
+              },
+              {
+                "cell": 3,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 4,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 5,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 6,
+                "state": "occupied",
+                "puck_id": 10,
+                "color": "R",
+                "shape": "cylinder",
+                "offset_mm": [
+                  -3.6,
+                  0.6
+                ]
+              },
+              {
+                "cell": 7,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 8,
+                "state": "occupied",
+                "puck_id": 8,
+                "color": "R",
+                "shape": "box",
+                "offset_mm": [
+                  3.3,
+                  0.3
+                ]
+              }
+            ],
+            "stamp": "2026-11-10T06:59:28Z"
+          }
+        },
+        "L3": {
+          "cells": [
+            {
+              "cell": 0,
+              "state": "occupied",
+              "puck_id": 1
+            },
+            {
+              "cell": 1,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 2,
+              "state": "occupied",
+              "puck_id": 5
+            },
+            {
+              "cell": 3,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 4,
+              "state": "occupied",
+              "puck_id": 0
+            },
+            {
+              "cell": 5,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 6,
+              "state": "occupied",
+              "puck_id": 2
+            },
+            {
+              "cell": 7,
+              "state": "empty",
+              "puck_id": null
+            },
+            {
+              "cell": 8,
+              "state": "occupied",
+              "puck_id": 4
+            }
+          ],
+          "verified": {
+            "items": [
+              {
+                "puck_id": 1,
+                "cell": 0,
+                "ok": true,
+                "offset_mm": [
+                  2.3,
+                  -3.3
+                ],
+                "seen_puck_id": 1
+              },
+              {
+                "puck_id": 5,
+                "cell": 2,
+                "ok": true,
+                "offset_mm": [
+                  0.9,
+                  -0.1
+                ],
+                "seen_puck_id": 5
+              },
+              {
+                "puck_id": 0,
+                "cell": 4,
+                "ok": true,
+                "offset_mm": [
+                  1.0,
+                  2.8
+                ],
+                "seen_puck_id": 0
+              },
+              {
+                "puck_id": 2,
+                "cell": 6,
+                "ok": true,
+                "offset_mm": [
+                  -2.1,
+                  1.9
+                ],
+                "seen_puck_id": 2
+              },
+              {
+                "puck_id": 4,
+                "cell": 8,
+                "ok": true,
+                "offset_mm": [
+                  -3.1,
+                  -2.2
+                ],
+                "seen_puck_id": 4
+              }
+            ],
+            "extra": [],
+            "cells": [
+              {
+                "cell": 0,
+                "state": "occupied",
+                "puck_id": 1,
+                "color": "G",
+                "shape": "box",
+                "offset_mm": [
+                  2.3,
+                  -3.3
+                ]
+              },
+              {
+                "cell": 1,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 2,
+                "state": "occupied",
+                "puck_id": 5,
+                "color": "G",
+                "shape": "box",
+                "offset_mm": [
+                  0.9,
+                  -0.1
+                ]
+              },
+              {
+                "cell": 3,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 4,
+                "state": "occupied",
+                "puck_id": 0,
+                "color": "G",
+                "shape": "cylinder",
+                "offset_mm": [
+                  1.0,
+                  2.8
+                ]
+              },
+              {
+                "cell": 5,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 6,
+                "state": "occupied",
+                "puck_id": 2,
+                "color": "G",
+                "shape": "cylinder",
+                "offset_mm": [
+                  -2.1,
+                  1.9
+                ]
+              },
+              {
+                "cell": 7,
+                "state": "empty",
+                "puck_id": null,
+                "color": null,
+                "shape": null,
+                "offset_mm": null
+              },
+              {
+                "cell": 8,
+                "state": "occupied",
+                "puck_id": 4,
+                "color": "G",
+                "shape": "box",
+                "offset_mm": [
+                  -3.1,
+                  -2.2
+                ]
+              }
+            ],
+            "stamp": "2026-11-10T06:59:06Z"
+          }
+        }
+      }
+    },
+    "last_action": {
+      "name": "GOTO",
+      "args": {
+        "t": "HOME"
+      },
+      "success": true,
+      "error": null,
+      "retries": 0,
+      "result": {
+        "success": true,
+        "dist_to_target_mm": 0,
+        "in_zone": true,
+        "stopped_s": 3.0,
+        "robot": {
+          "status": "OK",
+          "error": null,
+          "here": "HOME",
+          "pose": {
+            "x": 734,
+            "y": 950,
+            "yaw": 180
+          },
+          "localization": "ok",
+          "arm_stowed": true,
+          "gripper": "empty"
+        }
+      }
+    },
+    "memory": {
+      "plan": {
+        "turn": 28,
+        "assignment": "P2-03 asc: L1=Y×3(box), L2=R×4 검증 완료, L3=G×5 검증 완료. 모든 퍽 배치 및 검증 완료.",
+        "route": [],
+        "reason": "L1→HOME 약 3.7m; 모든 하차 박스 검증 완료."
+      }
+    }
+  }
+}

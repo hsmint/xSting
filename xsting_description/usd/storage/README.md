@@ -1,4 +1,15 @@
-# 바스킷 수납 학습용 충돌 모델
+<div align="center">
+
+<p><strong>XSTING MK2 · SIMULATION ASSETS</strong></p>
+<h1>수납 충돌 모델</h1>
+<p>12칸 바스킷의 정밀 접촉 형상, 퍽 낙하 검사와 센서 구성</p>
+<p><a href="../../../README.md">프로젝트 홈</a> &nbsp; · &nbsp; <a href="../../README.md">로봇 모델</a></p>
+
+</div>
+
+---
+
+**바로 가기** &nbsp; [퍽과 검사 장면](#section-1) · [재생성](#section-2) · [카메라 및 초음파 방식 거리 센서](#section-3)
 
 `../xsting_storage_training.usda`는 이동형 학습 로봇, `../xsting_storage_manipulation.usda`는
 고정 베이스 팔 조작 로봇입니다. 기존 파일은 그대로 두고 몸체 충돌만 교체합니다.
@@ -20,6 +31,8 @@
 - 팔 마운트는 convex decomposition이며, 팔·다리는 기존 모델을 사용합니다.
 - SDF 접촉용으로 GPU PhysX를 사용하세요. 테스트 장면은 GPU dynamics, TGS, 240 Hz로 설정했습니다.
   대규모 병렬 환경의 처리량과 VRAM 사용량은 별도 측정이 필요합니다.
+
+<a id="section-1"></a>
 
 ## 퍽과 검사 장면
 
@@ -43,9 +56,11 @@ GPU PhysX에서 각 형태 12개, 5 mm 높이 낙하, 240 Hz × 720 step(3초)�
 모든 자세·속도에서 동일한 오차를 보증하지 않습니다.
 좁은 틈을 이용한 기울임 삽입, 고속 충돌, 흔들리는 베이스 및 마찰 추정은 아직 별도 검증 대상입니다.
 
+<a id="section-2"></a>
+
 ## 재생성
 
-OpenUSD, trimesh, numpy, scipy, python-fcl이 있는 Python 환경에서:
+OpenUSD, trimesh, numpy, scipy, python-fcl이 있는 Python 환경에서 저장소 루트(`~/mk2_ws/src/xSting`)를 기준으로 실행합니다.
 
 ```bash
 python xsting_description/scripts/build_storage_usd.py
@@ -61,6 +76,8 @@ Isaac Sim에서 검사 장면을 연 뒤 Script Editor로 `scripts/check_storage
 cuMotion이 바스킷 내부까지 정밀 삽입 계획을 지원한다고 검증한 것은 아닙니다.
 
 참고: [NVIDIA SDF 충돌 지원](https://docs.omniverse.nvidia.com/kit/docs/omni_physics/110.0/dev_guide/rigid_bodies_articulations/collision.html).
+
+<a id="section-3"></a>
 
 ## 카메라 및 초음파 방식 거리 센서
 

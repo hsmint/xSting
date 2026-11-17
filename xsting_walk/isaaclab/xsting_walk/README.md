@@ -1,6 +1,19 @@
-# xSting Hexapod High-Precision Omnidirectional Walk & Turn (`xsting_walk`)
+<div align="center">
+
+<p><strong>XSTING MK2 · POLICY TRAINING</strong></p>
+<h1>Omnidirectional Walk &amp; Turn</h1>
+<p>Isaac Lab · skrl PPO · Fabric-carpet locomotion</p>
+<p><a href="../../../README.md">Project home</a> &nbsp; · &nbsp; <a href="../../README.md">ROS 2 deployment</a></p>
+
+</div>
+
+---
+
+**On this page** &nbsp; [Included Files](#section-1) · [Quick Start](#section-2)
 
 Isaac Lab Direct RL (`skrl` PPO + `PhysX` + Body `IMU`) locomotion package for the **xSting** hexapod on fabric carpet.
+
+<a id="section-1"></a>
 
 ## Included Files
 
@@ -12,12 +25,18 @@ Isaac Lab Direct RL (`skrl` PPO + `PhysX` + Body `IMU`) locomotion package for t
   - `scripts/train.py`: Single-GPU training entrypoint.
   - `scripts/train_cluster.py`: Multi-node distributed GPU training launcher with automatic SSH reverse tunnel and per-node free-VRAM env scaling.
   - `checkpoints/best_agent.pt`: Final high-precision trained policy checkpoint (`25,600` iterations across `1,408` envs).
-- `xsting_description/`: Robot USD (`usd/xsting_training.usda`, `usd/xsting_meshes.usdc`), URDF, and joint/sensor configs.
+- `../../xsting_description/` (from the `isaaclab/` directory): Shared robot USD (`usd/xsting_training.usda`, `usd/xsting_meshes.usdc`), URDF, and joint/sensor configs.
 - `logs/skrl/xsting_carpet_walk/2026-11-15_08-19-46_ppo_torch/`: Final training run logs, config dump (`params/`), TensorBoard events, and `checkpoints/best_agent.pt`.
+
+<a id="section-2"></a>
 
 ## Quick Start
 
-Extract `xsting_walk_bundle.zip` and run from the extracted root directory:
+Run from the `isaaclab/` directory in this repository. The examples assume Isaac Lab is installed at `/opt/IsaacLab`; adjust the Python executable to your installation.
+
+```bash
+cd ~/mk2_ws/src/xSting/xsting_walk/isaaclab
+```
 
 ### 1. Play Trained Policy (GUI)
 

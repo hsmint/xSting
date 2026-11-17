@@ -1,4 +1,15 @@
-# mk2_motor
+<div align="center">
+
+<p><strong>XSTING MK2 · EMBEDDED CONTROL</strong></p>
+<h1>OpenCR 모터 펌웨어</h1>
+<p>3족 × 3관절 · 9개 Dynamixel · USB 제어 테이블</p>
+<p><a href="../../README.md">프로젝트 홈</a> &nbsp; · &nbsp; <a href="../../xsting_description/README.md">관절 구성</a></p>
+
+</div>
+
+---
+
+**바로 가기** &nbsp; [파일 구성](#section-1) · [USB 제어 테이블](#section-2) · [IMU](#section-3)
 
 OpenCR 한 대에 **3족 × 관절 3개 = 모터 9개**를 연결한다.
 `mk1_arm`의 USB DYNAMIXEL Slave / 모터 Sync Read·Write 구조를 사용한다.
@@ -12,6 +23,8 @@ OpenCR 한 대에 **3족 × 관절 3개 = 모터 9개**를 연결한다.
 
 설정과 주소는 `include/xSting.h`에 있다. Arduino IDE에서 `mk2_motor.ino`를
 열고 OpenCR 보드와 Dynamixel2Arduino 라이브러리로 빌드한다.
+
+<a id="section-1"></a>
 
 ## 파일 구성
 
@@ -30,6 +43,8 @@ IMU는 `mk1_motor` 인터페이스를 참고하되 비동기 재보정과 실제
 
 범퍼는 `mk1_arm`과 동일하게 OLLO 포트 3·4를 사용한다.
 사용자 LED 4개는 `BDPIN_GPIO_4/6/8/10`, 버튼은 OpenCR 내장 버튼 2개다.
+
+<a id="section-2"></a>
 
 ## USB 제어 테이블
 
@@ -89,6 +104,8 @@ WARNNING 상태에서 평균 전압이 10.5V 미만이면 DYNAMIXEL 전원을 �
 USB 전원만 연결되어 처음부터 전압이 5V 이하이면 OFF 상태에서 대기한다.
 전압 임계값은 `include/xSting.h`, 확인 횟수와 상태 전이는 `src/diagnosis.cpp`에 있다.
 배터리 잔량은 10.5~12.3V를 0~100%로 환산하고 범위를 제한한다.
+
+<a id="section-3"></a>
 
 ## IMU
 

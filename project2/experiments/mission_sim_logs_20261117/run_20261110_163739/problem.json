@@ -1,0 +1,78 @@
+{
+  "barcode": "P2-03",
+  "signal": "GGGRYRGRRGRR",
+  "boxes": {
+    "S1": [
+      {
+        "id": 11,
+        "color": "G",
+        "shape": "box"
+      },
+      {
+        "id": 1,
+        "color": "G",
+        "shape": "cylinder"
+      }
+    ],
+    "S2": [
+      {
+        "id": 0,
+        "color": "G",
+        "shape": "cylinder"
+      },
+      {
+        "id": 7,
+        "color": "R",
+        "shape": "box"
+      }
+    ],
+    "S3": [
+      {
+        "id": 3,
+        "color": "R",
+        "shape": "cylinder"
+      },
+      {
+        "id": 5,
+        "color": "R",
+        "shape": "cylinder"
+      }
+    ],
+    "S4": [
+      {
+        "id": 2,
+        "color": "R",
+        "shape": "cylinder"
+      },
+      {
+        "id": 9,
+        "color": "G",
+        "shape": "box"
+      }
+    ],
+    "S5": [
+      {
+        "id": 6,
+        "color": "G",
+        "shape": "cylinder"
+      },
+      {
+        "id": 10,
+        "color": "R",
+        "shape": "cylinder"
+      }
+    ],
+    "S6": [
+      {
+        "id": 4,
+        "color": "R",
+        "shape": "cylinder"
+      },
+      {
+        "id": 8,
+        "color": "G",
+        "shape": "box"
+      }
+    ]
+  }
+}
