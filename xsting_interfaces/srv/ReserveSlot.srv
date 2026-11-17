@@ -1,8 +1,0 @@
-string task_id
-string slot_id
-uint64 expected_version
----
-bool success
-uint64 version
-string reservation_id
-string message
