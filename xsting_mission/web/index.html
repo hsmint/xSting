@@ -295,6 +295,10 @@ async function poll() {
     S = await (await fetch('/state')).json();
     document.getElementById('status').textContent = `가짜 로봇 연결됨 · ${S.time_scale}배속` + (S.paused ? ' · ⏸ 일시정지 중' : '');
     draw(); renderPanel();
+    // "판단 요청함" 카드의 기다린 시간
+    document.querySelectorAll('[data-since]').forEach(el => {
+      if (el.dataset.since) el.textContent = Math.max(0, Date.now() / 1000 - Number(el.dataset.since)).toFixed(0) + '초';
+    });
   } catch (e) {
     document.getElementById('status').textContent = '로봇 서버에 연결할 수 없음 (robot_command_server backend:=fake 실행 중인지 확인)';
   }
@@ -522,7 +526,13 @@ function usageOf(d) {
 const WHO = { ai: 'AI', rule: '규칙(테스트)', user: '사용자' };
 const whoOf = d => d.decider || (d.usage || d.raw_output || d.latency_s != null ? 'ai' : 'rule');
 // 태그 이름: AI는 모델 이름의 끝부분을 붙인다 (gpt-6-luna → AI-luna, gpt-6.1-sol → AI-sol)
-const modelTag = m => m ? 'AI-' + String(m).split('-').pop() : 'AI';
+// 태그 이름: OpenAI 모델은 끝부분(gpt-6-luna → AI-luna), 로컬 모델은 모델명-크기
+// (qwen3.5-9b-16k, qwen3.5:9b → qwen3.5-9b). 컨텍스트 표시(-16k)와 :latest는 뺀다
+const modelTag = m => {
+  if (!m) return 'AI';
+  const name = String(m).replace(/:latest$/, '').replace(/-\d+k$/i, '').replace(':', '-');
+  return name.startsWith('gpt-') ? 'AI-' + name.split('-').pop() : name;
+};
 const tagOf = d => whoOf(d) === 'ai' ? modelTag(d.model) : WHO[whoOf(d)];
 // ---------- 계획 ----------
 // 판단마다 함께 적힌 plan으로 현재 계획과 변경 이력을 그린다 (실시간·지난 판 보기 모두 같은 기록을 쓴다)
@@ -591,9 +601,10 @@ function renderDecisions() {
       && (!onlyCalc || (d.calcs && d.calcs.length))).map(([d, i]) => {
     const w = whoOf(d), id = `${d.run_id}:${i}`, u = usageOf(d), o = d.outcome;
     const open = decOpen.has(id) || (d === newest && !decClosed.has(id));
-    if (d.prefetch) {  // 미리 판단 진행 카드: 요청함 → 받음 → (실제 판단으로 교체) / 버림
-      const p = d.prefetch, label = { requested: '미리 판단 요청함', answered: '미리 판단 받음', discarded: '미리 판단 버림' }[p.status];
-      const detail = p.status === 'requested' ? `${esc(p.assume)} · 답 받는 중…`
+    if (d.prefetch) {  // 진행 카드: 판단 요청함 / 미리 판단 요청함 → 받음 → (실제 판단으로 교체) / 버림
+      const p = d.prefetch, label = { asking: '판단 요청함', requested: '미리 판단 요청함', answered: '미리 판단 받음', discarded: '미리 판단 버림' }[p.status];
+      const detail = p.status === 'asking' ? `${esc(tagOf(d))}에게 다음 행동을 물음 · 답 기다리는 중 <b class="mono" data-since="${d.t || ''}"></b>`
+        : p.status === 'requested' ? `${esc(p.assume)} · 답 받는 중…`
         : p.status === 'answered' ? `${esc(p.assume)} → <b>${esc(p.answer)}</b> · 로봇 결과 확인 중`
         : `${esc(p.reason || '')}`;
       return `<div class="dec pre${p.status === 'discarded' ? ' gone' : ''}"><div class="head"><span class="mono">#${d.turn}</span>

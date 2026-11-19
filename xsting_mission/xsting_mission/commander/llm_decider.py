@@ -53,6 +53,27 @@ def _sum_usage(usages):
     return total
 
 
+def _normalize_plan(plan):
+    """LLM이 적은 계획을 {assignment, route, reason, change} 형식으로 맞춘다 (없으면 None).
+
+    로컬 모델은 계획을 문자열 하나로 보내거나 route를 문자열로 보내기도 한다.
+    """
+    if plan is None:
+        return None
+    if not isinstance(plan, dict):  # 문자열 등: 내용은 reason에 남긴다
+        return {"assignment": "", "route": [], "reason": str(plan)[:500], "change": "",
+                "format_error": "plan이 객체가 아님"}
+    route = plan.get("route")
+    if isinstance(route, str):
+        route = [route]
+    elif not isinstance(route, list):
+        route = []
+    text = lambda value: "" if value is None else (value if isinstance(value, str)  # noqa: E731
+                                                   else json.dumps(value, ensure_ascii=False))
+    return {"assignment": text(plan.get("assignment")), "route": [text(step) for step in route],
+            "reason": text(plan.get("reason")), "change": text(plan.get("change"))}
+
+
 def _is_flagged(error):
     """OpenAI 안전 필터가 입력(프롬프트)을 걸러낸 400 오류인지."""
     message = str(error).lower()
@@ -182,7 +203,11 @@ class LlmDecider:
                 calc_args = json.loads(call.arguments)
             except json.JSONDecodeError:
                 calc_args = {}
-            result = compare_routes(self.arena_map, calc_args, sent_state)
+            try:
+                result = compare_routes(self.arena_map, calc_args, sent_state)
+            except Exception as error:  # 계산이 안 돼도 판단기는 멈추지 않고 이유를 돌려준다
+                self.logger.error(f"COMPARE_ROUTES failed: {error!r}")
+                result = {"error": f"계산 실패: {error!r}. routes 형식을 확인한다"}
             calcs.append({"routes": calc_args.get("routes"),
                           "result": result})
             self.log("calc", calcs[-1])
@@ -233,13 +258,18 @@ class LlmDecider:
             try:
                 args = json.loads(call.arguments)
             except json.JSONDecodeError:
-                error = f"BAD_ARGUMENTS {call.arguments!r}"
+                # 판을 멈추지 않고 BAD_ARGS로 거절되게 해서 다음 판단에서 다시 고르게 한다
+                args = {"_bad_arguments": call.arguments}
         if error:
             if not quiet:
                 self.publish_decision({**record, "decider": "ai",
                                        "error": error})
             raise LlmUnavailable(error)
 
+        # OpenAI는 도구 스키마(strict)를 강제하지만 로컬 모델(Ollama 등)은 강제하지 않는다.
+        # 형식이 틀려도 판단기가 죽지 않게 여기서 한 번에 정리한다 (인자는 노드가 계약으로 다시 검사)
+        if not isinstance(args, dict):  # 객체가 아니면 그대로 두어 BAD_ARGS로 거절되게 한다
+            args = {"_bad_arguments": args}
         # 계획은 상태에 남기고, 로봇에는 행동 인자만 보낸다
-        plan = args.pop("plan", None)
+        plan = _normalize_plan(args.pop("plan", None))
         return call.name, args, plan, record

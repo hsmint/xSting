@@ -14,7 +14,7 @@ from std_msgs.msg import String
 
 from xsting_interfaces.action import RobotCommand
 
-from ..core.contract import check_result
+from ..core.contract import check_args, check_result
 from ..core.planner import build_allocation_record
 from ..core.state import (ToolError, apply_result, check_location,
                           check_repeat, check_revisit, check_time,
@@ -333,6 +333,9 @@ class LlmCommander(Node):
         if decided is None:
             # 이번 판단에 보낸 상태 그대로 기록한다
             sent_state = copy.deepcopy(self.state)
+            # 답이 오기 전에도 화면에서 요청한 것을 볼 수 있게 카드를 띄운다 (답이 오면 실제 판단으로 바뀐다)
+            self.publish_decision({"decider": "ai", "name": None, "text": ["판단 요청함"],
+                                   "prefetch": {"status": "asking"}})
             decided = self.llm.llm_decide(sent_state)
         name, args, plan, record = decided
         self.set_plan(plan)
@@ -377,8 +380,13 @@ class LlmCommander(Node):
         state = self.state
         before_files = []
         after_files = []
+        # 인자가 계약과 다르면 로봇에 보내지 않는다. OpenAI는 도구 스키마(strict)를 강제하지만
+        # 로컬 모델(Ollama 등)은 강제하지 않아 필수 인자가 빠진 호출이 올 수 있다
+        arg_errors = check_args(name, args) if name in TOOL_NAMES else []
         if name not in TOOL_NAMES:
             result = {"success": False, "error": "UNKNOWN_TOOL"}
+        elif arg_errors:
+            result = {"success": False, "error": "BAD_ARGS", "message": "; ".join(arg_errors)}
         else:
             try:
                 # 시간·반복 한도, 재방문, 나눠 놓기는 guard와 관계없이 막는다

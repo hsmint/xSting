@@ -12,7 +12,7 @@ def _pending_prefetch_index(records, record):
     for index in range(len(records) - 1, -1, -1):
         prefetch = records[index].get("prefetch") or {}
         if (records[index].get("turn") == record.get("turn")
-                and prefetch.get("status") in ("requested", "answered")):
+                and prefetch.get("status") in ("requested", "answered", "asking")):
             return index
     return None
 

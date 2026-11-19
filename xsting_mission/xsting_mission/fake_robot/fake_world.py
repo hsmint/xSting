@@ -204,7 +204,7 @@ class FakeWorld(ArenaMap):
                  if record.get("decider") != "user"
                  and self.decisions[index].get("turn") == record.get("turn")
                  and (self.decisions[index].get("prefetch") or {}).get(
-                     "status") in ("requested", "answered")),
+                     "status") in ("requested", "answered", "asking")),
                 None)
             if index is None:
                 self.decisions.append(record)
